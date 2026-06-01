@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Dual-Stack IP Detection & Privacy Audit Tool — check your IPv4, IPv6, WebRTC leaks, proxy detection, and more." />
+  <title>ip.linkozen.com — IP Lookup & Privacy Audit</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans:  ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono:  ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'skeleton': 'shimmer 1.6s ease-in-out infinite',
+            'fade-in': 'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+            'scale-tap': 'scaleTap 0.15s ease-in-out',
+          },
+          keyframes: {
+            shimmer: {
+              '0%, 100%': { opacity: 1 },
+              '50%':    { opacity: 0.4 },
+            },
+            fadeIn: {
+              '0%':   { opacity: 0 },
+              '100%': { opacity: 1 },
+            },
+            slideUp: {
+              '0%':   { opacity: 0, transform: 'translateY(12px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+            scaleTap: {
+              '0%':   { transform: 'scale(1)' },
+              '50%':  { transform: 'scale(0.92)' },
+              '100%': { transform: 'scale(1)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ── Leaflet overrides ── */
+    #map { height: 340px; width: 100%; border-radius: 1rem; z-index: 0; }
+    .leaflet-control-zoom a {
+      border-radius: 0.5rem !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08) !important;
+    }
+
+    /* ── Skeleton pulse ── */
+    .skeleton-bar {
+      background-color: #e2e8f0;
+      border-radius: 0.5rem;
+      animation: shimmer 1.6s ease-in-out infinite;
+    }
+
+    /* ── Custom scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================================================================ -->
+  <!--  HEADER                                                           -->
+  <!-- ================================================================ -->
+  <header class="bg-white border-b border-slate-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm">
+          IP
+        </div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-900 leading-tight" data-i18n="app.title">IP Lookup</h1>
+          <p class="text-xs text-slate-400 leading-tight" data-i18n="app.subtitle">Dual-Stack Detection &amp; Privacy Audit</p>
+        </div>
+      </div>
+
+      <!-- Lang switcher -->
+      <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+        <button id="btn-lang-en"
+                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-slate-900 shadow-sm"
+                onclick="switchLanguage('en')">
+          EN
+        </button>
+        <button id="btn-lang-zh"
+                class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-slate-500 hover:text-slate-700"
+                onclick="switchLanguage('zh')">
+          中文
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5 px-4">
+    <div class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!--  MAIN GRID                                                        -->
+  <!-- ================================================================ -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
+
+      <!-- ============================================================ -->
+      <!--  LEFT COLUMN  (3/4 on lg)                                     -->
+      <!-- ============================================================ -->
+      <div class="lg:col-span-3 space-y-5">
+
+        <!-- ── IP Cards Row ──────────────────────────────────────── -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- ·· IPv4 Card ·· -->
+          <div id="card-ipv4"
+               class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-fade-in">
+            <!-- Skeleton -->
+            <div id="skel-ipv4" class="space-y-3">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-600">IPv4</span>
+                <div class="skeleton-bar h-4 w-16"></div>
+              </div>
+              <div class="skeleton-bar h-10 w-full"></div>
+              <div class="skeleton-bar h-4 w-3/4"></div>
+              <div class="skeleton-bar h-4 w-1/2"></div>
+            </div>
+            <!-- Data (hidden initially) -->
+            <div id="data-ipv4" class="hidden space-y-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-600">IPv4</span>
+                <button class="copy-btn px-3 py-1.5 text-xs font-medium rounded-lg
+                               bg-slate-100 text-slate-600 hover:bg-slate-200
+                               active:scale-95 transition-all duration-150 flex items-center gap-1"
+                        data-copy-target="ipv4"
+                        data-i18n-title="common.copy">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span data-i18n="common.copy">Copy</span>
+                </button>
+              </div>
+              <p id="ipv4-address" class="text-2xl font-mono font-medium text-slate-900 tracking-tight break-all"></p>
+              <div class="text-sm text-slate-500 space-y-1" id="ipv4-details"></div>
+            </div>
+            <!-- Error -->
+            <div id="err-ipv4" class="hidden text-center py-4">
+              <p class="text-sm text-red-500 font-medium" data-i18n="error.fetch">Unable to fetch IPv4</p>
+              <p class="text-xs text-slate-400 mt-1" id="err-ipv4-msg"></p>
+            </div>
+          </div>
+
+          <!-- ·· IPv6 Card ·· -->
+          <div id="card-ipv6"
+               class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-fade-in">
+            <!-- Skeleton -->
+            <div id="skel-ipv6" class="space-y-3">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-violet-50 text-violet-600">IPv6</span>
+                <div class="skeleton-bar h-4 w-16"></div>
+              </div>
+              <div class="skeleton-bar h-10 w-full"></div>
+              <div class="skeleton-bar h-4 w-3/4"></div>
+              <div class="skeleton-bar h-4 w-1/2"></div>
+            </div>
+            <!-- Data -->
+            <div id="data-ipv6" class="hidden space-y-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-violet-50 text-violet-600">IPv6</span>
+                <button class="copy-btn px-3 py-1.5 text-xs font-medium rounded-lg
+                               bg-slate-100 text-slate-600 hover:bg-slate-200
+                               active:scale-95 transition-all duration-150 flex items-center gap-1"
+                        data-copy-target="ipv6"
+                        data-i18n-title="common.copy">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span data-i18n="common.copy">Copy</span>
+                </button>
+              </div>
+              <p id="ipv6-address" class="text-xl font-mono font-medium text-slate-900 tracking-tight break-all"></p>
+              <div class="text-sm text-slate-500 space-y-1" id="ipv6-details"></div>
+            </div>
+            <!-- Error -->
+            <div id="err-ipv6" class="hidden text-center py-4">
+              <p class="text-sm text-amber-500 font-medium" data-i18n="error.ipv6_unavailable">IPv6 Not Available</p>
+              <p class="text-xs text-slate-400 mt-1" id="err-ipv6-msg"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Map Card ──────────────────────────────────────────── -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden animate-slide-up">
+          <div class="px-5 pt-4 pb-2 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-700" data-i18n="map.title">Geolocation Map</h2>
+            <span id="map-coords" class="text-xs font-mono text-slate-400"></span>
+          </div>
+          <div id="map" class="w-full"></div>
+        </div>
+
+        <!-- ── Privacy Audit Card ────────────────────────────────── -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span data-i18n="audit.title">Privacy Audit</span>
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+            <!-- WebRTC -->
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div id="audit-webrtc-icon" class="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
+                <div class="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-600" data-i18n="audit.webrtc.label">WebRTC Leak Test</p>
+                <p id="audit-webrtc-text" class="text-xs text-slate-400 mt-0.5" data-i18n="audit.webrtc.checking">Checking…</p>
+              </div>
+            </div>
+
+            <!-- Proxy / DC -->
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div id="audit-proxy-icon" class="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
+                <div class="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-600" data-i18n="audit.proxy.label">Connection Type</p>
+                <p id="audit-proxy-text" class="text-xs text-slate-400 mt-0.5" data-i18n="audit.proxy.checking">Analyzing…</p>
+              </div>
+            </div>
+
+            <!-- Timezone -->
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div id="audit-tz-icon" class="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
+                <div class="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-600" data-i18n="audit.tz.label">Timezone Check</p>
+                <p id="audit-tz-text" class="text-xs text-slate-400 mt-0.5" data-i18n="audit.tz.checking">Comparing…</p>
+              </div>
+            </div>
+
+            <!-- Language -->
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div id="audit-lang-icon" class="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
+                <div class="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-600" data-i18n="audit.lang.label">Language Match</p>
+                <p id="audit-lang-text" class="text-xs text-slate-400 mt-0.5" data-i18n="audit.lang.checking">Checking…</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /left column -->
+
+      <!-- ============================================================ -->
+      <!--  RIGHT COLUMN  —  AD ZONE B  (1/4 on lg, hidden below)       -->
+      <!-- ============================================================ -->
+      <aside class="hidden lg:flex flex-col items-center">
+        <div class="sticky top-24 w-[160px] h-[600px]
+                    border-2 border-dashed border-slate-200 rounded-xl
+                    flex items-center justify-center bg-white/60 text-xs text-slate-400
+                    select-none transition-colors hover:border-slate-300 text-center leading-relaxed">
+          <span data-i18n="ad.zoneB">Advertisement<br/>160×600</span>
+        </div>
+      </aside>
+
+    </div><!-- /grid -->
+  </main>
+
+  <!-- ================================================================ -->
+  <!--  FOOTER                                                           -->
+  <!-- ================================================================ -->
+  <footer class="border-t border-slate-100 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a href="https://www.cloudflare.com" target="_blank" rel="noopener" class="text-slate-500 hover:text-slate-700 underline underline-offset-2 ml-1">Cloudflare Workers</a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No logs. No tracking. Your IP is never stored.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ================================================================ -->
+  <!--  SCRIPTS                                                          -->
+  <!-- ================================================================ -->
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <!-- ── Application Logic ───────────────────────────────────────────── -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+     *  CONFIGURATION
+     * ================================================================ */
+
+    const CFG = {
+      endpoints: {
+        v4: 'https://v4.ip.linkozen.com/api/ip',
+        v6: 'https://v6.ip.linkozen.com/api/ip',
+        v4Fallback: 'https://api4.ipify.org?format=json',
+        v6Fallback: 'https://api6.ipify.org?format=json',
+      },
+      proxyKeywords: [
+        'Vultr', 'DigitalOcean', 'Gcore', 'Amazon', 'Google',
+        'Microsoft', 'Datacenter', 'Choopa', 'OvH', 'Linode',
+      ],
+      webrtcTimeout: 3000,
+      mapDefaultCenter: [20, 0],
+      mapDefaultZoom: 2,
+      mapFlyZoom: 10,
+    };
+
+    /* ================================================================
+     *  i18N  ENGINE
+     * ================================================================ */
+
+    const DICT = {
+      en: {
+        'app.title':               'IP Lookup',
+        'app.subtitle':            'Dual-Stack Detection & Privacy Audit',
+        'common.copy':             'Copy',
+        'common.copied':           'Copied!',
+        'error.fetch':             'Unable to fetch IP data',
+        'error.ipv6_unavailable':  'IPv6 Not Available',
+        'map.title':               'Geolocation Map',
+        'ad.zoneA':                'Advertisement · 728×90',
+        'ad.zoneB':                'Advertisement<br/>160×600',
+        'audit.title':             'Privacy Audit',
+        'audit.webrtc.label':      'WebRTC Leak Test',
+        'audit.webrtc.checking':   'Checking…',
+        'audit.webrtc.safe':       'No WebRTC leak detected',
+        'audit.webrtc.leak':       'Potential WebRTC leak — real IP exposed',
+        'audit.webrtc.failed':     'WebRTC check failed or not supported',
+        'audit.proxy.label':       'Connection Type',
+        'audit.proxy.checking':    'Analyzing…',
+        'audit.proxy.datacenter':  'Proxy / Datacenter detected',
+        'audit.proxy.residential': 'Residential ISP',
+        'audit.proxy.unknown':     'Unknown — insufficient data',
+        'audit.tz.label':          'Timezone Check',
+        'audit.tz.checking':       'Comparing…',
+        'audit.tz.match':          'Timezone matches IP location',
+        'audit.tz.mismatch':       'Timezone mismatch — possible VPN/proxy',
+        'audit.tz.unknown':        'Unable to verify timezone',
+        'audit.lang.label':        'Language Match',
+        'audit.lang.checking':     'Checking…',
+        'audit.lang.match':        'Browser language matches IP location',
+        'audit.lang.mismatch':     'Language mismatch — possible VPN/proxy',
+        'audit.lang.unknown':      'Unable to verify language match',
+        'footer.powered':          'Powered by',
+        'footer.privacy':          'No logs. No tracking. Your IP is never stored.',
+      },
+      zh: {
+        'app.title':               'IP 查询',
+        'app.subtitle':            '双栈 IP 检测与隐私审计',
+        'common.copy':             '复制',
+        'common.copied':           '已复制！',
+        'error.fetch':             '无法获取 IP 数据',
+        'error.ipv6_unavailable':  'IPv6 不可用',
+        'map.title':               '地理位置',
+        'ad.zoneA':                '广告位 · 728×90',
+        'ad.zoneB':                '广告位<br/>160×600',
+        'audit.title':             '隐私审计',
+        'audit.webrtc.label':      'WebRTC 泄露检测',
+        'audit.webrtc.checking':   '检测中…',
+        'audit.webrtc.safe':       '未检测到 WebRTC 泄露',
+        'audit.webrtc.leak':       '⚠️ 检测到 WebRTC 泄露 — 真实 IP 已暴露',
+        'audit.webrtc.failed':     'WebRTC 检测失败或不支持',
+        'audit.proxy.label':       '连接类型',
+        'audit.proxy.checking':    '分析中…',
+        'audit.proxy.datacenter':  '🖥️ 检测到数据中心 / 代理 IP',
+        'audit.proxy.residential': '🏠 住宅 ISP',
+        'audit.proxy.unknown':     '未知 — 数据不足',
+        'audit.tz.label':          '时区一致性',
+        'audit.tz.checking':       '比对中…',
+        'audit.tz.match':          '✅ 时区与 IP 归属地一致',
+        'audit.tz.mismatch':       '⚠️ 时区不匹配 — 可能存在 VPN/代理',
+        'audit.tz.unknown':        '无法验证时区',
+        'audit.lang.label':        '语言匹配度',
+        'audit.lang.checking':     '检测中…',
+        'audit.lang.match':        '✅ 浏览器语言与 IP 归属地匹配',
+        'audit.lang.mismatch':     '⚠️ 语言不匹配 — 可能存在 VPN/代理',
+        'audit.lang.unknown':      '无法验证语言匹配',
+        'footer.powered':          '由',
+        'footer.privacy':          '无日志 · 无追踪 · 绝不存储您的 IP 地址',
+      },
+    };
+
+    let currentLang = 'en';
+
+    /** Resolve a translation key. */
+    function t(key) {
+      return (DICT[currentLang] && DICT[currentLang][key]) || (DICT.en[key]) || key;
+    }
+
+    /** Walk all [data-i18n] elements and patch their innerHTML. */
+    function updateLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('ip-linkozen-lang', lang);
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+
+      // Update lang switcher buttons
+      var btnEn = document.getElementById('btn-lang-en');
+      var btnZh = document.getElementById('btn-lang-zh');
+      if (btnEn && btnZh) {
+        if (lang === 'en') {
+          btnEn.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-slate-900 shadow-sm';
+          btnZh.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-slate-500 hover:text-slate-700';
+        } else {
+          btnZh.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-slate-900 shadow-sm';
+          btnEn.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-slate-500 hover:text-slate-700';
+        }
+      }
+
+      // Patch all i18n-tagged elements
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var k = els[i].getAttribute('data-i18n');
+        if (k) els[i].innerHTML = t(k);
+      }
+    }
+
+    /** Expose globally for onclick handlers. */
+    window.switchLanguage = function (lang) {
+      updateLanguage(lang);
+      // Re-render dynamic content that might have language-specific text
+      renderAllAuditResults();
+    };
+
+    /* ================================================================
+     *  UTILITY HELPERS
+     * ================================================================ */
+
+    /** Check if an IPv4 address is private / loopback. */
+    function isPrivateIPv4(ip) {
+      var octets = ip.split('.').map(Number);
+      if (octets.length !== 4 || octets.some(function (o) { return isNaN(o) || o < 0 || o > 255; })) return true;
+      if (octets[0] === 10) return true;
+      if (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) return true;
+      if (octets[0] === 192 && octets[1] === 168) return true;
+      if (octets[0] === 127) return true;
+      return false;
+    }
+
+    /** Extract an IP address from a WebRTC candidate string. */
+    function extractIP(candidateStr) {
+      // IPv4
+      var m4 = candidateStr.match(/\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/);
+      if (m4) return m4[1];
+      // IPv6
+      var m6 = candidateStr.match(/\b([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){2,7})\b/);
+      if (m6) return m6[1];
+      return null;
+    }
+
+    /** Compute the current UTC offset (minutes) for a given IANA timezone. */
+    function getTZOffsetMinutes(tzName) {
+      try {
+        var now = new Date();
+        var utcStr = now.toLocaleString('en-US', { timeZone: 'UTC', hour12: false });
+        var tzStr  = now.toLocaleString('en-US', { timeZone: tzName, hour12: false });
+        var utcDate = new Date(utcStr);
+        var tzDate  = new Date(tzStr);
+        return (tzDate - utcDate) / 60000;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    /** Map country codes to expected language prefixes. */
+    var COUNTRY_LANGS = {
+      JP: ['ja'],  CN: ['zh'],  HK: ['zh'],  TW: ['zh'],
+      KR: ['ko'],  KP: ['ko'],
+      DE: ['de'],  AT: ['de'],  CH: ['de', 'fr', 'it'],
+      FR: ['fr'],  BE: ['fr', 'nl'],
+      ES: ['es'],  MX: ['es'],  AR: ['es'],  CO: ['es'],
+      IT: ['it'],
+      RU: ['ru'],  BY: ['ru'],  KZ: ['ru'],
+      BR: ['pt'],  PT: ['pt'],
+      NL: ['nl'],
+      SE: ['sv'],  NO: ['no'],  DK: ['da'],  FI: ['fi'],
+      PL: ['pl'],  CZ: ['cs'],  SK: ['sk'],  HU: ['hu'],
+      TR: ['tr'],
+      SA: ['ar'],  AE: ['ar'],  EG: ['ar'],
+      IL: ['he'],
+      TH: ['th'],
+      VN: ['vi'],
+      IN: ['hi', 'en'],
+      ID: ['id'],
+      GR: ['el'],
+      RO: ['ro'],
+      UA: ['uk'],
+    };
+
+    /* ================================================================
+     *  APPLICATION STATE
+     * ================================================================ */
+
+    var state = {
+      ipv4:        null,   // parsed API response or null
+      ipv4Error:   null,
+      ipv6:        null,
+      ipv6Error:   null,
+      webrtcIPs:   [],     // public IPs found via WebRTC
+      webrtcError: null,
+      map:         null,   // Leaflet map instance
+      marker:      null,
+    };
+
+    /* ================================================================
+     *  API LAYER
+     * ================================================================ */
+
+    /**
+     * fetch() wrapper with a configurable timeout (manual AbortController
+     * for broad browser compatibility — avoids AbortSignal.timeout()).
+     */
+    function fetchWithTimeout(url, timeoutMs) {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function () { ctrl.abort(); }, timeoutMs);
+      return fetch(url, { signal: ctrl.signal }).finally(function () {
+        clearTimeout(timer);
+      });
+    }
+
+    /**
+     * Fetch from the primary endpoint; on failure, try the fallback.
+     * Returns { ip, ...geo } or throws.
+     */
+    async function fetchWithFallback(primary, fallback, label) {
+      try {
+        var res = await fetchWithTimeout(primary, 8000);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (e1) {
+        console.warn('[ip.linkozen] Primary endpoint failed for ' + label + ': ' + e1.message);
+        if (!fallback) throw e1;
+        try {
+          var res2 = await fetchWithTimeout(fallback, 8000);
+          if (!res2.ok) throw new Error('HTTP ' + res2.status);
+          var data = await res2.json();
+          // Normalise ipify response shape to match our worker
+          // ipify returns { ip: "x.x.x.x" } — minimal; that's ok
+          if (!data.country && !data.asOrganization) {
+            data._fallback = true;
+          }
+          return data;
+        } catch (e2) {
+          console.error('[ip.linkozen] Fallback also failed for ' + label + ': ' + e2.message);
+          throw e2;
+        }
+      }
+    }
+
+    async function probeIPv4() {
+      return fetchWithFallback(CFG.endpoints.v4, CFG.endpoints.v4Fallback, 'IPv4');
+    }
+
+    async function probeIPv6() {
+      return fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallback, 'IPv6');
+    }
+
+    /* ================================================================
+     *  WebRTC  LEAK  DETECTION
+     * ================================================================ */
+
+    function detectWebRTCLeak() {
+      return new Promise(function (resolve) {
+        var candidates = [];
+
+        // Check API availability
+        if (!window.RTCPeerConnection && !window.webkitRTCPeerConnection && !window.mozRTCPeerConnection) {
+          resolve({ ips: [], error: 'RTCPeerConnection not supported' });
+          return;
+        }
+
+        var PC = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+        var pc;
+
+        try {
+          pc = new PC({ iceServers: [] });
+        } catch (e) {
+          resolve({ ips: [], error: 'Failed to create RTCPeerConnection: ' + e.message });
+          return;
+        }
+
+        var settled = false;
+        function done() {
+          if (settled) return;
+          settled = true;
+          try { pc.close(); } catch (_) { /* ignore */ }
+          // Deduplicate and filter: only public IPs matter for leak detection
+          var unique = [];
+          for (var i = 0; i < candidates.length; i++) {
+            var ip = candidates[i];
+            if (unique.indexOf(ip) === -1 && !isPrivateIPv4(ip) && ip !== '0.0.0.0') {
+              unique.push(ip);
+            }
+          }
+          resolve({ ips: unique, error: null });
+        }
+
+        pc.onicecandidate = function (e) {
+          if (!e.candidate) return; // end-of-candidates marker
+          var candidateStr = e.candidate.candidate;
+          // Skip mDNS candidates
+          if (candidateStr.indexOf('.local') !== -1) return;
+          var ip = extractIP(candidateStr);
+          if (ip) candidates.push(ip);
+        };
+
+        // Create a data channel to trigger candidate gathering
+        try {
+          pc.createDataChannel('');
+          pc.createOffer()
+            .then(function (offer) { return pc.setLocalDescription(offer); })
+            .catch(function (err) {
+              console.warn('[ip.linkozen] WebRTC offer failed: ' + err.message);
+              done();
+            });
+        } catch (e) {
+          done();
+        }
+
+        // Safety timeout
+        setTimeout(done, CFG.webrtcTimeout);
+      });
+    }
+
+    /* ================================================================
+     *  PRIVACY  AUDIT  LOGIC
+     * ================================================================ */
+
+    var auditCache = {
+      webrtc:   null,
+      proxy:    null,
+      timezone: null,
+      language: null,
+    };
+
+    function auditWebRTC() {
+      if (auditCache.webrtc !== null) return auditCache.webrtc;
+
+      // No data yet
+      if (state.webrtcError) {
+        auditCache.webrtc = { status: 'failed', detail: state.webrtcError };
+        return auditCache.webrtc;
+      }
+
+      // Need at least one public IP from fetch to compare
+      var publicIP = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip) || null;
+      if (!publicIP) {
+        auditCache.webrtc = { status: 'pending' };
+        return auditCache.webrtc;
+      }
+
+      var leaked = state.webrtcIPs.some(function (ip) {
+        return ip !== publicIP;
+      });
+
+      auditCache.webrtc = leaked
+        ? { status: 'leak', detail: 'WebRTC exposes: ' + state.webrtcIPs.join(', ') }
+        : { status: 'safe', detail: null };
+      return auditCache.webrtc;
+    }
+
+    function auditProxy() {
+      if (auditCache.proxy !== null) return auditCache.proxy;
+
+      // Prefer IPv4 data for AS info; fall back to IPv6
+      var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+
+      if (!data || !data.asOrganization) {
+        auditCache.proxy = { status: 'unknown' };
+        return auditCache.proxy;
+      }
+
+      var org = data.asOrganization || '';
+      var orgLower = org.toLowerCase();
+      var matched = CFG.proxyKeywords.some(function (kw) {
+        return orgLower.indexOf(kw.toLowerCase()) !== -1;
+      });
+
+      auditCache.proxy = matched
+        ? { status: 'datacenter', detail: org }
+        : { status: 'residential', detail: org };
+      return auditCache.proxy;
+    }
+
+    function auditTimezone() {
+      if (auditCache.timezone !== null) return auditCache.timezone;
+
+      var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+
+      if (!data || !data.timezone) {
+        auditCache.timezone = { status: 'unknown' };
+        return auditCache.timezone;
+      }
+
+      var remoteOffset = getTZOffsetMinutes(data.timezone);
+      if (remoteOffset === null) {
+        auditCache.timezone = { status: 'unknown' };
+        return auditCache.timezone;
+      }
+
+      var localOffset = -new Date().getTimezoneOffset(); // convert "minutes west of UTC" → "minutes east of UTC"
+
+      // Allow ±60 min tolerance for DST edge cases
+      var diff = Math.abs(remoteOffset - localOffset);
+      if (diff > 60) {
+        auditCache.timezone = {
+          status: 'mismatch',
+          detail: 'Local: UTC' + (localOffset >= 0 ? '+' : '') + (localOffset / 60).toFixed(1) +
+                  'h, IP location (' + data.timezone + '): UTC' +
+                  (remoteOffset >= 0 ? '+' : '') + (remoteOffset / 60).toFixed(1) + 'h',
+        };
+      } else {
+        auditCache.timezone = { status: 'match', detail: data.timezone };
+      }
+      return auditCache.timezone;
+    }
+
+    function auditLanguage() {
+      if (auditCache.language !== null) return auditCache.language;
+
+      var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+
+      if (!data || !data.country) {
+        auditCache.language = { status: 'unknown' };
+        return auditCache.language;
+      }
+
+      var expectedLangs = COUNTRY_LANGS[data.country.toUpperCase()];
+      if (!expectedLangs) {
+        // Country not in our lookup table — can't verify
+        auditCache.language = { status: 'unknown', detail: 'No language map for ' + data.country };
+        return auditCache.language;
+      }
+
+      var browserLangs = (navigator.languages && navigator.languages.length)
+        ? navigator.languages
+        : (navigator.language ? [navigator.language] : []);
+
+      var matched = expectedLangs.some(function (lang) {
+        return browserLangs.some(function (bl) {
+          return bl.toLowerCase().indexOf(lang.toLowerCase()) === 0;
+        });
+      });
+
+      auditCache.language = matched
+        ? { status: 'match', detail: null }
+        : { status: 'mismatch', detail: 'Expected: ' + expectedLangs.join(', ') + ' — Browser: ' + browserLangs.join(', ') };
+      return auditCache.language;
+    }
+
+    /* ================================================================
+     *  UI  RENDERING
+     * ================================================================ */
+
+    function showCardData(type) {
+      var skel = document.getElementById('skel-' + type);
+      var data = document.getElementById('data-' + type);
+      var err  = document.getElementById('err-' + type);
+      if (skel) skel.classList.add('hidden');
+      if (data) data.classList.remove('hidden');
+      if (err)  err.classList.add('hidden');
+    }
+
+    function showCardError(type) {
+      var skel = document.getElementById('skel-' + type);
+      var data = document.getElementById('data-' + type);
+      var err  = document.getElementById('err-' + type);
+      if (skel) skel.classList.add('hidden');
+      if (data) data.classList.add('hidden');
+      if (err)  err.classList.remove('hidden');
+    }
+
+    /** Render a detail row as HTML. */
+    function makeDetailRows(d) {
+      if (!d) return '';
+      var rows = [];
+      var flag = d.country ? countryFlagEmoji(d.country) + ' ' : '';
+      if (d.country) rows.push('<span>' + flag + (d.city || d.region ? (d.city || '') + (d.city && d.region ? ', ' : '') + (d.region || '') : d.country) + '</span>');
+      if (d.asOrganization) rows.push('<span class="block text-slate-400">🏢 ' + escHtml(d.asOrganization) + (d.asn ? ' (AS' + escHtml(String(d.asn)) + ')' : '') + '</span>');
+      if (d.timezone) rows.push('<span class="block text-slate-400">🕐 ' + escHtml(d.timezone) + '</span>');
+      if (d._fallback) rows.push('<span class="block text-amber-500 text-xs mt-1">⚠ ' + t('error.fetch') + '</span>');
+      return rows.join('');
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function countryFlagEmoji(code) {
+      if (!code || code.length !== 2) return '';
+      var a = code.toUpperCase();
+      var cp = String.fromCodePoint(0x1F1E6 + a.charCodeAt(0) - 65);
+      cp += String.fromCodePoint(0x1F1E6 + a.charCodeAt(1) - 65);
+      return cp;
+    }
+
+    function renderIPCard(type, data, error) {
+      if (error || !data || !data.ip) {
+        showCardError(type);
+        return;
+      }
+
+      showCardData(type);
+
+      var addrEl = document.getElementById(type + '-address');
+      var detEl  = document.getElementById(type + '-details');
+
+      if (addrEl) addrEl.textContent = data.ip;
+      if (detEl)  detEl.innerHTML = makeDetailRows(data);
+    }
+
+    /** Show / hide the skeleton for card type. */
+    function renderAllIPCards() {
+      renderIPCard('ipv4', state.ipv4, state.ipv4Error);
+      renderIPCard('ipv6', state.ipv6, state.ipv6Error);
+    }
+
+    function setAuditItem(id, status) {
+      var iconEl = document.getElementById('audit-' + id + '-icon');
+      var textEl = document.getElementById('audit-' + id + '-text');
+
+      var iconHTML, textKey, textFallback;
+
+      switch (status) {
+        case 'safe': case 'match': case 'residential':
+          iconHTML = '<svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          break;
+        case 'leak': case 'mismatch': case 'datacenter':
+          iconHTML = '<svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+          break;
+        default: // checking / unknown / failed
+          iconHTML = '<div class="w-3 h-3 rounded-full bg-slate-400"></div>';
+          break;
+      }
+
+      // Determine translation key
+      if (id === 'webrtc') {
+        textKey = status === 'safe' ? 'audit.webrtc.safe'
+                : status === 'leak' ? 'audit.webrtc.leak'
+                : status === 'failed' ? 'audit.webrtc.failed'
+                : 'audit.webrtc.checking';
+        if (iconEl) iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ' +
+          (status === 'safe' ? 'bg-emerald-50' : status === 'leak' ? 'bg-amber-50' : 'bg-slate-200');
+      } else if (id === 'proxy') {
+        textKey = status === 'datacenter' ? 'audit.proxy.datacenter'
+                : status === 'residential' ? 'audit.proxy.residential'
+                : status === 'unknown' ? 'audit.proxy.unknown'
+                : 'audit.proxy.checking';
+        if (iconEl) iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ' +
+          (status === 'residential' ? 'bg-emerald-50' : status === 'datacenter' ? 'bg-amber-50' : 'bg-slate-200');
+      } else if (id === 'tz') {
+        textKey = status === 'match' ? 'audit.tz.match'
+                : status === 'mismatch' ? 'audit.tz.mismatch'
+                : status === 'unknown' ? 'audit.tz.unknown'
+                : 'audit.tz.checking';
+        if (iconEl) iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ' +
+          (status === 'match' ? 'bg-emerald-50' : status === 'mismatch' ? 'bg-amber-50' : 'bg-slate-200');
+      } else if (id === 'lang') {
+        textKey = status === 'match' ? 'audit.lang.match'
+                : status === 'mismatch' ? 'audit.lang.mismatch'
+                : status === 'unknown' ? 'audit.lang.unknown'
+                : 'audit.lang.checking';
+        if (iconEl) iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ' +
+          (status === 'match' ? 'bg-emerald-50' : status === 'mismatch' ? 'bg-amber-50' : 'bg-slate-200');
+      }
+
+      if (iconEl) iconEl.innerHTML = iconHTML;
+      if (textEl) textEl.textContent = t(textKey);
+    }
+
+    function renderAllAuditResults() {
+      // WebRTC
+      if (state.webrtcIPs.length === 0 && !state.webrtcError && (!state.ipv4 || !state.ipv4.ip) && (!state.ipv6 || !state.ipv6.ip)) {
+        setAuditItem('webrtc', 'checking');
+      } else if (state.webrtcError) {
+        setAuditItem('webrtc', 'failed');
+      } else {
+        var wr = auditWebRTC();
+        setAuditItem('webrtc', wr.status);
+      }
+
+      // Proxy
+      var px = auditProxy();
+      setAuditItem('proxy', px.status);
+
+      // Timezone
+      var tz = auditTimezone();
+      setAuditItem('tz', tz.status);
+
+      // Language
+      var lg = auditLanguage();
+      setAuditItem('lang', lg.status);
+    }
+
+    /* ================================================================
+     *  MAP
+     * ================================================================ */
+
+    function initMap() {
+      if (state.map) return;
+      var mapEl = document.getElementById('map');
+      if (!mapEl) return;
+
+      state.map = L.map('map', {
+        center: CFG.mapDefaultCenter,
+        zoom: CFG.mapDefaultZoom,
+        zoomControl: true,
+        scrollWheelZoom: true,
+        attributionControl: false,
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        maxZoom: 19,
+      }).addTo(state.map);
+    }
+
+    function updateMap(lat, lng, label) {
+      if (lat == null || lng == null) return;
+      if (lat === 0 && lng === 0) return; // Cloudflare sometimes returns 0,0 for unknown
+      if (!state.map) initMap();
+      if (!state.map) return;
+
+      if (state.marker) {
+        state.map.removeLayer(state.marker);
+      }
+
+      state.marker = L.circleMarker([lat, lng], {
+        radius: 8,
+        fillColor: '#3b82f6',
+        color: '#ffffff',
+        weight: 2.5,
+        opacity: 1,
+        fillOpacity: 0.85,
+      }).addTo(state.map);
+
+      if (label) {
+        state.marker.bindTooltip(label, {
+          direction: 'top',
+          offset: [0, -10],
+          className: 'text-xs font-medium',
+        });
+      }
+
+      state.map.flyTo([lat, lng], CFG.mapFlyZoom, {
+        duration: 1.5,
+        easeLinearity: 0.25,
+      });
+
+      var coordsEl = document.getElementById('map-coords');
+      if (coordsEl) {
+        coordsEl.textContent = lat.toFixed(4) + ', ' + lng.toFixed(4);
+      }
+    }
+
+    /* ================================================================
+     *  COPY  BUTTONS
+     * ================================================================ */
+
+    function setupCopyButtons() {
+      var btns = document.querySelectorAll('.copy-btn');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener('click', function (e) {
+          var target = this.getAttribute('data-copy-target');
+          var ip = null;
+          if (target === 'ipv4' && state.ipv4) ip = state.ipv4.ip;
+          if (target === 'ipv6' && state.ipv6) ip = state.ipv6.ip;
+          if (!ip) return;
+
+          navigator.clipboard.writeText(ip).then(function () {
+            var span = this.querySelector('span');
+            var originalText = span ? span.textContent : 'Copy';
+            if (span) span.textContent = t('common.copied');
+            this.classList.add('animate-scale-tap');
+            var self = this;
+            setTimeout(function () {
+              self.classList.remove('animate-scale-tap');
+              if (span) span.textContent = originalText;
+            }, 1200);
+          }.bind(this)).catch(function () {
+            // Clipboard API failed — silently ignore
+          });
+        });
+      }
+    }
+
+    /* ================================================================
+     *  INITIALIZATION
+     * ================================================================ */
+
+    async function init() {
+      // 1. Detect and apply language
+      var storedLang = localStorage.getItem('ip-linkozen-lang');
+      if (storedLang === 'en' || storedLang === 'zh') {
+        updateLanguage(storedLang);
+      } else {
+        var browserLang = (navigator.language || '').toLowerCase();
+        updateLanguage(browserLang.startsWith('zh') ? 'zh' : 'en');
+      }
+
+      // 2. Init map immediately (so it's ready when data arrives)
+      initMap();
+
+      // 3. Launch all probes in parallel
+      var tasks = [
+        // IPv4
+        probeIPv4().then(function (d) {
+          state.ipv4 = d;
+        }).catch(function (e) {
+          state.ipv4Error = e.message || 'Unknown error';
+        }),
+
+        // IPv6
+        probeIPv6().then(function (d) {
+          state.ipv6 = d;
+        }).catch(function (e) {
+          state.ipv6Error = e.message || 'Unknown error';
+        }),
+
+        // WebRTC
+        detectWebRTCLeak().then(function (r) {
+          state.webrtcIPs = r.ips;
+          state.webrtcError = r.error;
+        }),
+      ];
+
+      // 4. Render cards as each probe completes (poll-style for simplicity)
+      //    We use a setInterval to update UI as data comes in, then clear when done
+      var renderInterval = setInterval(function () {
+        renderAllIPCards();
+        renderAllAuditResults();
+
+        // Update map from whichever data source is available and non-fallback
+        var geoData = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+                    : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+                    : state.ipv4 || state.ipv6;
+        if (geoData && geoData.latitude != null && geoData.longitude != null) {
+          updateMap(geoData.latitude, geoData.longitude, geoData.city || geoData.country || '');
+        }
+      }, 200);
+
+      // 5. Wait for all probes
+      await Promise.allSettled(tasks);
+
+      // 6. Final render — ensure everything is updated
+      clearInterval(renderInterval);
+      renderAllIPCards();
+      renderAllAuditResults();
+
+      // Map — final update
+      var geoData = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+                  : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+                  : state.ipv4 || state.ipv6;
+      if (geoData && geoData.latitude != null && geoData.longitude != null) {
+        updateMap(geoData.latitude, geoData.longitude, geoData.city || geoData.country || '');
+      }
+
+      // 7. Setup copy buttons
+      setupCopyButtons();
+    }
+
+    // ── Kick off once DOM is ready ──────────────────────────────────
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+
+</body>
+</html>
