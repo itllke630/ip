@@ -1,0 +1,14 @@
+# Dependencies (if any added later)
+node_modules/
+
+# Wrangler state
+.wrangler/
+dev-env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -226,12 +226,34 @@
 
         <!-- ── Privacy Audit Card ────────────────────────────────── -->
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-slide-up">
-          <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+          <h2 class="text-sm font-semibold text-slate-700 mb-5 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
             <span data-i18n="audit.title">Privacy Audit</span>
           </h2>
+
+          <!-- ── Circular Anonymity Gauge ──────────────────────────── -->
+          <div class="flex flex-col items-center mb-6">
+            <div class="relative w-36 h-36">
+              <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+                <!-- Background track -->
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#e2e8f0" stroke-width="8" />
+                <!-- Progress arc -->
+                <circle id="score-ring" cx="60" cy="60" r="52" fill="none" stroke="#94a3b8" stroke-width="8"
+                        stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
+                        style="transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s;" />
+              </svg>
+              <!-- Center overlay (un-rotated) -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="score-text" class="text-[28px] font-bold text-slate-300 font-mono leading-none">--</span>
+                <span id="score-label" class="text-[10px] font-semibold text-slate-400 tracking-wider mt-0.5" data-i18n="audit.score.label">SCORE</span>
+              </div>
+            </div>
+            <p id="score-subtitle" class="text-xs text-slate-400 mt-2.5 font-medium" data-i18n="audit.score.pending">Gathering data…</p>
+          </div>
+
+          <!-- ── Audit Items Grid ──────────────────────────────────── -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
             <!-- WebRTC -->
@@ -383,6 +405,13 @@
         'audit.lang.match':        'Browser language matches IP location',
         'audit.lang.mismatch':     'Language mismatch — possible VPN/proxy',
         'audit.lang.unknown':      'Unable to verify language match',
+        'audit.score.label':       'SCORE',
+        'audit.score.pending':     'Gathering data…',
+        'audit.score.excellent':   'Excellent Protection',
+        'audit.score.good':        'Good Protection',
+        'audit.score.moderate':    'Moderate Protection',
+        'audit.score.weak':        'Weak Protection',
+        'audit.score.poor':        'Minimal Protection',
         'footer.powered':          'Powered by',
         'footer.privacy':          'No logs. No tracking. Your IP is never stored.',
       },
@@ -417,6 +446,13 @@
         'audit.lang.match':        '✅ 浏览器语言与 IP 归属地匹配',
         'audit.lang.mismatch':     '⚠️ 语言不匹配 — 可能存在 VPN/代理',
         'audit.lang.unknown':      '无法验证语言匹配',
+        'audit.score.label':       '伪装度',
+        'audit.score.pending':     '正在收集数据…',
+        'audit.score.excellent':   '极佳防护',
+        'audit.score.good':        '良好防护',
+        'audit.score.moderate':    '一般防护',
+        'audit.score.weak':        '防护较弱',
+        'audit.score.poor':        '防护不足',
         'footer.powered':          '由',
         'footer.privacy':          '无日志 · 无追踪 · 绝不存储您的 IP 地址',
       },
@@ -915,6 +951,63 @@
       if (textEl) textEl.textContent = t(textKey);
     }
 
+    /* ================================================================
+     *  ANONYMITY  SCORE  (Whoer-style)
+     * ================================================================ */
+
+    function calculateAnonymityScore() {
+      var score = 0;
+
+      // Timezone match → +25%
+      var tz = auditTimezone();
+      if (tz.status === 'match') score += 25;
+
+      // WebRTC no leak → +25%
+      var wr = auditWebRTC();
+      if (wr.status === 'safe') score += 25;
+
+      // Residential ISP (non-datacenter) → +25%
+      var px = auditProxy();
+      if (px.status === 'residential') score += 25;
+
+      // Language matches location → +25%
+      var lg = auditLanguage();
+      if (lg.status === 'match') score += 25;
+
+      return score;
+    }
+
+    function updateScoreRing() {
+      var ring    = document.getElementById('score-ring');
+      var textEl  = document.getElementById('score-text');
+      var labelEl = document.getElementById('score-label');
+      var subEl   = document.getElementById('score-subtitle');
+
+      if (!ring || !textEl || !subEl) return;
+
+      // Guard: don't render score until at least one IP probe and WebRTC have finished
+      var ipReady    = state.ipv4 || state.ipv6 || state.ipv4Error || state.ipv6Error;
+      var wrReady    = state.webrtcIPs.length > 0 || state.webrtcError;
+      if (!ipReady || !wrReady) return;
+
+      var score       = calculateAnonymityScore();
+      var circum      = 326.73;
+      var offset      = circum * (1 - score / 100);
+      var color, labelKey;
+
+      if (score >= 75)      { color = '#10b981'; labelKey = score >= 100 ? 'audit.score.excellent' : 'audit.score.good'; }
+      else if (score >= 50) { color = '#f59e0b'; labelKey = 'audit.score.moderate'; }
+      else if (score >= 25) { color = '#f97316'; labelKey = 'audit.score.weak'; }
+      else                  { color = '#ef4444'; labelKey = 'audit.score.poor'; }
+
+      ring.setAttribute('stroke-dashoffset', offset);
+      ring.setAttribute('stroke', color);
+      textEl.textContent = score + '%';
+      textEl.style.color = color;
+      if (labelEl) labelEl.style.color = color;
+      subEl.textContent  = t(labelKey);
+    }
+
     function renderAllAuditResults() {
       // WebRTC
       if (state.webrtcIPs.length === 0 && !state.webrtcError && (!state.ipv4 || !state.ipv4.ip) && (!state.ipv6 || !state.ipv6.ip)) {
@@ -937,6 +1030,9 @@
       // Language
       var lg = auditLanguage();
       setAuditItem('lang', lg.status);
+
+      // Anonymity score gauge
+      updateScoreRing();
     }
 
     /* ================================================================
@@ -956,8 +1052,8 @@
         attributionControl: false,
       });
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
       }).addTo(state.map);
     }

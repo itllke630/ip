@@ -1,0 +1,20 @@
+# wrangler.toml — Cloudflare Worker configuration
+# Deployed via .github/workflows/deploy.yml
+
+name = "ip-linkozen-worker"
+main = "backend-worker.js"
+compatibility_date = "2026-06-01"
+
+# ── Observability ─────────────────────────────────────────────────
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+# ── Routes (uncomment & fill in your zone once DNS is set up) ────
+# [[routes]]
+# pattern = "v4.ip.linkozen.com/*"
+# zone_name = "linkozen.com"
+#
+# [[routes]]
+# pattern = "v6.ip.linkozen.com/*"
+# zone_name = "linkozen.com"

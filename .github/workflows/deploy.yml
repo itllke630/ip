@@ -1,0 +1,63 @@
+# .github/workflows/deploy.yml
+# ───────────────────────────────────────────────────────────────────
+# Deploys both the Cloudflare Worker (backend) and the static landing
+# page (frontend) on every push to main.
+#
+# REQUIRED SECRETS (set in GitHub repo → Settings → Secrets & Variables → Actions):
+#   CLOUDFLARE_API_TOKEN    – API token with Workers & Pages edit permissions
+#   CLOUDFLARE_ACCOUNT_ID   – Your Cloudflare account ID (32-char hex)
+#
+# PAGES PROJECT (one-time setup):
+#   1. Create a Pages project named "ip-linkozen" in the Cloudflare Dashboard
+#       (Workers & Pages → Pages → Create a project → Upload assets)
+#   2. After the first deploy, the action will update it automatically.
+
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:   # allow manual runs from the Actions tab
+
+# ── Concurrency: only one deploy at a time per branch ────────────
+concurrency:
+  group: cloudflare-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+
+  # ── Worker (backend) ─────────────────────────────────────────────
+  deploy-worker:
+    name: Deploy Worker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken:   ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId:  ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command:    deploy
+          # Optional: add a comment to this deployment
+          # command: deploy --compatibility-date 2026-06-01
+
+  # ── Pages (frontend) ─────────────────────────────────────────────
+  deploy-pages:
+    name: Deploy Pages
+    runs-on: ubuntu-latest
+    # Continue-even-if: useful when the Worker job succeeds and Pages
+    # fails for a transient reason — the Worker stays live.
+    needs: []  # runs in parallel with deploy-worker (no dependency)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken:    ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId:   ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ip-linkozen
+          directory:   .
+          branch:      main
+          # No build step — index.html is static with CDN deps
