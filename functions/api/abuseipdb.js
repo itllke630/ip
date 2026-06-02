@@ -27,7 +27,8 @@ export async function onRequest(context) {
     });
   }
 
-  const token = env.ABUSEIPDB_TOKEN || '';
+  // Token from query param (client-side) or Cloudflare env var (server-side)
+  const token = url.searchParams.get('token') || env.ABUSEIPDB_TOKEN || '';
   try {
     const res = await fetch(
       'https://api.abuseipdb.com/api/v2/check?ipAddress=' + encodeURIComponent(ip) + '&maxAgeInDays=90',

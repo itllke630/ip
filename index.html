@@ -510,6 +510,9 @@
   <!--  SCRIPTS                                                          -->
   <!-- ================================================================ -->
 
+  <!-- CI-generated env vars -->
+  <script src="env-config.js"></script>
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -1253,21 +1256,14 @@
     }
 
     /* ── Render Ad slots ───────────────────────────────────────── */
-    async function renderAds() {
+    function renderAds() {
       var left  = document.getElementById('ad-left-container');
       var right = document.getElementById('ad-right-container');
       var topEl = document.getElementById('ad-top-container');
 
-      // Fetch ad codes from server (Pages Function reads Cloudflare env vars)
-      var adTop = '', adSky = '';
-      try {
-        var adRes = await fetch('/api/ads');
-        if (adRes.ok) {
-          var adData = await adRes.json();
-          adTop = adData.top || '';
-          adSky = adData.sky || '';
-        }
-      } catch (_) {}
+      var E = window.__ENV__ || {};
+      var adTop = E.AD_TOP_HTML || '';
+      var adSky = E.AD_160_HTML || '';
 
       function fill(el, code, labelKey, isSide) {
         if (!el) return;
@@ -1644,35 +1640,31 @@
       } catch (_) { return null; }
     }
 
-    /* ── IPinfo.io lookup (via server proxy, no CORS) ────────────── */
+    /* ── IPinfo.io lookup (via proxy, token from window.__ENV__) ─── */
     async function fetchIPinfo(ip) {
+      var E = window.__ENV__ || {};
+      var token = E.IPINFO_TOKEN || '';
       try {
-        var res = await fetchWithTimeout('/api/ipinfo?ip=' + encodeURIComponent(ip), 15000);
-        if (!res.ok) {
-          console.warn('[ip.linkozen] IPinfo proxy returned ' + res.status);
-          return null;
-        }
+        var url = '/api/ipinfo?ip=' + encodeURIComponent(ip);
+        if (token) url += '&token=' + encodeURIComponent(token);
+        var res = await fetchWithTimeout(url, 15000);
+        if (!res.ok) { console.warn('[ip.linkozen] IPinfo proxy ' + res.status); return null; }
         return await res.json();
-      } catch (e) {
-        console.warn('[ip.linkozen] IPinfo proxy failed: ' + (e.message || 'unknown'));
-        return null;
-      }
+      } catch (e) { console.warn('[ip.linkozen] IPinfo failed: ' + (e.message||'')); return null; }
     }
 
-    /* ── AbuseIPDB lookup (via server proxy, no CORS) ────────────── */
+    /* ── AbuseIPDB lookup (via proxy, token from window.__ENV__) ─── */
     async function fetchAbuseIPDB(ip) {
+      var E = window.__ENV__ || {};
+      var token = E.ABUSEIPDB_TOKEN || '';
       try {
-        var res = await fetchWithTimeout('/api/abuseipdb?ip=' + encodeURIComponent(ip), 15000);
-        if (!res.ok) {
-          console.warn('[ip.linkozen] AbuseIPDB proxy returned ' + res.status);
-          return null;
-        }
+        var url = '/api/abuseipdb?ip=' + encodeURIComponent(ip);
+        if (token) url += '&token=' + encodeURIComponent(token);
+        var res = await fetchWithTimeout(url, 15000);
+        if (!res.ok) { console.warn('[ip.linkozen] AbuseIPDB proxy ' + res.status); return null; }
         var data = await res.json();
         return data.data;
-      } catch (e) {
-        console.warn('[ip.linkozen] AbuseIPDB proxy failed: ' + (e.message || 'unknown'));
-        return null;
-      }
+      } catch (e) { console.warn('[ip.linkozen] AbuseIPDB failed: ' + (e.message||'')); return null; }
     }
 
     /* ── Session cache ───────────────────────────────────────────── */

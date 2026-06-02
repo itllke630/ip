@@ -22,6 +22,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Build Configuration
+        env:
+          AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
+          AD_160_HTML: ${{ secrets.AD_160_HTML }}
+          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
+          ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
+        run: |
+          node << 'ENDSCRIPT'
+          const fs = require('fs');
+          const env = {
+            AD_TOP_HTML:     process.env.AD_TOP_HTML     || '',
+            AD_160_HTML:     process.env.AD_160_HTML     || '',
+            IPINFO_TOKEN:    process.env.IPINFO_TOKEN    || '',
+            ABUSEIPDB_TOKEN: process.env.ABUSEIPDB_TOKEN || '',
+          };
+          fs.writeFileSync('env-config.js',
+            'window.__ENV__ = ' + JSON.stringify(env, null, 2) + ';\n');
+          console.log('env-config.js written with keys:', Object.keys(env).filter(k => env[k]).join(', '));
+          ENDSCRIPT
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:

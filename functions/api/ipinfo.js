@@ -27,7 +27,8 @@ export async function onRequest(context) {
     });
   }
 
-  const token = env.IPINFO_TOKEN || '';
+  // Token from query param (client-side) or Cloudflare env var (server-side)
+  const token = url.searchParams.get('token') || env.IPINFO_TOKEN || '';
   const tokenParam = token ? '?token=' + token : '';
 
   try {
