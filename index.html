@@ -56,7 +56,7 @@
 
   <style>
     /* ── Leaflet overrides ── */
-    #map { height: 340px; width: 100%; border-radius: 1rem; z-index: 0; }
+    #map { height: 450px; width: 100%; border-radius: 1rem; z-index: 0; }
     .leaflet-control-zoom a {
       border-radius: 0.5rem !important;
       box-shadow: 0 1px 3px rgba(0,0,0,.08) !important;
@@ -224,6 +224,7 @@
         </div>
 
         <!-- ── Time Comparison Card ──────────────────────────────── -->
+        <!-- ── Time Analysis Card ───────────────────────────────── -->
         <div id="time-card-container" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-slide-up">
           <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -231,52 +232,45 @@
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
             <span data-i18n="time.title">Time Analysis</span>
+            <span id="time-tz-value" class="text-xs font-mono text-slate-400 ml-auto">—</span>
           </h2>
 
-          <div id="time-card" class="flex flex-col sm:flex-row gap-4">
+          <div id="time-card" class="space-y-0">
 
-            <!-- Clock icon -->
-            <div class="flex-shrink-0 flex items-start pt-1">
-              <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <svg class="w-7 h-7 text-slate-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
+            <!-- ·· Local Time (IP) ·· -->
+            <div id="time-local-row" class="flex items-center justify-between py-3 transition-colors duration-300 rounded-lg px-2 -mx-2">
+              <div>
+                <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.local_time">Local Time</span>
+                <span id="time-local-clock" class="text-2xl font-mono font-semibold text-slate-900 tabular-nums">--:--:--</span>
+              </div>
+              <div class="text-right">
+                <span id="time-local-date" class="text-[11px] text-slate-500 block">----.--.--</span>
+                <span id="time-local-zone" class="text-[11px] text-slate-400">GMT+X (TZ)</span>
               </div>
             </div>
 
-            <!-- Time details -->
-            <div class="flex-1 min-w-0 space-y-3">
-              <!-- Timezone -->
+            <!-- ·· System Time ·· -->
+            <div id="time-system-row" class="flex items-center justify-between py-3 border-t border-slate-100 transition-colors duration-300 rounded-lg px-2 -mx-2">
               <div>
-                <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.timezone">Timezone</span>
-                <span id="time-tz-value" class="text-sm font-mono font-medium text-slate-700">—</span>
-              </div>
-
-              <!-- Local Time (IP) -->
-              <div id="time-local-row" class="transition-colors duration-300 rounded-lg px-3 py-2 -mx-1">
-                <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.local_time">Local Time</span>
-                <span id="time-local-value" class="text-xs font-mono text-slate-700 break-all leading-tight">—</span>
-              </div>
-
-              <!-- System Time -->
-              <div id="time-system-row" class="transition-colors duration-300 rounded-lg px-3 py-2 -mx-1">
                 <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.system_time">System Time</span>
-                <span id="time-system-value" class="text-xs font-mono text-slate-700 break-all leading-tight">—</span>
+                <span id="time-system-clock" class="text-2xl font-mono font-semibold text-slate-900 tabular-nums">--:--:--</span>
               </div>
+              <div class="text-right">
+                <span id="time-system-date" class="text-[11px] text-slate-500 block">----.--.--</span>
+                <span id="time-system-zone" class="text-[11px] text-slate-400">GMT+X (TZ)</span>
+              </div>
+            </div>
 
-              <!-- Time difference -->
-              <p id="time-diff" class="hidden text-[11px] text-amber-600 font-medium mt-1"></p>
+          </div>
 
-              <!-- Mismatch warning -->
-              <p id="time-warn" class="hidden text-[11px] text-red-500 font-medium flex items-center gap-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                  <line x1="12" y1="9" x2="12" y2="13"></line>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-                <span class="whitespace-nowrap" data-i18n="audit.tz.mismatch">Timezone mismatch — possible VPN/proxy</span>
-              </p>
+          <!-- ·· Anonymity Alert Banner (only visible on mismatch) ·· -->
+          <div id="time-warn" class="hidden mt-3 flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
+            <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <span class="text-amber-500 text-lg font-bold leading-none animate-pulse">!</span>
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-amber-800" data-i18n="time.warn_title">Timezone Mismatch</p>
+              <p id="time-warn-text" class="text-[11px] text-amber-600 mt-0.5 leading-relaxed"></p>
             </div>
           </div>
         </div>
@@ -308,7 +302,7 @@
                 <!-- Progress arc -->
                 <circle id="score-ring" cx="60" cy="60" r="52" fill="none" stroke="#94a3b8" stroke-width="8"
                         stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
-                        style="transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s;" />
+                        class="transition-all duration-700 ease-out" />
               </svg>
               <!-- Center overlay (un-rotated) -->
               <div class="absolute inset-0 flex flex-col items-center justify-center">
@@ -460,7 +454,7 @@
       webrtcTimeout: 3000,
       mapDefaultCenter: [20, 0],
       mapDefaultZoom: 2,
-      mapFlyZoom: 10,
+      mapFlyZoom: 14,
     };
 
     /* ================================================================
@@ -526,6 +520,7 @@
         'time.local_time':         'Local Time',
         'time.system_time':        'System Time',
         'time.timezone':           'Timezone',
+        'time.warn_title':         'Timezone Mismatch',
         'footer.powered':          'Powered by',
         'footer.privacy':          'No logs. No tracking. Your IP is never stored.',
       },
@@ -587,6 +582,7 @@
         'time.local_time':         '当地时间',
         'time.system_time':        '系统时间',
         'time.timezone':           '时区',
+        'time.warn_title':         '时区不匹配',
         'footer.powered':          '由',
         'footer.privacy':          '无日志 · 无追踪 · 绝不存储您的 IP 地址',
       },
@@ -1146,43 +1142,76 @@
       renderTimeCard();
     }
 
-    /* ── Time formatting for a given IANA timezone ──────────────── */
+    /* ── Format time for a given IANA timezone → {time,date,gmt,abbr} */
     function formatTimeForZone(tz) {
       try {
         var now = new Date();
-        var opts = { timeZone: tz, weekday: 'short', month: 'short', day: '2-digit',
-                     year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit',
-                     hour12: false, hourCycle: 'h23' };
-        var parts = new Intl.DateTimeFormat('en-US', opts).formatToParts(now);
-        var dateStr = '';
-        for (var i = 0; i < parts.length; i++) {
-          if (parts[i].type === 'literal') {
-            if (parts[i].value === ':' || parts[i].value === ' ') dateStr += parts[i].value;
-          } else {
-            dateStr += parts[i].value;
-          }
-        }
-        // Compute GMT offset
+
+        // Time: HH:mm:ss
+        var timeFmt = new Intl.DateTimeFormat('en-US', {
+          timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, hourCycle: 'h23'
+        });
+        var tp = timeFmt.formatToParts(now);
+        var time = tp.map(function(p){return p.value;}).join('');
+
+        // Date: YYYY-MM-DD
+        var dateFmt = new Intl.DateTimeFormat('en-CA', {
+          timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit'
+        });
+        var date = dateFmt.format(now); // en-CA gives YYYY-MM-DD natively
+
+        // GMT offset
         var utcD = new Date(now.toLocaleString('en-US', { timeZone: 'UTC', hour12: false }));
         var tzD  = new Date(now.toLocaleString('en-US', { timeZone: tz, hour12: false }));
         var off  = Math.round((tzD - utcD) / 60000);
         var sign = off >= 0 ? '+' : '-';
         var a    = Math.abs(off);
         var gmt  = 'GMT' + sign + String(Math.floor(a / 60)).padStart(2, '0') + String(a % 60).padStart(2, '0');
-        // Timezone abbreviation
-        var abbr = tz;
+
+        // Abbreviation
+        var abbr = tz; // fallback to full IANA name
         try {
-          var tp = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' }).formatToParts(now);
-          var tn = tp.find(function (p) { return p.type === 'timeZoneName'; });
-          if (tn && tn.value.indexOf('GMT') === -1) abbr = tn.value;
+          var abbrParts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' }).formatToParts(now);
+          var found = abbrParts.find(function (p) { return p.type === 'timeZoneName'; });
+          if (found && found.value.indexOf('GMT') === -1 && found.value.indexOf('UTC') === -1) abbr = found.value;
         } catch (_) {}
-        return dateStr + ' ' + gmt + ' (' + escHtml(abbr) + ')';
+
+        return { time: time, date: date, gmt: gmt, abbr: abbr };
       } catch (_) { return null; }
     }
 
-    /* ── System (browser) time ──────────────────────────────────── */
+    /* ── System (browser) time → {time,date,gmt,abbr} ──────────── */
     function formatSystemTime() {
-      return new Date().toString();
+      var now = new Date();
+
+      // Time: HH:mm:ss
+      var timeFmt = new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, hourCycle: 'h23'
+      });
+      var tp = timeFmt.formatToParts(now);
+      var time = tp.map(function(p){return p.value;}).join('');
+
+      // Date: YYYY-MM-DD
+      var dateFmt = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      });
+      var date = dateFmt.format(now);
+
+      // GMT offset
+      var off = -now.getTimezoneOffset();
+      var sign = off >= 0 ? '+' : '-';
+      var a = Math.abs(off);
+      var gmt = 'GMT' + sign + String(Math.floor(a / 60)).padStart(2, '0') + String(a % 60).padStart(2, '0');
+
+      // Abbreviation
+      var abbrParts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'long' }).formatToParts(now);
+      var abbr = '';
+      for (var i = 0; i < abbrParts.length; i++) {
+        if (abbrParts[i].type === 'timeZoneName') { abbr = abbrParts[i].value; break; }
+      }
+      if (!abbr) abbr = gmt;
+
+      return { time: time, date: date, gmt: gmt, abbr: abbr };
     }
 
     /* ── Timezone mismatch detector ─────────────────────────────── */
@@ -1191,7 +1220,7 @@
       var remote = getTZOffsetMinutes(ipTimezone);
       var local  = -new Date().getTimezoneOffset();
       if (remote === null) return false;
-      return Math.abs(remote - local) > 60;
+      return Math.abs(remote - local) > 30;
     }
 
     /* ── Render the Time Comparison card ────────────────────────── */
@@ -1200,59 +1229,66 @@
       var card      = document.getElementById('time-card');
       if (!container || !card) return;
 
-      // System time is always available
-      var sysTime = formatSystemTime();
-      document.getElementById('time-system-value').textContent = sysTime;
+      // System time is always live
+      var sys = formatSystemTime();
+      if (sys) {
+        document.getElementById('time-system-clock').textContent = sys.time;
+        document.getElementById('time-system-date').textContent  = sys.date;
+        document.getElementById('time-system-zone').textContent  = sys.gmt + ' (' + sys.abbr + ')';
+      }
 
-      // Prefer non-fallback IP data for remote timezone
+      // Prefer non-fallback IP data
       var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
                : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
                : state.ipv4 || state.ipv6;
 
       if (!data || !data.timezone) {
-        // No remote data yet — show placeholders for IP side, system time is live
-        document.getElementById('time-tz-value').textContent   = '—';
-        document.getElementById('time-local-value').textContent = '—';
+        document.getElementById('time-tz-value').textContent      = '—';
+        document.getElementById('time-local-clock').textContent    = '--:--:--';
+        document.getElementById('time-local-date').textContent     = '----.--.--';
+        document.getElementById('time-local-zone').textContent     = 'GMT+X (TZ)';
         return;
       }
 
-      var tzName    = data.timezone;
-      var localTime = formatTimeForZone(tzName);
-      var mismatch  = doTimezonesDiffer(tzName);
+      var tzName  = data.timezone;
+      var local   = formatTimeForZone(tzName);
+      var mismatch = doTimezonesDiffer(tzName);
 
-      document.getElementById('time-tz-value').textContent   = tzName;
-      document.getElementById('time-local-value').textContent = localTime || '—';
-
-      // Compute hour difference
-      var diffEl = document.getElementById('time-diff');
-      if (diffEl && data && data.timezone) {
-        var remoteOff = getTZOffsetMinutes(data.timezone);
-        var localOff  = -new Date().getTimezoneOffset();
-        if (remoteOff !== null) {
-          var diffH = Math.round((localOff - remoteOff) / 60 * 10) / 10;
-          if (Math.abs(diffH) > 0.5) {
-            var ahead = diffH > 0;
-            diffEl.textContent = (currentLang === 'zh' ? '您的系统时间比当地时间' : 'Your system time is ')
-              + (ahead ? (currentLang === 'zh' ? '快 ' : 'ahead by ') : (currentLang === 'zh' ? '慢 ' : 'behind by '))
-              + Math.abs(diffH).toFixed(1) + ' ' + (currentLang === 'zh' ? '小时' : 'hours');
-            diffEl.classList.remove('hidden');
-          } else {
-            diffEl.classList.add('hidden');
-          }
-        }
+      document.getElementById('time-tz-value').textContent = tzName;
+      if (local) {
+        document.getElementById('time-local-clock').textContent = local.time;
+        document.getElementById('time-local-date').textContent  = local.date;
+        document.getElementById('time-local-zone').textContent  = local.gmt + ' (' + local.abbr + ')';
       }
 
-      // Highlight rows + red borders on mismatch
+      // ── Mismatch alert ──────────────────────────────────────────
       var localRow = document.getElementById('time-local-row');
       var sysRow   = document.getElementById('time-system-row');
       var warnEl   = document.getElementById('time-warn');
-      if (mismatch) {
-        if (localRow) localRow.className = 'bg-red-50/70 border border-red-400 rounded-lg px-3 py-2 -mx-1';
-        if (sysRow)   sysRow.className   = 'bg-red-50/70 border border-red-400 rounded-lg px-3 py-2 -mx-1';
-        if (warnEl)   warnEl.classList.remove('hidden');
+      var warnText = document.getElementById('time-warn-text');
+
+      if (mismatch && data.timezone) {
+        // Red border on rows
+        if (localRow) localRow.className = localRow.className.replace(/border-red-400|bg-red-50[/0-9]*/g, '') + ' border-l-4 border-red-400 bg-red-50/50';
+        if (sysRow)   sysRow.className   = sysRow.className.replace(/border-red-400|bg-red-50[/0-9]*/g, '')   + ' border-l-4 border-red-400 bg-red-50/50';
+
+        // Compute absolute hour difference
+        var remoteOff = getTZOffsetMinutes(data.timezone);
+        var localOff  = -new Date().getTimezoneOffset();
+        var diffH = remoteOff !== null ? Math.abs(Math.round((localOff - remoteOff) / 60 * 10) / 10) : null;
+
+        if (diffH !== null && diffH > 0.5) {
+          if (warnEl) warnEl.classList.remove('hidden');
+          if (warnText) {
+            warnText.textContent = (currentLang === 'zh'
+              ? '您的系统时间与 IP 归属地时间存在 ' + diffH.toFixed(1) + ' 小时的偏差，这可能会降低您的匿名度。'
+              : 'Your system time differs from the IP location by ' + diffH.toFixed(1) + ' hours. This may reduce your anonymity score.');
+          }
+        }
       } else {
-        if (localRow) localRow.className = 'transition-colors duration-300 rounded-lg px-3 py-2 -mx-1';
-        if (sysRow)   sysRow.className   = 'transition-colors duration-300 rounded-lg px-3 py-2 -mx-1';
+        // Clean state — no red borders
+        if (localRow) localRow.className = 'flex items-center justify-between py-3 transition-colors duration-300 rounded-lg px-2 -mx-2';
+        if (sysRow)   sysRow.className   = 'flex items-center justify-between py-3 border-t border-slate-100 transition-colors duration-300 rounded-lg px-2 -mx-2';
         if (warnEl)   warnEl.classList.add('hidden');
       }
     }
@@ -1341,9 +1377,17 @@
 
       ring.setAttribute('stroke-dashoffset', offset);
       ring.setAttribute('stroke', color);
+
+      // Build Tailwind color class string (dynamic, so set via className)
+      var colorClass = 'text-slate-300';
+      if (score >= 75)      colorClass = 'text-emerald-500';
+      else if (score >= 50) colorClass = 'text-amber-500';
+      else if (score >= 25) colorClass = 'text-orange-500';
+      else                  colorClass = 'text-red-500';
+
       textEl.textContent = score + '%';
-      textEl.style.color = color;
-      if (labelEl) labelEl.style.color = color;
+      textEl.className = 'text-[28px] font-bold font-mono leading-none ' + colorClass;
+      if (labelEl) labelEl.className = 'text-[10px] font-semibold tracking-wider mt-0.5 ' + colorClass;
       subEl.textContent  = t(labelKey);
     }
 
