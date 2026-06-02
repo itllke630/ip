@@ -687,29 +687,47 @@
     }
 
     /**
+     * Detect whether an error is a low-level network/DNS failure
+     * (as opposed to an HTTP error). On such failures the fallback is
+     * unlikely to help — skip it to save time.
+     */
+    function isNetworkError(e) {
+      var msg = (e.message || '').toLowerCase();
+      return msg.indexOf('failed to fetch') !== -1
+          || msg.indexOf('networkerror') !== -1
+          || msg.indexOf('timeout') !== -1
+          || msg.indexOf('abort') !== -1
+          || msg.indexOf('dns') !== -1;
+    }
+
+    /**
      * Fetch from the primary endpoint; on failure, try the fallback.
      * Returns { ip, ...geo } or throws.
      */
-    async function fetchWithFallback(primary, fallback, label) {
+    async function fetchWithFallback(primary, fallback, label, timeoutMs) {
+      timeoutMs = timeoutMs || 8000;
       try {
-        var res = await fetchWithTimeout(primary, 8000);
+        var res = await fetchWithTimeout(primary, timeoutMs);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return await res.json();
       } catch (e1) {
+        // Network errors (DNS, no-route) → skip fallback, fail fast
+        if (isNetworkError(e1)) {
+          throw e1;
+        }
         console.warn('[ip.linkozen] Primary endpoint failed for ' + label + ': ' + e1.message);
         if (!fallback) throw e1;
         try {
-          var res2 = await fetchWithTimeout(fallback, 8000);
+          var res2 = await fetchWithTimeout(fallback, Math.min(timeoutMs, 4000));
           if (!res2.ok) throw new Error('HTTP ' + res2.status);
           var data = await res2.json();
           // Normalise ipify response shape to match our worker
-          // ipify returns { ip: "x.x.x.x" } — minimal; that's ok
           if (!data.country && !data.asOrganization) {
             data._fallback = true;
           }
           return data;
         } catch (e2) {
-          console.error('[ip.linkozen] Fallback also failed for ' + label + ': ' + e2.message);
+          console.warn('[ip.linkozen] Fallback also failed for ' + label + ': ' + e2.message);
           throw e2;
         }
       }
@@ -720,7 +738,8 @@
     }
 
     async function probeIPv6() {
-      return fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallback, 'IPv6');
+      // IPv6 is often unavailable — shorter timeout, no reason to wait 8s
+      return fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallback, 'IPv6', 4000);
     }
 
     /* ================================================================
