@@ -54,18 +54,45 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           node << 'ENDSCRIPT'
-          const { execSync } = require('child_process');
+          const https = require('https');
+
+          const token = process.env.CLOUDFLARE_API_TOKEN || '';
+          const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || '';
+          const projectName = 'ip-linkozen';
+          const baseUrl = 'https://api.cloudflare.com/client/v4/accounts/' + accountId +
+                          '/pages/projects/' + projectName + '/envvars';
+
           const vars = [
-            ['IPINFO_TOKEN',    process.env.IPINFO_TOKEN    || ''],
-            ['ABUSEIPDB_TOKEN', process.env.ABUSEIPDB_TOKEN || ''],
-            ['AD_TOP_HTML',     process.env.AD_TOP_HTML     || ''],
-            ['AD_160_HTML',     process.env.AD_160_HTML     || ''],
-          ];
-          for (const [name, val] of vars) {
-            if (!val) { console.log('Skip ' + name + ' (empty)'); continue; }
-            const cmd = 'npx wrangler pages secret set ' + name +
-                        ' --project-name=ip-linkozen --branch=main';
-            execSync(cmd, { input: val, stdio: ['pipe', 'inherit', 'inherit'] });
-            console.log('Set ' + name + ' (len=' + val.length + ')');
-          }
+            { name: 'IPINFO_TOKEN',    value: process.env.IPINFO_TOKEN    || '' },
+            { name: 'ABUSEIPDB_TOKEN', value: process.env.ABUSEIPDB_TOKEN || '' },
+            { name: 'AD_TOP_HTML',     value: process.env.AD_TOP_HTML     || '' },
+            { name: 'AD_160_HTML',     value: process.env.AD_160_HTML     || '' },
+          ].filter(v => v.value);
+
+          if (vars.length === 0) { console.log('No env vars to set.'); process.exit(0); }
+
+          // Cloudflare API: PATCH to upsert env vars
+          const body = JSON.stringify(vars.map(v => ({ name: v.name, value: v.value })));
+          const req = https.request(baseUrl, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': 'Bearer ' + token,
+              'Content-Type': 'application/json',
+            },
+          }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+              const r = JSON.parse(data);
+              if (r.success) {
+                console.log('Env vars set:', vars.map(v => v.name).join(', '));
+              } else {
+                console.error('API error:', JSON.stringify(r.errors));
+                process.exit(1);
+              }
+            });
+          });
+          req.on('error', e => { console.error(e); process.exit(1); });
+          req.write(body);
+          req.end();
           ENDSCRIPT
