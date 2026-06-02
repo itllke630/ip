@@ -57,7 +57,7 @@
 
   <style>
     /* ── Leaflet overrides ── */
-    #map { height: 450px; width: 100%; border-radius: 1rem; z-index: 0; }
+    #map { height: 380px; width: 100%; border-radius: 1rem; z-index: 0; }
     .leaflet-control-zoom a {
       border-radius: 0.5rem !important;
       box-shadow: 0 1px 3px rgba(0,0,0,.08) !important;
@@ -69,20 +69,6 @@
       border-radius: 0.5rem;
       animation: shimmer 1.6s ease-in-out infinite;
     }
-
-    /* ── Dark mode ─────────────────────────────────────────── */
-    .dark body { background-color: #0f172a; color: #e2e8f0; }
-    .dark .bg-white { background-color: #1e293b; }
-    .dark .bg-slate-50 { background-color: #0f172a; }
-    .dark .border-slate-100 { border-color: #334155; }
-    .dark .text-slate-900 { color: #f1f5f9; }
-    .dark .text-slate-700 { color: #cbd5e1; }
-    .dark .text-slate-500 { color: #94a3b8; }
-    .dark .text-slate-400 { color: #64748b; }
-    .dark .bg-slate-800 { background-color: #0f172a; }
-    .dark .bg-slate-100 { background-color: #1e293b; }
-    .dark .bg-slate-200 { background-color: #334155; }
-    .dark .hover\:bg-slate-100:hover { background-color: #1e293b; }
 
     /* ── CJK font fallbacks ────────────────────────────────── */
     :lang(zh), :lang(ja), :lang(ko), [lang="zh-CN"], [lang="zh-TW"] {
@@ -96,34 +82,31 @@
   </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-[#0f172a] text-slate-200 font-sans antialiased min-h-screen flex flex-col">
 
   <!-- ================================================================ -->
   <!--  HEADER                                                           -->
   <!-- ================================================================ -->
-  <header class="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-50">
+  <header class="bg-[#1e293b] border-b border-slate-700 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <!-- Brand -->
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-slate-900 dark:bg-white rounded-xl flex items-center justify-center text-white dark:text-slate-900 font-bold text-sm shadow-sm">
+        <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center text-[#0f172a] font-bold text-sm shadow-sm">
           IP
         </div>
         <div>
-          <h1 class="text-lg font-semibold text-slate-900 dark:text-white leading-tight" data-i18n="app.title">IP Lookup</h1>
-          <p class="text-xs text-slate-400 dark:text-slate-500 leading-tight" data-i18n="app.subtitle">Dual-Stack Detection &amp; Privacy Audit</p>
+          <h1 class="text-lg font-semibold text-white leading-tight" data-i18n="app.title">IP Lookup</h1>
+          <p class="text-xs text-slate-400 leading-tight" data-i18n="app.subtitle">Dual-Stack Detection &amp; Privacy Audit</p>
         </div>
       </div>
 
       <!-- Right: Dark Mode + Lang Switcher -->
       <div class="flex items-center gap-2">
-        <!-- Dark mode toggle -->
+        <!-- Light mode toggle (off by default, dark is permanent) -->
         <button id="btn-dark" onclick="toggleDark()"
-                class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title="Toggle dark mode">
-          <svg id="icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-          <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                title="Toggle light mode">
+          <svg id="icon-sun" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
           </svg>
         </button>
@@ -131,10 +114,10 @@
         <!-- Language dropdown -->
         <div id="lang-dropdown" class="relative">
           <button id="btn-lang-toggle"
-                  class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all text-sm"
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-700/50 border border-slate-600 hover:border-slate-500 transition-all text-sm"
                   onclick="toggleLangMenu()">
             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            <span id="btn-lang-label" class="text-slate-700 dark:text-slate-200 font-medium">English</span>
+            <span id="btn-lang-label" class="text-slate-200 font-medium">English</span>
             <svg class="w-3 h-3 text-slate-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
 
@@ -178,7 +161,7 @@
       <div class="lg:col-span-8 space-y-5">
 
         <!-- ── Map Card ──────────────────────────────────────────── -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden animate-slide-up">
+        <div class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm overflow-hidden animate-slide-up">
           <div class="px-5 pt-4 pb-2 flex items-center justify-between">
             <h2 class="text-sm font-semibold text-slate-700" data-i18n="map.title">Geolocation Map</h2>
             <span id="map-coords" class="text-xs font-mono text-slate-400"></span>
@@ -191,7 +174,7 @@
 
           <!-- ·· IPv4 Card ·· -->
           <div id="card-ipv4"
-               class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-fade-in">
+               class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-fade-in">
             <!-- Skeleton -->
             <div id="skel-ipv4" class="space-y-3">
               <div class="flex items-center gap-2 mb-4">
@@ -230,7 +213,7 @@
 
           <!-- ·· IPv6 Card ·· -->
           <div id="card-ipv6"
-               class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-fade-in">
+               class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-fade-in">
             <!-- Skeleton -->
             <div id="skel-ipv6" class="space-y-3">
               <div class="flex items-center gap-2 mb-4">
@@ -269,7 +252,7 @@
         </div>
 
         <!-- ── Time Analysis Card ───────────────────────────────── -->
-        <div id="time-card-container" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-slide-up">
+        <div id="time-card-container" class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-slide-up">
           <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="10"></circle>
@@ -285,7 +268,7 @@
             <div id="time-local-row" class="flex items-center justify-between py-3 transition-colors duration-300 rounded-lg px-2 -mx-2">
               <div>
                 <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.local_time">Local Time</span>
-                <span id="time-local-clock" class="text-2xl font-mono font-semibold text-slate-900 tabular-nums">--:--:--</span>
+                <span id="time-local-clock" class="text-2xl font-mono font-semibold text-white tabular-nums">--:--:--</span>
               </div>
               <div class="text-right">
                 <span id="time-local-date" class="text-[11px] text-slate-500 block">----.--.--</span>
@@ -294,10 +277,10 @@
             </div>
 
             <!-- ·· System Time ·· -->
-            <div id="time-system-row" class="flex items-center justify-between py-3 border-t border-slate-100 transition-colors duration-300 rounded-lg px-2 -mx-2">
+            <div id="time-system-row" class="flex items-center justify-between py-3 border-t border-slate-700 transition-colors duration-300 rounded-lg px-2 -mx-2">
               <div>
                 <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.system_time">System Time</span>
-                <span id="time-system-clock" class="text-2xl font-mono font-semibold text-slate-900 tabular-nums">--:--:--</span>
+                <span id="time-system-clock" class="text-2xl font-mono font-semibold text-white tabular-nums">--:--:--</span>
               </div>
               <div class="text-right">
                 <span id="time-system-date" class="text-[11px] text-slate-500 block">----.--.--</span>
@@ -320,7 +303,7 @@
         </div>
 
         <!-- ── Privacy Audit Card ────────────────────────────────── -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-slide-up">
+        <div class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-slide-up">
           <h2 class="text-sm font-semibold text-slate-700 mb-5 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -671,20 +654,23 @@
 
     let currentLang = 'en';
 
-    // ── Dark mode ──────────────────────────────────────────────────
-    function applyDark() {
-      var dark = localStorage.getItem('ip-dark') === '1';
-      document.documentElement.classList.toggle('dark', dark);
-      var moon = document.getElementById('icon-moon');
-      var sun  = document.getElementById('icon-sun');
-      if (moon) moon.classList.toggle('hidden', dark);
-      if (sun)  sun.classList.toggle('hidden', !dark);
+    // ── Light mode toggle (dark is permanent default) ────────────
+    function applyLight() {
+      var light = localStorage.getItem('ip-light') === '1';
+      if (light) {
+        document.body.classList.add('bg-slate-50');
+        document.body.classList.remove('bg-[#0f172a]');
+        document.body.classList.add('text-slate-800');
+        document.body.classList.remove('text-slate-200');
+      } // else stays dark
     }
     window.toggleDark = function () {
-      var dark = localStorage.getItem('ip-dark') !== '1';
-      localStorage.setItem('ip-dark', dark ? '1' : '0');
-      applyDark();
+      var light = localStorage.getItem('ip-light') !== '1';
+      localStorage.setItem('ip-light', light ? '1' : '0');
+      location.reload(); // simple: reload to apply
     };
+    // On load, if light mode was previously selected, apply it
+    applyLight();
 
     // ── Language dropdown ──────────────────────────────────────────
     function buildLangMenu() {
@@ -693,10 +679,10 @@
       var html = '';
       for (var i = 0; i < LANGS.length; i++) {
         var L = LANGS[i];
-        var active = L.code === currentLang ? ' bg-blue-50 dark:bg-slate-700' : '';
-        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
-          '<span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 w-7">' + L.region + '</span>' +
-          '<span class="text-slate-700 dark:text-slate-200">' + L.native + '</span>' +
+        var active = L.code === currentLang ? ' bg-slate-600/50' : '';
+        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-600/30 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+          '<span class="text-[11px] font-bold text-slate-500 w-7">' + L.region + '</span>' +
+          '<span class="text-slate-200">' + L.native + '</span>' +
           '</button>';
       }
       menu.innerHTML = html;
@@ -1173,7 +1159,7 @@
           if (isSide) {
             el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
           } else {
-            el.className = 'w-full h-[50px] md:h-[90px] rounded-xl overflow-hidden';
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
           }
           el.innerHTML = '';
 
@@ -1430,8 +1416,8 @@
 
       if (mismatch && data.timezone) {
         // Red border on rows
-        if (localRow) localRow.className = localRow.className.replace(/border-red-400|bg-red-50[/0-9]*/g, '') + ' border-l-4 border-red-400 bg-red-50/50';
-        if (sysRow)   sysRow.className   = sysRow.className.replace(/border-red-400|bg-red-50[/0-9]*/g, '')   + ' border-l-4 border-red-400 bg-red-50/50';
+        if (localRow) localRow.className = 'flex items-center justify-between py-3 transition-colors duration-300 rounded-lg px-2 -mx-2 border-l-4 border-amber-500/70';
+        if (sysRow)   sysRow.className   = 'flex items-center justify-between py-3 border-t border-slate-700 transition-colors duration-300 rounded-lg px-2 -mx-2 border-l-4 border-amber-500/70';
 
         // Compute absolute hour difference
         var remoteOff = getTZOffsetMinutes(data.timezone);
@@ -1449,7 +1435,7 @@
       } else {
         // Clean state — no red borders
         if (localRow) localRow.className = 'flex items-center justify-between py-3 transition-colors duration-300 rounded-lg px-2 -mx-2';
-        if (sysRow)   sysRow.className   = 'flex items-center justify-between py-3 border-t border-slate-100 transition-colors duration-300 rounded-lg px-2 -mx-2';
+        if (sysRow)   sysRow.className   = 'flex items-center justify-between py-3 border-t border-slate-700 transition-colors duration-300 rounded-lg px-2 -mx-2';
         if (warnEl)   warnEl.classList.add('hidden');
       }
     }
@@ -1712,8 +1698,8 @@
      * ================================================================ */
 
     async function init() {
-      // 1. Apply dark mode
-      applyDark();
+      // 1. Apply light mode if previously selected
+      applyLight();
 
       // 2. Detect language: URL param > localStorage > navigator > default
       var urlParams = new URLSearchParams(window.location.search);
