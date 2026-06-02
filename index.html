@@ -1037,11 +1037,33 @@
 
       function fill(el, code, labelKey) {
         if (!el) return;
-        // Treat literal placeholder strings (not replaced by CI) as empty
+        // Treat placeholder strings (not replaced by CI) as empty
         var isPlaceholder = !code || (typeof code === 'string' && code.indexOf('__AD_') === 0);
         if (!isPlaceholder) {
-          el.innerHTML = code;
-          el.className = el.className.replace(/border-dashed/g, '');
+          // Clear container & strip placeholder styles
+          el.innerHTML = '';
+          el.className = el.className.replace(/border-dashed/g, '').replace(/flex items-center justify-center/g, '');
+
+          // Parse into temp container
+          var tmp = document.createElement('div');
+          tmp.innerHTML = code;
+
+          // Re-create <script> elements so they actually execute
+          var oldScripts = tmp.querySelectorAll('script');
+          for (var s = 0; s < oldScripts.length; s++) {
+            var old = oldScripts[s];
+            var neu = document.createElement('script');
+            for (var a = 0; a < old.attributes.length; a++) {
+              neu.setAttribute(old.attributes[a].name, old.attributes[a].value);
+            }
+            neu.textContent = old.textContent;
+            old.parentNode.replaceChild(neu, old);
+          }
+
+          // Move all nodes into the real container
+          while (tmp.firstChild) {
+            el.appendChild(tmp.firstChild);
+          }
         } else {
           el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
           if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
