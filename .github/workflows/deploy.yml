@@ -1,37 +1,76 @@
-# .github/workflows/deploy.yml
-# Deploys to Cloudflare Pages (static site + Functions API).
-# Environment variables (IPINFO_TOKEN, ABUSEIPDB_TOKEN, AD_TOP_HTML, AD_160_HTML)
-# are pushed to Cloudflare Pages production environment via the `secrets` parameter.
-# Pages Functions read them via context.env.
-
-name: Deploy to Cloudflare Pages
+name: Deploy to Cloudflare
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
   workflow_dispatch:
 
-concurrency:
-  group: cf-pages-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  deploy:
-    name: Deploy
+  check_credentials:
     runs-on: ubuntu-latest
+    name: Check for Cloudflare Credentials
+    outputs:
+      has_creds: ${{ steps.cf_creds.outputs.has_creds }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check for Cloudflare credentials
+        id: cf_creds
+        run: |
+          if [ -z "${{ secrets.CF_API_TOKEN }}" ] || [ -z "${{ secrets.CF_ACCOUNT_ID }}" ]; then
+            echo "Cloudflare credentials not found, skipping deployment."
+            echo "has_creds=false" >> $GITHUB_OUTPUT
+          else
+            echo "Cloudflare credentials found."
+            echo "has_creds=true" >> $GITHUB_OUTPUT
+          fi
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    needs: check_credentials
+    if: needs.check_credentials.outputs.has_creds == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Wrangler
+        run: |
+          python3 << 'PYEOF'
+          import os
+          with open('wrangler.toml', 'r') as f:
+              lines = f.readlines()
+          all_vars = [
+              'IPINFO_TOKEN', 'ABUSEIPDB_TOKEN',
+              'AD_TOP_HTML', 'AD_160_HTML',
+          ]
+          result = []
+          for line in lines:
+              for var in all_vars:
+                  val = os.environ.get(var, '')
+                  if line.strip().startswith(var + ' =') and not val:
+                      line = None
+                      break
+                  esc = val.replace("'''", "''" + "'")
+                  line = line.replace('"${' + var + '}"', "'''" + esc + "'''")
+              if line is not None:
+                  result.append(line)
+          with open('wrangler.toml', 'w') as f:
+              f.writelines(result)
+          print('wrangler.toml configured.')
+          PYEOF
+        env:
+          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
+          ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
+          AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
+          AD_160_HTML: ${{ secrets.AD_160_HTML }}
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken:    ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId:   ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ip-linkozen
-          directory:   .
-          branch:      main
-          secrets: |
-            IPINFO_TOKEN=${{ secrets.IPINFO_TOKEN }}
-            ABUSEIPDB_TOKEN=${{ secrets.ABUSEIPDB_TOKEN }}
-            AD_TOP_HTML=${{ secrets.AD_TOP_HTML }}
-            AD_160_HTML=${{ secrets.AD_160_HTML }}
+        run: npx wrangler pages deploy . --project-name=ip-linkozen --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
