@@ -30,8 +30,7 @@ export async function onRequest(context) {
     });
   }
 
-  // Injected by CI from GitHub Secrets (deploy.yml)
-  const token = '__ABUSEIPDB_TOKEN__';
+  const token = (typeof __ABUSEIPDB_TOKEN__ !== 'undefined') ? __ABUSEIPDB_TOKEN__ : '';
 
   try {
     const res = await fetch(

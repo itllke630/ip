@@ -49,17 +49,20 @@ jobs:
             'window.__AD_TOP = ' + JSON.stringify(process.env.AD_TOP_HTML || '') + ';\n' +
             'window.__AD_SKY = ' + JSON.stringify(process.env.AD_160_HTML || '') + ';\n');
 
-          // Proxy functions — inject API tokens
+          // Proxy functions — inject API tokens (JSON.stringify for safe escaping)
           const ipinfoToken = process.env.IPINFO_TOKEN || '';
           const abuseToken  = process.env.ABUSEIPDB_TOKEN || '';
 
-          let ipinfo = fs.readFileSync('functions/api/ipinfo.js', 'utf8');
-          ipinfo = ipinfo.replace('__IPINFO_TOKEN__', ipinfoToken);
-          fs.writeFileSync('functions/api/ipinfo.js', ipinfo);
+          const replaceToken = (filePath, placeholder, value) => {
+            let content = fs.readFileSync(filePath, 'utf8');
+            // Replace ALL occurrences (placeholder appears twice on the ternary line)
+            content = content.split(placeholder).join(JSON.stringify(value));
+            fs.writeFileSync(filePath, content);
+            console.log('Injected ' + placeholder + ' into ' + filePath + ' (len=' + value.length + ')');
+          };
 
-          let abuse = fs.readFileSync('functions/api/abuseipdb.js', 'utf8');
-          abuse = abuse.replace('__ABUSEIPDB_TOKEN__', abuseToken);
-          fs.writeFileSync('functions/api/abuseipdb.js', abuse);
+          replaceToken('functions/api/ipinfo.js',   '__IPINFO_TOKEN__',    ipinfoToken);
+          replaceToken('functions/api/abuseipdb.js', '__ABUSEIPDB_TOKEN__', abuseToken);
           ENDSCRIPT
 
       - name: Deploy to Cloudflare Pages

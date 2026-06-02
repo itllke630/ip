@@ -30,9 +30,8 @@ export async function onRequest(context) {
     });
   }
 
-  // Injected by CI from GitHub Secrets (deploy.yml)
-  const token = '__IPINFO_TOKEN__';
-  const tokenParam = token.startsWith('__') ? '' : '?token=' + token;
+  const token = (typeof __IPINFO_TOKEN__ !== 'undefined') ? __IPINFO_TOKEN__ : '';
+  const tokenParam = token ? '?token=' + token : '';
 
   try {
     const res = await fetch('https://ipinfo.io/' + encodeURIComponent(ip) + tokenParam);
