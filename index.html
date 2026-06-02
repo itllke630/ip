@@ -166,7 +166,7 @@
                 </button>
               </div>
               <p id="ipv4-address" class="text-2xl font-mono font-medium text-slate-900 tracking-tight break-all"></p>
-              <div class="text-sm text-slate-500 space-y-1" id="ipv4-details"></div>
+              <div class="mt-3" id="ipv4-details"></div>
             </div>
             <!-- Error -->
             <div id="err-ipv4" class="hidden text-center py-4">
@@ -205,12 +205,67 @@
                 </button>
               </div>
               <p id="ipv6-address" class="text-xl font-mono font-medium text-slate-900 tracking-tight break-all"></p>
-              <div class="text-sm text-slate-500 space-y-1" id="ipv6-details"></div>
+              <div class="mt-3" id="ipv6-details"></div>
             </div>
             <!-- Error -->
             <div id="err-ipv6" class="hidden text-center py-4">
               <p class="text-sm text-amber-500 font-medium" data-i18n="error.ipv6_unavailable">IPv6 Not Available</p>
               <p class="text-xs text-slate-400 mt-1" id="err-ipv6-msg"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Time Comparison Card ──────────────────────────────── -->
+        <div id="time-card-container" class="hidden bg-white rounded-2xl border border-slate-100 shadow-sm p-5 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span data-i18n="time.title">Time Analysis</span>
+          </h2>
+
+          <div id="time-card" class="flex flex-col sm:flex-row gap-4">
+
+            <!-- Clock icon -->
+            <div class="flex-shrink-0 flex items-start pt-1">
+              <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
+                <svg class="w-7 h-7 text-slate-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Time details -->
+            <div class="flex-1 min-w-0 space-y-3">
+              <!-- Timezone -->
+              <div>
+                <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.timezone">Timezone</span>
+                <span id="time-tz-value" class="text-sm font-mono font-medium text-slate-700">—</span>
+              </div>
+
+              <!-- Local Time (IP) -->
+              <div id="time-local-row" class="transition-colors duration-300 rounded-lg px-3 py-2 -mx-1">
+                <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.local_time">Local Time</span>
+                <span id="time-local-value" class="text-xs font-mono text-slate-700 break-all leading-tight">—</span>
+              </div>
+
+              <!-- System Time -->
+              <div id="time-system-row" class="transition-colors duration-300 rounded-lg px-3 py-2 -mx-1">
+                <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.system_time">System Time</span>
+                <span id="time-system-value" class="text-xs font-mono text-slate-700 break-all leading-tight">—</span>
+              </div>
+
+              <!-- Mismatch warning -->
+              <p id="time-warn" class="hidden text-[11px] text-red-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span class="whitespace-nowrap" data-i18n="audit.tz.mismatch">Timezone mismatch — possible VPN/proxy</span>
+              </p>
             </div>
           </div>
         </div>
@@ -412,6 +467,20 @@
         'audit.score.moderate':    'Moderate Protection',
         'audit.score.weak':        'Weak Protection',
         'audit.score.poor':        'Minimal Protection',
+        'detail.country':          'Country',
+        'detail.region':           'Region',
+        'detail.city':             'City',
+        'detail.postal':           'Postal Code',
+        'detail.hostname':         'Hostname',
+        'detail.ip_range':         'IP Range',
+        'detail.isp':              'ISP',
+        'detail.asn':              'ASN',
+        'detail.company':          'Company',
+        'common.na':               'N/A',
+        'time.title':              'Time Analysis',
+        'time.local_time':         'Local Time',
+        'time.system_time':        'System Time',
+        'time.timezone':           'Timezone',
         'footer.powered':          'Powered by',
         'footer.privacy':          'No logs. No tracking. Your IP is never stored.',
       },
@@ -453,6 +522,20 @@
         'audit.score.moderate':    '一般防护',
         'audit.score.weak':        '防护较弱',
         'audit.score.poor':        '防护不足',
+        'detail.country':          '国家',
+        'detail.region':           '省份',
+        'detail.city':             '城市',
+        'detail.postal':           '邮编',
+        'detail.hostname':         '主机',
+        'detail.ip_range':         'IP 范围',
+        'detail.isp':              '提供商',
+        'detail.asn':              'AS 号码',
+        'detail.company':          '公司',
+        'common.na':               '无',
+        'time.title':              '时间分析',
+        'time.local_time':         '当地时间',
+        'time.system_time':        '系统时间',
+        'time.timezone':           '时区',
         'footer.powered':          '由',
         'footer.privacy':          '无日志 · 无追踪 · 绝不存储您的 IP 地址',
       },
@@ -853,30 +936,71 @@
       if (err)  err.classList.remove('hidden');
     }
 
-    /** Render a detail row as HTML. */
-    function makeDetailRows(d) {
-      if (!d) return '';
-      var rows = [];
-      var flag = d.country ? countryFlagEmoji(d.country) + ' ' : '';
-      if (d.country) rows.push('<span>' + flag + (d.city || d.region ? (d.city || '') + (d.city && d.region ? ', ' : '') + (d.region || '') : d.country) + '</span>');
-      if (d.asOrganization) rows.push('<span class="block text-slate-400">🏢 ' + escHtml(d.asOrganization) + (d.asn ? ' (AS' + escHtml(String(d.asn)) + ')' : '') + '</span>');
-      if (d.timezone) rows.push('<span class="block text-slate-400">🕐 ' + escHtml(d.timezone) + '</span>');
-      if (d._fallback) rows.push('<span class="block text-amber-500 text-xs mt-1">⚠ ' + t('error.fetch') + '</span>');
-      return rows.join('');
-    }
-
+    /* ── HTML escape ────────────────────────────────────────────── */
     function escHtml(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+    /* ── Country flag emoji ─────────────────────────────────────── */
     function countryFlagEmoji(code) {
       if (!code || code.length !== 2) return '';
       var a = code.toUpperCase();
-      var cp = String.fromCodePoint(0x1F1E6 + a.charCodeAt(0) - 65);
-      cp += String.fromCodePoint(0x1F1E6 + a.charCodeAt(1) - 65);
-      return cp;
+      return String.fromCodePoint(0x1F1E6 + a.charCodeAt(0) - 65)
+           + String.fromCodePoint(0x1F1E6 + a.charCodeAt(1) - 65);
     }
 
+    /* ── Country code → full name (Intl.DisplayNames, zero-dep) ─── */
+    function getCountryName(code) {
+      try {
+        var locale = currentLang === 'zh' ? 'zh-CN' : 'en-US';
+        return new Intl.DisplayNames([locale], { type: 'region' }).of(code.toUpperCase()) || code;
+      } catch (_) { return code; }
+    }
+
+    /* ── IPv4 /24 range ─────────────────────────────────────────── */
+    function getIPv4Range(ip) {
+      var parts = ip.split('.');
+      if (parts.length !== 4) return null;
+      var p = parts.slice(0, 3).join('.');
+      return p + '.0 - ' + p + '.255';
+    }
+
+    /* ── Build a two-column key-value detail table ──────────────── */
+    function buildDetailTable(d, type) {
+      if (!d) return '';
+      var na = '<span class="text-slate-300">' + t('common.na') + '</span>';
+      var leftRows = [], rightRows = [];
+
+      // Left column
+      var country = d.country ? (countryFlagEmoji(d.country) + ' ' + getCountryName(d.country) + ' (' + escHtml(d.country) + ')') : na;
+      leftRows.push(row('detail.country', country));
+      leftRows.push(row('detail.region',  d.region        ? escHtml(d.region) : na));
+      leftRows.push(row('detail.city',    d.city          ? escHtml(d.city)   : na));
+      leftRows.push(row('detail.postal',  d.postal_code   ? escHtml(String(d.postal_code)) : na));
+      leftRows.push(row('detail.hostname', na));
+
+      // Right column
+      var ipRange = getIPv4Range(d.ip);
+      rightRows.push(row('detail.ip_range', ipRange ? escHtml(ipRange) : na));
+      rightRows.push(row('detail.isp',    d.asOrganization ? escHtml(d.asOrganization) : na));
+      rightRows.push(row('detail.asn',    d.asn            ? 'AS' + escHtml(String(d.asn)) + ' ' + (d.asOrganization ? escHtml(d.asOrganization) : '') : na));
+
+      // Fallback warning
+      if (d._fallback) {
+        rightRows.push('<div class="mt-2 text-[11px] text-amber-500">⚠ ' + t('error.fetch') + '</div>');
+      }
+
+      return '<div class="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">'
+        + '<div class="space-y-2.5">' + leftRows.join('') + '</div>'
+        + '<div class="space-y-2.5 border-l border-slate-100 pl-4">' + rightRows.join('') + '</div>'
+        + '</div>';
+
+      function row(labelKey, value) {
+        return '<div><span class="text-slate-400 block text-[11px] leading-tight">' + t(labelKey) + '</span><span class="text-slate-700 font-medium leading-tight break-all">' + value + '</span></div>';
+      }
+    }
+
+    /* ── Render a single IP card ────────────────────────────────── */
     function renderIPCard(type, data, error) {
       if (error || !data || !data.ip) {
         showCardError(type);
@@ -889,13 +1013,99 @@
       var detEl  = document.getElementById(type + '-details');
 
       if (addrEl) addrEl.textContent = data.ip;
-      if (detEl)  detEl.innerHTML = makeDetailRows(data);
+      if (detEl)  detEl.innerHTML = buildDetailTable(data, type);
     }
 
-    /** Show / hide the skeleton for card type. */
+    /* ── Render all IP cards ────────────────────────────────────── */
     function renderAllIPCards() {
       renderIPCard('ipv4', state.ipv4, state.ipv4Error);
       renderIPCard('ipv6', state.ipv6, state.ipv6Error);
+      renderTimeCard();
+    }
+
+    /* ── Time formatting for a given IANA timezone ──────────────── */
+    function formatTimeForZone(tz) {
+      try {
+        var now = new Date();
+        var opts = { timeZone: tz, weekday: 'short', month: 'short', day: '2-digit',
+                     year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit',
+                     hour12: false, hourCycle: 'h23' };
+        var parts = new Intl.DateTimeFormat('en-US', opts).formatToParts(now);
+        var dateStr = '';
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i].type === 'literal') {
+            if (parts[i].value === ':' || parts[i].value === ' ') dateStr += parts[i].value;
+          } else {
+            dateStr += parts[i].value;
+          }
+        }
+        // Compute GMT offset
+        var utcD = new Date(now.toLocaleString('en-US', { timeZone: 'UTC', hour12: false }));
+        var tzD  = new Date(now.toLocaleString('en-US', { timeZone: tz, hour12: false }));
+        var off  = Math.round((tzD - utcD) / 60000);
+        var sign = off >= 0 ? '+' : '-';
+        var a    = Math.abs(off);
+        var gmt  = 'GMT' + sign + String(Math.floor(a / 60)).padStart(2, '0') + String(a % 60).padStart(2, '0');
+        // Timezone abbreviation
+        var abbr = tz;
+        try {
+          var tp = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' }).formatToParts(now);
+          var tn = tp.find(function (p) { return p.type === 'timeZoneName'; });
+          if (tn && tn.value.indexOf('GMT') === -1) abbr = tn.value;
+        } catch (_) {}
+        return dateStr + ' ' + gmt + ' (' + escHtml(abbr) + ')';
+      } catch (_) { return null; }
+    }
+
+    /* ── System (browser) time ──────────────────────────────────── */
+    function formatSystemTime() {
+      return new Date().toString();
+    }
+
+    /* ── Timezone mismatch detector ─────────────────────────────── */
+    function doTimezonesDiffer(ipTimezone) {
+      if (!ipTimezone) return false;
+      var remote = getTZOffsetMinutes(ipTimezone);
+      var local  = -new Date().getTimezoneOffset();
+      if (remote === null) return false;
+      return Math.abs(remote - local) > 60;
+    }
+
+    /* ── Render the Time Comparison card ────────────────────────── */
+    function renderTimeCard() {
+      // Prefer non-fallback IP data
+      var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+      if (!data || !data.timezone) return;
+
+      var container = document.getElementById('time-card-container');
+      var card      = document.getElementById('time-card');
+      if (!container || !card) return;
+
+      container.classList.remove('hidden');
+      var tzName    = data.timezone;
+      var localTime = formatTimeForZone(tzName);
+      var sysTime   = formatSystemTime();
+      var mismatch  = doTimezonesDiffer(tzName);
+
+      document.getElementById('time-tz-value').textContent    = tzName;
+      document.getElementById('time-local-value').textContent  = localTime || '—';
+      document.getElementById('time-system-value').textContent = sysTime;
+
+      // Highlight rows on mismatch
+      var localRow = document.getElementById('time-local-row');
+      var sysRow   = document.getElementById('time-system-row');
+      var warnEl   = document.getElementById('time-warn');
+      if (mismatch) {
+        if (localRow) localRow.className = 'bg-red-50/70 rounded-lg px-3 py-2 -mx-1';
+        if (sysRow)   sysRow.className   = 'bg-red-50/70 rounded-lg px-3 py-2 -mx-1';
+        if (warnEl)   warnEl.classList.remove('hidden');
+      } else {
+        if (localRow) localRow.className = '';
+        if (sysRow)   sysRow.className   = '';
+        if (warnEl)   warnEl.classList.add('hidden');
+      }
     }
 
     function setAuditItem(id, status) {
