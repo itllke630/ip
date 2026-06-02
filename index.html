@@ -70,6 +70,33 @@
       animation: shimmer 1.6s ease-in-out infinite;
     }
 
+    /* ── Dark mode overrides ──────────────────────────────── */
+    .dark .bg-white             { background-color: #0f172a; }
+    .dark .bg-slate-50          { background-color: #020617; }
+    .dark .border-gray-200      { border-color: #334155; }
+    .dark .border-gray-100      { border-color: #1e293b; }
+    .dark .text-slate-800       { color: #f1f5f9; }
+    .dark .text-slate-700       { color: #cbd5e1; }
+    .dark .text-slate-500       { color: #94a3b8; }
+    .dark .text-gray-500        { color: #94a3b8; }
+    .dark .text-gray-400        { color: #64748b; }
+    .dark .bg-amber-50          { background-color: #451a03; }
+    .dark .border-amber-200     { border-color: #78350f; }
+    .dark .text-amber-800       { color: #fbbf24; }
+    .dark .text-amber-600       { color: #fbbf24; }
+    .dark .bg-amber-100         { background-color: #78350f; }
+    .dark .text-amber-500       { color: #f59e0b; }
+    .dark .bg-cyan-950          { background-color: #0f172a; }
+    .dark .bg-slate-800         { background-color: #1e293b; }
+    .dark .divide-gray-100      { border-color: #1e293b; }
+    .dark .shadow-sm            { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+    .dark #score-ring           { stroke: #475569; }
+    .dark .bg-slate-200         { background-color: #334155; }
+    .dark .text-slate-400       { color: #64748b; }
+    .dark .text-slate-300       { color: #475569; }
+    .dark .hover\:bg-gray-100:hover { background-color: #1e293b; }
+    .dark .hover\:bg-gray-50:hover  { background-color: #1e293b; }
+
     /* ── CJK font fallbacks ────────────────────────────────── */
     :lang(zh), :lang(ja), :lang(ko), [lang="zh-CN"], [lang="zh-TW"] {
       font-family: "Inter", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR", "Microsoft YaHei", system-ui, sans-serif;
@@ -471,7 +498,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
       <p>
         <span data-i18n="footer.powered">Powered by</span>
-        <a href="https://www.cloudflare.com" target="_blank" rel="noopener" class="text-slate-500 hover:text-slate-700 underline underline-offset-2 ml-1">Cloudflare Workers</a>
+        <a id="footer-domain" href="/" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 ml-1 font-medium"></a>
         <span class="mx-1.5">·</span>
         <span data-i18n="footer.privacy">No logs. No tracking. Your IP is never stored.</span>
       </p>
@@ -729,20 +756,10 @@
     let currentLang = 'en';
 
     // ── Theme toggle (light default matching linkozen.com) ────────
-    // Dark mode: body → bg-[#020617], cards → bg-[#0f172a], text → white
     var IS_DARK = localStorage.getItem('ip-dark') === '1';
     function applyTheme() {
-      if (!IS_DARK) return; // light is default, nothing to change
-      var body = document.body;
-      body.classList.remove('bg-slate-50');
-      body.classList.add('bg-[#020617]');
-      body.classList.remove('text-slate-800');
-      body.classList.add('text-slate-200');
-      // Swap card backgrounds
-      var cards = document.querySelectorAll('.bg-white.rounded-2xl');
-      for (var i = 0; i < cards.length; i++) {
-        cards[i].classList.remove('bg-white', 'border-gray-200');
-        cards[i].classList.add('bg-[#0f172a]', 'border-slate-700/50');
+      if (IS_DARK) {
+        document.documentElement.classList.add('dark');
       }
     }
     window.toggleDark = function () {
@@ -1612,27 +1629,19 @@
       } catch (_) { return null; }
     }
 
-    /* ── IPinfo.io lookup ────────────────────────────────────────── */
+    /* ── IPinfo.io lookup (via server proxy, no CORS) ────────────── */
     async function fetchIPinfo(ip) {
-      var token = window.__IPINFO_TOKEN || '';
-      if (!token) return null;
       try {
-        var res = await fetchWithTimeout('https://ipinfo.io/' + encodeURIComponent(ip) + '?token=' + token, 6000);
+        var res = await fetchWithTimeout('/api/ipinfo?ip=' + encodeURIComponent(ip), 8000);
         if (!res.ok) return null;
         return await res.json();
       } catch (_) { return null; }
     }
 
-    /* ── AbuseIPDB lookup ────────────────────────────────────────── */
+    /* ── AbuseIPDB lookup (via server proxy, no CORS) ────────────── */
     async function fetchAbuseIPDB(ip) {
-      var token = window.__ABUSEIPDB_TOKEN || '';
-      if (!token) return null;
       try {
-        var res = await fetch('https://api.abuseipdb.com/api/v2/check?ipAddress=' + encodeURIComponent(ip) + '&maxAgeInDays=90', {
-          headers: { 'Key': token, 'Accept': 'application/json' },
-          signal: AbortSignal ? AbortSignal.timeout(8000) : undefined,
-          mode: 'cors',
-        });
+        var res = await fetchWithTimeout('/api/abuseipdb?ip=' + encodeURIComponent(ip), 8000);
         if (!res.ok) return null;
         var data = await res.json();
         return data.data;
@@ -1944,6 +1953,10 @@
      * ================================================================ */
 
     async function init() {
+      // 0. Set footer domain
+      var footerLink = document.getElementById('footer-domain');
+      if (footerLink) footerLink.textContent = window.location.hostname;
+
       // 1. Apply theme
       applyTheme();
 
