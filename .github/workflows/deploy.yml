@@ -52,20 +52,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Inject ad codes from GitHub Secrets into the placeholder slots.
-      # Uses Node.js (not sed) to safely handle multiline HTML/JS ad code.
-      # Unset secrets keep their '__AD_xxx__' placeholder → JS shows fallback.
-      - name: Inject ad slots
+      # Generate ads.js from GitHub Secrets.
+      # JSON.stringify() safely escapes ANY characters (quotes, newlines, </script>, etc.).
+      # Unset secrets → variables stay '' → renderAds() shows placeholder zones.
+      - name: Generate ads.js from secrets
         env:
           AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
           AD_160_HTML: ${{ secrets.AD_160_HTML }}
         run: |
           node << 'ENDSCRIPT'
           const fs = require('fs');
-          let html = fs.readFileSync('index.html', 'utf8');
-          if (process.env.AD_TOP_HTML) html = html.replace('__AD_TOP_HTML__', process.env.AD_TOP_HTML);
-          if (process.env.AD_160_HTML) html = html.replace('__AD_160_HTML__', process.env.AD_160_HTML);
-          fs.writeFileSync('index.html', html);
+          const top = process.env.AD_TOP_HTML || '';
+          const sky = process.env.AD_160_HTML || '';
+          const content =
+            'window.__AD_TOP = ' + JSON.stringify(top) + ';\n' +
+            'window.__AD_SKY = ' + JSON.stringify(sky) + ';\n';
+          fs.writeFileSync('ads.js', content);
           ENDSCRIPT
 
       - name: Deploy to Cloudflare Pages
