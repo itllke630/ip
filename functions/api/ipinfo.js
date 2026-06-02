@@ -1,13 +1,11 @@
 /**
  * Cloudflare Pages Function — GET /api/ipinfo?ip=1.2.3.4
- * Proxies to IPinfo.io (avoids browser CORS block, keeps token server-side).
- * Token: set IPINFO_TOKEN in Cloudflare Pages → Settings → Environment variables.
+ * Token from Cloudflare Pages env var IPINFO_TOKEN.
  */
 
 export async function onRequest(context) {
-  const { request } = context;
+  const { request, env } = context;
 
-  // CORS preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -22,7 +20,6 @@ export async function onRequest(context) {
 
   const url = new URL(request.url);
   const ip = url.searchParams.get('ip');
-
   if (!ip) {
     return new Response(JSON.stringify({ error: 'Missing ?ip=' }), {
       status: 400,
@@ -30,7 +27,7 @@ export async function onRequest(context) {
     });
   }
 
-  const token = (typeof __IPINFO_TOKEN__ !== 'undefined') ? __IPINFO_TOKEN__ : '';
+  const token = env.IPINFO_TOKEN || '';
   const tokenParam = token ? '?token=' + token : '';
 
   try {

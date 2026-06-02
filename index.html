@@ -510,9 +510,6 @@
   <!--  SCRIPTS                                                          -->
   <!-- ================================================================ -->
 
-  <!-- CI-injected config (ads + API tokens from GitHub Secrets) -->
-  <script src="config.js" onerror="window.__AD_TOP=window.__AD_SKY='';window.__IPINFO_TOKEN='';window.__ABUSEIPDB_TOKEN='';"></script>
-
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -1256,32 +1253,36 @@
     }
 
     /* ── Render Ad slots ───────────────────────────────────────── */
-    function renderAds() {
+    async function renderAds() {
       var left  = document.getElementById('ad-left-container');
       var right = document.getElementById('ad-right-container');
       var topEl = document.getElementById('ad-top-container');
 
+      // Fetch ad codes from server (Pages Function reads Cloudflare env vars)
+      var adTop = '', adSky = '';
+      try {
+        var adRes = await fetch('/api/ads');
+        if (adRes.ok) {
+          var adData = await adRes.json();
+          adTop = adData.top || '';
+          adSky = adData.sky || '';
+        }
+      } catch (_) {}
+
       function fill(el, code, labelKey, isSide) {
         if (!el) return;
-        var isPlaceholder = !code || (typeof code === 'string' && code.indexOf('__AD_') === 0);
+        var isPlaceholder = !code;
         if (!isPlaceholder) {
-          // Clean slate for ad container
           if (isSide) {
             el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
           } else {
             el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
           }
           el.innerHTML = '';
-
-          // Make parent aside visible for side ads
           if (isSide && el.parentElement) {
             el.parentElement.classList.remove('hidden');
             el.parentElement.classList.add('lg:flex');
           }
-
-          // ── Sandbox ad in iframe via srcdoc ─────────────────────
-          // Prevents ad scripts from hijacking the parent page.
-          // srcdoc avoids cross-origin frame access errors.
           var iframe = document.createElement('iframe');
           iframe.setAttribute('scrolling', 'no');
           iframe.setAttribute('frameborder', '0');
@@ -1302,7 +1303,6 @@
             el.parentElement.classList.add('lg:flex');
           }
         }
-        // Re-run i18n on any new [data-i18n] elements inside
         var els = el.querySelectorAll('[data-i18n]');
         for (var i = 0; i < els.length; i++) {
           var k = els[i].getAttribute('data-i18n');
@@ -1310,9 +1310,9 @@
         }
       }
 
-      fill(left,  window.__AD_SKY, 'ad.zoneB', true);
-      fill(right, window.__AD_SKY, 'ad.zoneB', true);
-      if (topEl) fill(topEl, window.__AD_TOP, 'ad.zoneA', false);
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
     }
 
     /* ── Country flag emoji ─────────────────────────────────────── */

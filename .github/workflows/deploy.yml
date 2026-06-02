@@ -1,20 +1,8 @@
 # .github/workflows/deploy.yml
-# ───────────────────────────────────────────────────────────────────
 # Deploys to Cloudflare Pages (static site + Functions API).
-# One project, three domains — DNS record type determines IP family:
-#   v4.ip.linkozen.com → A     only → client connects via IPv4
-#   v6.ip.linkozen.com → AAAA  only → client connects via IPv6
-#   ip.linkozen.com     → both       → UI + API
-#
-# REQUIRED SECRETS (GitHub repo → Settings → Secrets → Actions):
-#   CLOUDFLARE_API_TOKEN    – token with Pages edit permission
-#   CLOUDFLARE_ACCOUNT_ID   – Cloudflare account ID (32-char hex)
-#
-# OPTIONAL SECRETS:
-#   AD_TOP_HTML             – 728×90 leaderboard ad code
-#   AD_160_HTML             – 160×600 skyscraper ad code (both sides)
-#   IPINFO_TOKEN            – IPinfo.io API token
-#   ABUSEIPDB_TOKEN         – AbuseIPDB API token
+# Environment variables (IPINFO_TOKEN, ABUSEIPDB_TOKEN, AD_TOP_HTML, AD_160_HTML)
+# are pushed to Cloudflare Pages production environment via the `secrets` parameter.
+# Pages Functions read them via context.env.
 
 name: Deploy to Cloudflare Pages
 
@@ -34,37 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inject secrets into code
-        env:
-          AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
-          AD_160_HTML: ${{ secrets.AD_160_HTML }}
-          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
-          ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
-        run: |
-          node << 'ENDSCRIPT'
-          const fs = require('fs');
-
-          // config.js — ad slots
-          fs.writeFileSync('config.js',
-            'window.__AD_TOP = ' + JSON.stringify(process.env.AD_TOP_HTML || '') + ';\n' +
-            'window.__AD_SKY = ' + JSON.stringify(process.env.AD_160_HTML || '') + ';\n');
-
-          // Proxy functions — inject API tokens (JSON.stringify for safe escaping)
-          const ipinfoToken = process.env.IPINFO_TOKEN || '';
-          const abuseToken  = process.env.ABUSEIPDB_TOKEN || '';
-
-          const replaceToken = (filePath, placeholder, value) => {
-            let content = fs.readFileSync(filePath, 'utf8');
-            // Replace ALL occurrences (placeholder appears twice on the ternary line)
-            content = content.split(placeholder).join(JSON.stringify(value));
-            fs.writeFileSync(filePath, content);
-            console.log('Injected ' + placeholder + ' into ' + filePath + ' (len=' + value.length + ')');
-          };
-
-          replaceToken('functions/api/ipinfo.js',   '__IPINFO_TOKEN__',    ipinfoToken);
-          replaceToken('functions/api/abuseipdb.js', '__ABUSEIPDB_TOKEN__', abuseToken);
-          ENDSCRIPT
-
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
@@ -73,3 +30,8 @@ jobs:
           projectName: ip-linkozen
           directory:   .
           branch:      main
+          secrets: |
+            IPINFO_TOKEN=${{ secrets.IPINFO_TOKEN }}
+            ABUSEIPDB_TOKEN=${{ secrets.ABUSEIPDB_TOKEN }}
+            AD_TOP_HTML=${{ secrets.AD_TOP_HTML }}
+            AD_160_HTML=${{ secrets.AD_160_HTML }}
