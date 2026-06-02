@@ -1166,14 +1166,24 @@
       var right = document.getElementById('ad-right-container');
       var topEl = document.getElementById('ad-top-container');
 
-      function fill(el, code, labelKey) {
+      function fill(el, code, labelKey, isSide) {
         if (!el) return;
         // Treat placeholder strings (not replaced by CI) as empty
         var isPlaceholder = !code || (typeof code === 'string' && code.indexOf('__AD_') === 0);
         if (!isPlaceholder) {
-          // Clear container & strip placeholder styles
+          // Reset to clean block container — no flex/center/overflow that breaks ads
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl';
+          } else {
+            el.className = 'w-full h-[50px] md:h-[90px] rounded-xl';
+          }
           el.innerHTML = '';
-          el.className = el.className.replace(/border-dashed/g, '').replace(/flex items-center justify-center/g, '').replace(/overflow-hidden/g, '');
+
+          // Show parent aside for side ads
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
 
           // Parse into temp container
           var tmp = document.createElement('div');
@@ -1198,6 +1208,11 @@
         } else {
           el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
           if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          // Ensure side aside is visible for placeholder too
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
         }
         // Re-run i18n on any new [data-i18n] elements inside
         var els = el.querySelectorAll('[data-i18n]');
@@ -1207,9 +1222,9 @@
         }
       }
 
-      fill(left,  window.__AD_SKY, 'ad.zoneB');
-      fill(right, window.__AD_SKY, 'ad.zoneB');
-      if (topEl) fill(topEl, window.__AD_TOP, 'ad.zoneA');
+      fill(left,  window.__AD_SKY, 'ad.zoneB', true);
+      fill(right, window.__AD_SKY, 'ad.zoneB', true);
+      if (topEl) fill(topEl, window.__AD_TOP, 'ad.zoneA', false);
     }
 
     /* ── Country flag emoji ─────────────────────────────────────── */
