@@ -177,6 +177,15 @@
       <!-- ============================================================ -->
       <div class="lg:col-span-8 space-y-5">
 
+        <!-- ── Map Card ──────────────────────────────────────────── -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden animate-slide-up">
+          <div class="px-5 pt-4 pb-2 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-700" data-i18n="map.title">Geolocation Map</h2>
+            <span id="map-coords" class="text-xs font-mono text-slate-400"></span>
+          </div>
+          <div id="map" class="w-full"></div>
+        </div>
+
         <!-- ── IP Cards Row ──────────────────────────────────────── -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -257,16 +266,6 @@
               <p class="text-xs text-slate-400 mt-1" id="err-ipv6-msg"></p>
             </div>
           </div>
-        </div>
-
-        <!-- ── Time Comparison Card ──────────────────────────────── -->
-        <!-- ── Map Card ──────────────────────────────────────────── -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden animate-slide-up">
-          <div class="px-5 pt-4 pb-2 flex items-center justify-between">
-            <h2 class="text-sm font-semibold text-slate-700" data-i18n="map.title">Geolocation Map</h2>
-            <span id="map-coords" class="text-xs font-mono text-slate-400"></span>
-          </div>
-          <div id="map" class="w-full"></div>
         </div>
 
         <!-- ── Time Analysis Card ───────────────────────────────── -->
