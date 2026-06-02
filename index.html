@@ -9,7 +9,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -22,7 +22,7 @@
       theme: {
         extend: {
           fontFamily: {
-            sans:  ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+            sans:  ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
             mono:  ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
           },
           animation: {
@@ -82,12 +82,12 @@
   </style>
 </head>
 
-<body class="bg-[#0f172a] text-slate-200 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-[#020617] text-slate-200 font-sans antialiased min-h-screen flex flex-col">
 
   <!-- ================================================================ -->
   <!--  HEADER                                                           -->
   <!-- ================================================================ -->
-  <header class="bg-[#1e293b] border-b border-slate-700 sticky top-0 z-50">
+  <header class="bg-[#0f172a] border-b border-slate-700 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <!-- Brand -->
       <div class="flex items-center gap-3">
@@ -161,7 +161,7 @@
       <div class="lg:col-span-8 space-y-5">
 
         <!-- ── Map Card ──────────────────────────────────────────── -->
-        <div class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm overflow-hidden animate-slide-up">
+        <div class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm overflow-hidden animate-slide-up">
           <div class="px-5 pt-4 pb-2 flex items-center justify-between">
             <h2 class="text-sm font-semibold text-slate-700" data-i18n="map.title">Geolocation Map</h2>
             <span id="map-coords" class="text-xs font-mono text-slate-400"></span>
@@ -174,7 +174,7 @@
 
           <!-- ·· IPv4 Card ·· -->
           <div id="card-ipv4"
-               class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-fade-in">
+               class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-fade-in">
             <!-- Skeleton -->
             <div id="skel-ipv4" class="space-y-3">
               <div class="flex items-center gap-2 mb-4">
@@ -213,7 +213,7 @@
 
           <!-- ·· IPv6 Card ·· -->
           <div id="card-ipv6"
-               class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-fade-in">
+               class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-fade-in">
             <!-- Skeleton -->
             <div id="skel-ipv6" class="space-y-3">
               <div class="flex items-center gap-2 mb-4">
@@ -252,7 +252,7 @@
         </div>
 
         <!-- ── Time Analysis Card ───────────────────────────────── -->
-        <div id="time-card-container" class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-slide-up">
+        <div id="time-card-container" class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-slide-up">
           <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="10"></circle>
@@ -303,7 +303,7 @@
         </div>
 
         <!-- ── Privacy Audit Card ────────────────────────────────── -->
-        <div class="bg-[#1e293b] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-slide-up">
+        <div class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-slide-up">
           <h2 class="text-sm font-semibold text-slate-700 mb-5 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -654,23 +654,29 @@
 
     let currentLang = 'en';
 
-    // ── Light mode toggle (dark is permanent default) ────────────
-    function applyLight() {
-      var light = localStorage.getItem('ip-light') === '1';
-      if (light) {
-        document.body.classList.add('bg-slate-50');
-        document.body.classList.remove('bg-[#0f172a]');
-        document.body.classList.add('text-slate-800');
-        document.body.classList.remove('text-slate-200');
-      } // else stays dark
+    // ── Theme toggle (dark default, light alternative) ────────────
+    var IS_LIGHT = localStorage.getItem('ip-light') === '1';
+    function applyTheme() {
+      var body = document.body;
+      if (IS_LIGHT) {
+        body.className = body.className
+          .replace(/bg-\[#020617\]/g, 'bg-[#f8fafc]')
+          .replace(/text-slate-200/g, 'text-[#1e293b]')
+          .replace(/text-white/g, 'text-[#1e293b]');
+        // Swap card backgrounds
+        var cards = document.querySelectorAll('.bg-\\[#0f172a\\]');
+        for (var i = 0; i < cards.length; i++) {
+          cards[i].classList.remove('bg-[#0f172a]');
+          cards[i].classList.add('bg-white');
+        }
+      }
     }
     window.toggleDark = function () {
-      var light = localStorage.getItem('ip-light') !== '1';
-      localStorage.setItem('ip-light', light ? '1' : '0');
-      location.reload(); // simple: reload to apply
+      IS_LIGHT = !IS_LIGHT;
+      localStorage.setItem('ip-light', IS_LIGHT ? '1' : '0');
+      location.reload();
     };
-    // On load, if light mode was previously selected, apply it
-    applyLight();
+    applyTheme();
 
     // ── Language dropdown ──────────────────────────────────────────
     function buildLangMenu() {
@@ -1602,21 +1608,21 @@
         attributionControl: false,
       });
 
-      // Primary tile source: OSM (try two subdomain patterns)
-      var tileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      // Dark theme tiles (CartoDB dark_matter)
+      var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
         maxZoom: 19,
+        subdomains: 'abcd',
       }).addTo(state.map);
 
-      // Fallback: if OSM tiles fail to load, switch to CartoDB
+      // Fallback: if dark tiles fail, try OSM
       tileLayer.on('tileerror', function () {
         if (!state._tileFallback) {
           state._tileFallback = true;
           state.map.removeLayer(tileLayer);
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19,
-            subdomains: 'abcd',
           }).addTo(state.map);
         }
       });
@@ -1698,8 +1704,8 @@
      * ================================================================ */
 
     async function init() {
-      // 1. Apply light mode if previously selected
-      applyLight();
+      // 1. Apply theme
+      applyTheme();
 
       // 2. Detect language: URL param > localStorage > navigator > default
       var urlParams = new URLSearchParams(window.location.search);
