@@ -1,12 +1,7 @@
 # wrangler.toml — Cloudflare Pages project
-# Placeholders "${VAR}" are replaced by CI (deploy.yml) from GitHub Secrets.
+# Vars are pushed to Cloudflare via `wrangler pages env set` in deploy.yml
 
 name = "ip-linkozen"
 compatibility_date = "2026-06-03"
 pages_build_output_dir = "."
-
-[vars]
-IPINFO_TOKEN = "${IPINFO_TOKEN}"
-ABUSEIPDB_TOKEN = "${ABUSEIPDB_TOKEN}"
-AD_TOP_HTML = "${AD_TOP_HTML}"
-AD_160_HTML = "${AD_160_HTML}"
+keep_vars = true
