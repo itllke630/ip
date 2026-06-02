@@ -82,43 +82,43 @@
   </style>
 </head>
 
-<body class="bg-[#020617] text-slate-200 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
   <!-- ================================================================ -->
   <!--  HEADER                                                           -->
   <!-- ================================================================ -->
-  <header class="bg-[#0f172a] border-b border-slate-700 sticky top-0 z-50">
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <!-- Brand -->
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center text-[#0f172a] font-bold text-sm shadow-sm">
+        <div class="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm">
           IP
         </div>
         <div>
-          <h1 class="text-lg font-semibold text-white leading-tight" data-i18n="app.title">IP Lookup</h1>
-          <p class="text-xs text-slate-400 leading-tight" data-i18n="app.subtitle">Dual-Stack Detection &amp; Privacy Audit</p>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">IP Lookup</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Dual-Stack Detection &amp; Privacy Audit</p>
         </div>
       </div>
 
       <!-- Right: Dark Mode + Lang Switcher -->
       <div class="flex items-center gap-2">
-        <!-- Light mode toggle (off by default, dark is permanent) -->
+        <!-- Dark mode toggle -->
         <button id="btn-dark" onclick="toggleDark()"
-                class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
-                title="Toggle light mode">
-          <svg id="icon-sun" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                title="Toggle dark mode">
+          <svg id="icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </button>
 
         <!-- Language dropdown -->
         <div id="lang-dropdown" class="relative">
           <button id="btn-lang-toggle"
-                  class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-700/50 border border-slate-600 hover:border-slate-500 transition-all text-sm"
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm"
                   onclick="toggleLangMenu()">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            <span id="btn-lang-label" class="text-slate-200 font-medium">English</span>
-            <svg class="w-3 h-3 text-slate-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
 
           <!-- Dropdown menu -->
@@ -161,7 +161,7 @@
       <div class="lg:col-span-8 space-y-5">
 
         <!-- ── Map Card ──────────────────────────────────────────── -->
-        <div class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm overflow-hidden animate-slide-up">
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden animate-slide-up">
           <div class="px-5 pt-4 pb-2 flex items-center justify-between">
             <h2 class="text-sm font-semibold text-slate-700" data-i18n="map.title">Geolocation Map</h2>
             <span id="map-coords" class="text-xs font-mono text-slate-400"></span>
@@ -174,7 +174,7 @@
 
           <!-- ·· IPv4 Card ·· -->
           <div id="card-ipv4"
-               class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-fade-in">
+               class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-fade-in">
             <!-- Skeleton -->
             <div id="skel-ipv4" class="space-y-3">
               <div class="flex items-center gap-2 mb-4">
@@ -213,7 +213,7 @@
 
           <!-- ·· IPv6 Card ·· -->
           <div id="card-ipv6"
-               class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-fade-in">
+               class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-fade-in">
             <!-- Skeleton -->
             <div id="skel-ipv6" class="space-y-3">
               <div class="flex items-center gap-2 mb-4">
@@ -252,7 +252,7 @@
         </div>
 
         <!-- ── Time Analysis Card ───────────────────────────────── -->
-        <div id="time-card-container" class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-slide-up">
+        <div id="time-card-container" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-slide-up">
           <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="10"></circle>
@@ -268,7 +268,7 @@
             <div id="time-local-row" class="flex items-center justify-between py-3 transition-colors duration-300 rounded-lg px-2 -mx-2">
               <div>
                 <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.local_time">Local Time</span>
-                <span id="time-local-clock" class="text-2xl font-mono font-semibold text-white tabular-nums">--:--:--</span>
+                <span id="time-local-clock" class="text-2xl font-mono font-semibold text-slate-800 tabular-nums">--:--:--</span>
               </div>
               <div class="text-right">
                 <span id="time-local-date" class="text-[11px] text-slate-500 block">----.--.--</span>
@@ -280,7 +280,7 @@
             <div id="time-system-row" class="flex items-center justify-between py-3 border-t border-slate-700 transition-colors duration-300 rounded-lg px-2 -mx-2">
               <div>
                 <span class="text-[11px] text-slate-400 block leading-tight" data-i18n="time.system_time">System Time</span>
-                <span id="time-system-clock" class="text-2xl font-mono font-semibold text-white tabular-nums">--:--:--</span>
+                <span id="time-system-clock" class="text-2xl font-mono font-semibold text-slate-800 tabular-nums">--:--:--</span>
               </div>
               <div class="text-right">
                 <span id="time-system-date" class="text-[11px] text-slate-500 block">----.--.--</span>
@@ -303,7 +303,7 @@
         </div>
 
         <!-- ── Privacy Audit Card ────────────────────────────────── -->
-        <div class="bg-[#0f172a] rounded-2xl border border-slate-700/50 shadow-sm p-5 animate-slide-up">
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-slide-up">
           <h2 class="text-sm font-semibold text-slate-700 mb-5 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -335,7 +335,7 @@
           <div class="space-y-2.5">
 
             <!-- Proxy / DC -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
               <div class="flex items-center gap-3 min-w-0">
                 <div id="audit-proxy-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
@@ -349,7 +349,7 @@
             </div>
 
             <!-- Timezone -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
               <div class="flex items-center gap-3 min-w-0">
                 <div id="audit-tz-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
@@ -363,7 +363,7 @@
             </div>
 
             <!-- Language -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
               <div class="flex items-center gap-3 min-w-0">
                 <div id="audit-lang-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
@@ -377,7 +377,7 @@
             </div>
 
             <!-- DoNotTrack -->
-            <div id="audit-dnt-row" class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+            <div id="audit-dnt-row" class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
               <div class="flex items-center gap-3 min-w-0">
                 <div id="audit-dnt-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
@@ -391,7 +391,7 @@
             </div>
 
             <!-- WebRTC -->
-            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
               <div class="flex items-center gap-3 min-w-0">
                 <div id="audit-webrtc-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
@@ -423,8 +423,8 @@
   <!-- ================================================================ -->
   <!--  FOOTER                                                           -->
   <!-- ================================================================ -->
-  <footer class="border-t border-slate-100 bg-white py-5 mt-4">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
       <p>
         <span data-i18n="footer.powered">Powered by</span>
         <a href="https://www.cloudflare.com" target="_blank" rel="noopener" class="text-slate-500 hover:text-slate-700 underline underline-offset-2 ml-1">Cloudflare Workers</a>
@@ -654,26 +654,26 @@
 
     let currentLang = 'en';
 
-    // ── Theme toggle (dark default, light alternative) ────────────
-    var IS_LIGHT = localStorage.getItem('ip-light') === '1';
+    // ── Theme toggle (light default matching linkozen.com) ────────
+    // Dark mode: body → bg-[#020617], cards → bg-[#0f172a], text → white
+    var IS_DARK = localStorage.getItem('ip-dark') === '1';
     function applyTheme() {
+      if (!IS_DARK) return; // light is default, nothing to change
       var body = document.body;
-      if (IS_LIGHT) {
-        body.className = body.className
-          .replace(/bg-\[#020617\]/g, 'bg-[#f8fafc]')
-          .replace(/text-slate-200/g, 'text-[#1e293b]')
-          .replace(/text-white/g, 'text-[#1e293b]');
-        // Swap card backgrounds
-        var cards = document.querySelectorAll('.bg-\\[#0f172a\\]');
-        for (var i = 0; i < cards.length; i++) {
-          cards[i].classList.remove('bg-[#0f172a]');
-          cards[i].classList.add('bg-white');
-        }
+      body.classList.remove('bg-slate-50');
+      body.classList.add('bg-[#020617]');
+      body.classList.remove('text-slate-800');
+      body.classList.add('text-slate-200');
+      // Swap card backgrounds
+      var cards = document.querySelectorAll('.bg-white.rounded-2xl');
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].classList.remove('bg-white', 'border-gray-200');
+        cards[i].classList.add('bg-[#0f172a]', 'border-slate-700/50');
       }
     }
     window.toggleDark = function () {
-      IS_LIGHT = !IS_LIGHT;
-      localStorage.setItem('ip-light', IS_LIGHT ? '1' : '0');
+      IS_DARK = !IS_DARK;
+      localStorage.setItem('ip-dark', IS_DARK ? '1' : '0');
       location.reload();
     };
     applyTheme();
@@ -685,10 +685,10 @@
       var html = '';
       for (var i = 0; i < LANGS.length; i++) {
         var L = LANGS[i];
-        var active = L.code === currentLang ? ' bg-slate-600/50' : '';
-        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-600/30 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
-          '<span class="text-[11px] font-bold text-slate-500 w-7">' + L.region + '</span>' +
-          '<span class="text-slate-200">' + L.native + '</span>' +
+        var active = L.code === currentLang ? ' bg-cyan-50' : '';
+        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+          '<span class="text-[11px] font-bold text-gray-400 w-7">' + L.region + '</span>' +
+          '<span class="text-slate-700">' + L.native + '</span>' +
           '</button>';
       }
       menu.innerHTML = html;
@@ -1608,14 +1608,14 @@
         attributionControl: false,
       });
 
-      // Dark theme tiles (CartoDB dark_matter)
-      var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // Light theme tiles (CartoDB light_all — matches linkozen.com)
+      var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
         maxZoom: 19,
         subdomains: 'abcd',
       }).addTo(state.map);
 
-      // Fallback: if dark tiles fail, try OSM
+      // Fallback: OSM
       tileLayer.on('tileerror', function () {
         if (!state._tileFallback) {
           state._tileFallback = true;
