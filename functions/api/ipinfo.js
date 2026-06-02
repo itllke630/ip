@@ -6,6 +6,20 @@
 
 export async function onRequest(context) {
   const { request, env } = context;
+
+  // CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Max-Age': '86400',
+      },
+    });
+  }
+
   const url = new URL(request.url);
   const ip = url.searchParams.get('ip');
 

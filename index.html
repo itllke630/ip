@@ -75,6 +75,7 @@
     .dark .bg-slate-50          { background-color: #020617; }
     .dark .border-gray-200      { border-color: #334155; }
     .dark .border-gray-100      { border-color: #1e293b; }
+    .dark .text-slate-900       { color: #f8fafc; }
     .dark .text-slate-800       { color: #f1f5f9; }
     .dark .text-slate-700       { color: #cbd5e1; }
     .dark .text-slate-500       { color: #94a3b8; }
@@ -1632,20 +1633,32 @@
     /* ── IPinfo.io lookup (via server proxy, no CORS) ────────────── */
     async function fetchIPinfo(ip) {
       try {
-        var res = await fetchWithTimeout('/api/ipinfo?ip=' + encodeURIComponent(ip), 8000);
-        if (!res.ok) return null;
+        var res = await fetchWithTimeout('/api/ipinfo?ip=' + encodeURIComponent(ip), 15000);
+        if (!res.ok) {
+          console.warn('[ip.linkozen] IPinfo proxy returned ' + res.status);
+          return null;
+        }
         return await res.json();
-      } catch (_) { return null; }
+      } catch (e) {
+        console.warn('[ip.linkozen] IPinfo proxy failed: ' + (e.message || 'unknown'));
+        return null;
+      }
     }
 
     /* ── AbuseIPDB lookup (via server proxy, no CORS) ────────────── */
     async function fetchAbuseIPDB(ip) {
       try {
-        var res = await fetchWithTimeout('/api/abuseipdb?ip=' + encodeURIComponent(ip), 8000);
-        if (!res.ok) return null;
+        var res = await fetchWithTimeout('/api/abuseipdb?ip=' + encodeURIComponent(ip), 15000);
+        if (!res.ok) {
+          console.warn('[ip.linkozen] AbuseIPDB proxy returned ' + res.status);
+          return null;
+        }
         var data = await res.json();
         return data.data;
-      } catch (_) { return null; }
+      } catch (e) {
+        console.warn('[ip.linkozen] AbuseIPDB proxy failed: ' + (e.message || 'unknown'));
+        return null;
+      }
     }
 
     /* ── Session cache ───────────────────────────────────────────── */
@@ -1706,8 +1719,13 @@
 
       await Promise.allSettled(tasks);
 
-      // Save to cache
-      saveCache(result);
+      // Detect if ALL proxy calls failed
+      var allFailed = result.hostname === null && result.abuseScore === null && result.dnsLeak === null;
+
+      // Save to cache only if we got at least some data
+      if (!allFailed) {
+        saveCache(result);
+      }
       deepAuditData = result;
 
       // Hide mask
@@ -1715,7 +1733,15 @@
       if (btn)  btn.disabled = false;
 
       // Render
-      renderDeepAudit(result, false);
+      if (allFailed) {
+        document.getElementById('deep-hostname').textContent = 'Error';
+        document.getElementById('deep-company-type').textContent = 'Proxy unreachable';
+        document.getElementById('deep-blacklist').textContent = '—';
+        document.getElementById('deep-abuse-score').textContent = '—';
+        document.getElementById('deep-dns-leak').textContent = '—';
+      } else {
+        renderDeepAudit(result, false);
+      }
       renderAllAuditResults();
     };
 
