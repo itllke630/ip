@@ -16,7 +16,7 @@ jobs:
       - name: Check for Cloudflare credentials
         id: cf_creds
         run: |
-          if [ -z "${{ secrets.CF_API_TOKEN }}" ] || [ -z "${{ secrets.CF_ACCOUNT_ID }}" ]; then
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] || [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
             echo "Cloudflare credentials not found, skipping deployment."
             echo "has_creds=false" >> $GITHUB_OUTPUT
           else
@@ -38,10 +38,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Configure Wrangler
         run: |
           python3 << 'PYEOF'
-          import os
+          import os, sys
           with open('wrangler.toml', 'r') as f:
               lines = f.readlines()
           all_vars = [
@@ -61,6 +64,10 @@ jobs:
                   result.append(line)
           with open('wrangler.toml', 'w') as f:
               f.writelines(result)
+          print('=== wrangler.toml after injection ===')
+          with open('wrangler.toml', 'r') as f:
+              print(f.read())
+          print('=== end wrangler.toml ===')
           PYEOF
         env:
           IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
@@ -71,5 +78,5 @@ jobs:
       - name: Deploy to Cloudflare Workers
         run: npx wrangler deploy
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

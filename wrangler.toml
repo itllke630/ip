@@ -16,4 +16,4 @@ AD_160_HTML = "${AD_160_HTML}"
 # 静态资源配置
 [assets]
 binding = "ASSETS"
-directory = "."
+directory = "public"
