@@ -1168,47 +1168,45 @@
 
       function fill(el, code, labelKey, isSide) {
         if (!el) return;
-        // Treat placeholder strings (not replaced by CI) as empty
         var isPlaceholder = !code || (typeof code === 'string' && code.indexOf('__AD_') === 0);
         if (!isPlaceholder) {
-          // Reset to clean block container — no flex/center/overflow that breaks ads
+          // Clean slate for ad container
           if (isSide) {
-            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl';
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
           } else {
-            el.className = 'w-full h-[50px] md:h-[90px] rounded-xl';
+            el.className = 'w-full h-[50px] md:h-[90px] rounded-xl overflow-hidden';
           }
           el.innerHTML = '';
 
-          // Show parent aside for side ads
+          // Make parent aside visible for side ads
           if (isSide && el.parentElement) {
             el.parentElement.classList.remove('hidden');
             el.parentElement.classList.add('lg:flex');
           }
 
-          // Parse into temp container
-          var tmp = document.createElement('div');
-          tmp.innerHTML = code;
+          // ── Sandbox ad content in an iframe ──────────────────────
+          // This prevents ad scripts from hijacking the parent page
+          // (no document.write, no window.location redirects).
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          // allow-scripts = ads can render; NO allow-same-origin = can't touch parent
+          iframe.setAttribute('sandbox', 'allow-scripts allow-popups');
+          el.appendChild(iframe);
 
-          // Re-create <script> elements so they actually execute
-          var oldScripts = tmp.querySelectorAll('script');
-          for (var s = 0; s < oldScripts.length; s++) {
-            var old = oldScripts[s];
-            var neu = document.createElement('script');
-            for (var a = 0; a < old.attributes.length; a++) {
-              neu.setAttribute(old.attributes[a].name, old.attributes[a].value);
-            }
-            neu.textContent = old.textContent;
-            old.parentNode.replaceChild(neu, old);
-          }
-
-          // Move all nodes into the real container
-          while (tmp.firstChild) {
-            el.appendChild(tmp.firstChild);
-          }
+          // Write ad HTML into the iframe document
+          var doc = iframe.contentDocument || iframe.contentWindow.document;
+          doc.open();
+          doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style></head><body>');
+          doc.write(code);
+          doc.write('</body></html>');
+          doc.close();
         } else {
           el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
           if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
-          // Ensure side aside is visible for placeholder too
           if (isSide && el.parentElement) {
             el.parentElement.classList.remove('hidden');
             el.parentElement.classList.add('lg:flex');
