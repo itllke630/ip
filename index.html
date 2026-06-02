@@ -316,51 +316,77 @@
             <p id="score-subtitle" class="text-xs text-slate-400 mt-2.5 font-medium" data-i18n="audit.score.pending">Gathering data…</p>
           </div>
 
-          <!-- ── Audit Items Grid ──────────────────────────────────── -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-            <!-- WebRTC -->
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div id="audit-webrtc-icon" class="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
-                <div class="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
-              </div>
-              <div class="min-w-0">
-                <p class="text-xs font-semibold text-slate-600" data-i18n="audit.webrtc.label">WebRTC Leak Test</p>
-                <p id="audit-webrtc-text" class="text-xs text-slate-400 mt-0.5" data-i18n="audit.webrtc.checking">Checking…</p>
-              </div>
-            </div>
+          <!-- ── Audit Items (dark cards, Whoer-style) ──────────────── -->
+          <div class="space-y-2.5">
 
             <!-- Proxy / DC -->
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div id="audit-proxy-icon" class="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
-                <div class="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-proxy-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.proxy.label">Connection Type</p>
+                  <p id="audit-proxy-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.proxy.checking">Analyzing…</p>
+                </div>
               </div>
-              <div class="min-w-0">
-                <p class="text-xs font-semibold text-slate-600" data-i18n="audit.proxy.label">Connection Type</p>
-                <p id="audit-proxy-text" class="text-xs text-slate-400 mt-0.5" data-i18n="audit.proxy.checking">Analyzing…</p>
-              </div>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
             </div>
 
             <!-- Timezone -->
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div id="audit-tz-icon" class="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
-                <div class="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-tz-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.tz.label">Timezone Check</p>
+                  <p id="audit-tz-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.tz.checking">Comparing…</p>
+                </div>
               </div>
-              <div class="min-w-0">
-                <p class="text-xs font-semibold text-slate-600" data-i18n="audit.tz.label">Timezone Check</p>
-                <p id="audit-tz-text" class="text-xs text-slate-400 mt-0.5" data-i18n="audit.tz.checking">Comparing…</p>
-              </div>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
             </div>
 
             <!-- Language -->
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div id="audit-lang-icon" class="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
-                <div class="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-lang-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.lang.label">Language Match</p>
+                  <p id="audit-lang-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.lang.checking">Checking…</p>
+                </div>
               </div>
-              <div class="min-w-0">
-                <p class="text-xs font-semibold text-slate-600" data-i18n="audit.lang.label">Language Match</p>
-                <p id="audit-lang-text" class="text-xs text-slate-400 mt-0.5" data-i18n="audit.lang.checking">Checking…</p>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
+            </div>
+
+            <!-- DoNotTrack -->
+            <div id="audit-dnt-row" class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-dnt-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.dnt.label">Do Not Track</p>
+                  <p id="audit-dnt-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.dnt.checking">Checking…</p>
+                </div>
               </div>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
+            </div>
+
+            <!-- WebRTC -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-webrtc-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.webrtc.label">WebRTC Leak Test</p>
+                  <p id="audit-webrtc-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.webrtc.checking">Checking…</p>
+                </div>
+              </div>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
             </div>
 
           </div>
@@ -419,7 +445,10 @@
         v4: 'https://v4.ip.linkozen.com/api/ip',
         v6: 'https://v6.ip.linkozen.com/api/ip',
         v4Fallback: 'https://api4.ipify.org?format=json',
-        v6Fallback: 'https://api6.ipify.org?format=json',
+        v6Fallbacks: [
+          'https://ipv6.icanhazip.com',
+          'https://api6.ipify.org?format=json',
+        ],
       },
       proxyKeywords: [
         'Vultr', 'DigitalOcean', 'Gcore', 'Amazon', 'Google',
@@ -452,6 +481,11 @@
         'audit.webrtc.safe':       'No WebRTC leak detected',
         'audit.webrtc.leak':       'Potential WebRTC leak — real IP exposed',
         'audit.webrtc.failed':     'WebRTC check failed or not supported',
+        'audit.dnt.label':         'Do Not Track',
+        'audit.dnt.checking':      'Checking…',
+        'audit.dnt.enabled':       'DNT enabled — tracking opt-out active',
+        'audit.dnt.disabled':      'DNT disabled — tracking may occur',
+        'audit.howtofix':          'How to fix?',
         'audit.proxy.label':       'Connection Type',
         'audit.proxy.checking':    'Analyzing…',
         'audit.proxy.datacenter':  'Proxy / Datacenter detected',
@@ -507,6 +541,11 @@
         'audit.webrtc.safe':       '未检测到 WebRTC 泄露',
         'audit.webrtc.leak':       '⚠️ 检测到 WebRTC 泄露 — 真实 IP 已暴露',
         'audit.webrtc.failed':     'WebRTC 检测失败或不支持',
+        'audit.dnt.label':         '请勿追踪',
+        'audit.dnt.checking':      '检测中…',
+        'audit.dnt.enabled':       'DNT 已启用 — 已选择退出追踪',
+        'audit.dnt.disabled':      'DNT 未启用 — 可能被追踪',
+        'audit.howtofix':          '如何更正？',
         'audit.proxy.label':       '连接类型',
         'audit.proxy.checking':    '分析中…',
         'audit.proxy.datacenter':  '🖥️ 检测到数据中心 / 代理 IP',
@@ -701,35 +740,49 @@
     }
 
     /**
-     * Fetch from the primary endpoint; on failure, try the fallback.
+     * Fetch from the primary endpoint; on failure, try each fallback in order.
+     * `fallbacks` can be a string URL or an array of URLs.
      * Returns { ip, ...geo } or throws.
      */
-    async function fetchWithFallback(primary, fallback, label, timeoutMs) {
+    async function fetchWithFallback(primary, fallbacks, label, timeoutMs) {
       timeoutMs = timeoutMs || 8000;
+      // Normalise to array
+      var fbList = fallbacks
+        ? (Array.isArray(fallbacks) ? fallbacks : [fallbacks])
+        : [];
+
       try {
         var res = await fetchWithTimeout(primary, timeoutMs);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return await res.json();
       } catch (e1) {
-        // Network errors (DNS, no-route) → skip fallback, fail fast
-        if (isNetworkError(e1)) {
-          throw e1;
-        }
+        // Network errors (DNS, no-route) → skip fallbacks, fail fast
+        if (isNetworkError(e1)) { throw e1; }
         console.warn('[ip.linkozen] Primary endpoint failed for ' + label + ': ' + e1.message);
-        if (!fallback) throw e1;
-        try {
-          var res2 = await fetchWithTimeout(fallback, Math.min(timeoutMs, 4000));
-          if (!res2.ok) throw new Error('HTTP ' + res2.status);
-          var data = await res2.json();
-          // Normalise ipify response shape to match our worker
-          if (!data.country && !data.asOrganization) {
-            data._fallback = true;
+
+        // Try each fallback in order
+        for (var i = 0; i < fbList.length; i++) {
+          try {
+            var fbTimeout = Math.min(timeoutMs, 4000);
+            var res2 = await fetchWithTimeout(fbList[i], fbTimeout);
+            if (!res2.ok) continue;
+            // ipv6.icanhazip.com returns plain text — wrap it
+            var ct = res2.headers.get('Content-Type') || '';
+            var data;
+            if (ct.indexOf('text/plain') !== -1) {
+              data = { ip: (await res2.text()).trim() };
+            } else {
+              data = await res2.json();
+            }
+            if (!data.country && !data.asOrganization) {
+              data._fallback = true;
+            }
+            return data;
+          } catch (e2) {
+            // try next fallback
           }
-          return data;
-        } catch (e2) {
-          console.warn('[ip.linkozen] Fallback also failed for ' + label + ': ' + e2.message);
-          throw e2;
         }
+        throw e1; // all fallbacks exhausted
       }
     }
 
@@ -738,8 +791,8 @@
     }
 
     async function probeIPv6() {
-      // IPv6 is often unavailable — shorter timeout, no reason to wait 8s
-      return fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallback, 'IPv6', 4000);
+      // IPv6 is often unavailable — shorter timeout
+      return fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallbacks, 'IPv6', 4000);
     }
 
     /* ================================================================
@@ -1036,6 +1089,7 @@
       rightRows.push(row('detail.ip_range', ipRange ? escHtml(ipRange) : na));
       rightRows.push(row('detail.isp',    d.asOrganization ? escHtml(d.asOrganization) : na));
       rightRows.push(row('detail.asn',    d.asn            ? 'AS' + escHtml(String(d.asn)) + ' ' + (d.asOrganization ? escHtml(d.asOrganization) : '') : na));
+      rightRows.push(row('EU',            d.is_eu === true ? 'Yes' : 'No'));
 
       // Fallback warning
       if (d._fallback) {
@@ -1171,49 +1225,32 @@
       var iconEl = document.getElementById('audit-' + id + '-icon');
       var textEl = document.getElementById('audit-' + id + '-text');
 
-      var iconHTML, textKey, textFallback;
+      var iconHTML, textKey;
 
       switch (status) {
-        case 'safe': case 'match': case 'residential':
-          iconHTML = '<svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        case 'safe': case 'match': case 'residential': case 'enabled':
+          iconHTML = '<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           break;
-        case 'leak': case 'mismatch': case 'datacenter':
-          iconHTML = '<svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+        case 'leak': case 'mismatch': case 'datacenter': case 'disabled':
+          iconHTML = '<svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
           break;
-        default: // checking / unknown / failed
-          iconHTML = '<div class="w-3 h-3 rounded-full bg-slate-400"></div>';
+        default:
+          iconHTML = '<div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>';
           break;
       }
 
-      // Determine translation key
       if (id === 'webrtc') {
-        textKey = status === 'safe' ? 'audit.webrtc.safe'
-                : status === 'leak' ? 'audit.webrtc.leak'
-                : status === 'failed' ? 'audit.webrtc.failed'
-                : 'audit.webrtc.checking';
-        if (iconEl) iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ' +
-          (status === 'safe' ? 'bg-emerald-50' : status === 'leak' ? 'bg-amber-50' : 'bg-slate-200');
+        textKey = status === 'safe' ? 'audit.webrtc.safe' : status === 'leak' ? 'audit.webrtc.leak' : status === 'failed' ? 'audit.webrtc.failed' : 'audit.webrtc.checking';
       } else if (id === 'proxy') {
-        textKey = status === 'datacenter' ? 'audit.proxy.datacenter'
-                : status === 'residential' ? 'audit.proxy.residential'
-                : status === 'unknown' ? 'audit.proxy.unknown'
-                : 'audit.proxy.checking';
-        if (iconEl) iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ' +
-          (status === 'residential' ? 'bg-emerald-50' : status === 'datacenter' ? 'bg-amber-50' : 'bg-slate-200');
+        textKey = status === 'datacenter' ? 'audit.proxy.datacenter' : status === 'residential' ? 'audit.proxy.residential' : status === 'unknown' ? 'audit.proxy.unknown' : 'audit.proxy.checking';
       } else if (id === 'tz') {
-        textKey = status === 'match' ? 'audit.tz.match'
-                : status === 'mismatch' ? 'audit.tz.mismatch'
-                : status === 'unknown' ? 'audit.tz.unknown'
-                : 'audit.tz.checking';
-        if (iconEl) iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ' +
-          (status === 'match' ? 'bg-emerald-50' : status === 'mismatch' ? 'bg-amber-50' : 'bg-slate-200');
+        textKey = status === 'match' ? 'audit.tz.match' : status === 'mismatch' ? 'audit.tz.mismatch' : status === 'unknown' ? 'audit.tz.unknown' : 'audit.tz.checking';
       } else if (id === 'lang') {
-        textKey = status === 'match' ? 'audit.lang.match'
-                : status === 'mismatch' ? 'audit.lang.mismatch'
-                : status === 'unknown' ? 'audit.lang.unknown'
-                : 'audit.lang.checking';
-        if (iconEl) iconEl.className = 'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ' +
-          (status === 'match' ? 'bg-emerald-50' : status === 'mismatch' ? 'bg-amber-50' : 'bg-slate-200');
+        textKey = status === 'match' ? 'audit.lang.match' : status === 'mismatch' ? 'audit.lang.mismatch' : status === 'unknown' ? 'audit.lang.unknown' : 'audit.lang.checking';
+      } else if (id === 'dnt') {
+        textKey = status === 'enabled' ? 'audit.dnt.enabled' : status === 'disabled' ? 'audit.dnt.disabled' : 'audit.dnt.checking';
+      } else {
+        textKey = '';
       }
 
       if (iconEl) iconEl.innerHTML = iconHTML;
@@ -1224,25 +1261,24 @@
      *  ANONYMITY  SCORE  (Whoer-style)
      * ================================================================ */
 
+    /* ── Deductive anonymity score (Whoer-style) ────────────────── */
     function calculateAnonymityScore() {
-      var score = 0;
+      var score = 100;
 
-      // Timezone match → +25%
+      // Timezone mismatch → -10%
       var tz = auditTimezone();
-      if (tz.status === 'match') score += 25;
+      if (tz.status === 'mismatch') score -= 10;
 
-      // WebRTC no leak → +25%
-      var wr = auditWebRTC();
-      if (wr.status === 'safe') score += 25;
-
-      // Residential ISP (non-datacenter) → +25%
-      var px = auditProxy();
-      if (px.status === 'residential') score += 25;
-
-      // Language matches location → +25%
+      // Language mismatch → -15%
       var lg = auditLanguage();
-      if (lg.status === 'match') score += 25;
+      if (lg.status === 'mismatch') score -= 15;
 
+      // Proxy / Datacenter detected → -25%
+      var px = auditProxy();
+      if (px.status === 'datacenter') score -= 25;
+
+      // Clamp
+      if (score < 0) score = 0;
       return score;
     }
 
@@ -1254,17 +1290,15 @@
 
       if (!ring || !textEl || !subEl) return;
 
-      // Guard: don't render score until at least one IP probe and WebRTC have finished
-      var ipReady    = state.ipv4 || state.ipv6 || state.ipv4Error || state.ipv6Error;
-      var wrReady    = state.webrtcDone;
-      if (!ipReady || !wrReady) return;
+      var ipReady = state.ipv4 || state.ipv6 || state.ipv4Error || state.ipv6Error;
+      if (!ipReady) return;
 
       var score       = calculateAnonymityScore();
       var circum      = 326.73;
       var offset      = circum * (1 - score / 100);
       var color, labelKey;
 
-      if (score >= 75)      { color = '#10b981'; labelKey = score >= 100 ? 'audit.score.excellent' : 'audit.score.good'; }
+      if (score >= 75)      { color = '#10b981'; labelKey = score >= 90 ? 'audit.score.excellent' : 'audit.score.good'; }
       else if (score >= 50) { color = '#f59e0b'; labelKey = 'audit.score.moderate'; }
       else if (score >= 25) { color = '#f97316'; labelKey = 'audit.score.weak'; }
       else                  { color = '#ef4444'; labelKey = 'audit.score.poor'; }
@@ -1299,6 +1333,11 @@
       // Language
       var lg = auditLanguage();
       setAuditItem('lang', lg.status);
+
+      // Do Not Track
+      var dnt = (navigator.doNotTrack === '1' || navigator.doNotTrack === 1 || window.doNotTrack === '1')
+        ? 'enabled' : 'disabled';
+      setAuditItem('dnt', dnt);
 
       // Anonymity score gauge
       updateScoreRing();

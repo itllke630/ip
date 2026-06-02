@@ -1,60 +1,37 @@
 # .github/workflows/deploy.yml
 # ───────────────────────────────────────────────────────────────────
-# Deploys both the Cloudflare Worker (backend) and the static landing
-# page (frontend) on every push to main.
+# Deploys to Cloudflare Pages (static site + Functions API).
+# One project, three domains — DNS record type determines IP family:
+#   v4.ip.linkozen.com → A     only → client connects via IPv4
+#   v6.ip.linkozen.com → AAAA  only → client connects via IPv6
+#   ip.linkozen.com     → both       → UI + API
 #
-# REQUIRED SECRETS (set in GitHub repo → Settings → Secrets & Variables → Actions):
-#   CLOUDFLARE_API_TOKEN    – API token with Workers & Pages edit permissions
-#   CLOUDFLARE_ACCOUNT_ID   – Your Cloudflare account ID (32-char hex)
+# REQUIRED SECRETS (GitHub repo → Settings → Secrets → Actions):
+#   CLOUDFLARE_API_TOKEN    – token with Pages edit permission
+#   CLOUDFLARE_ACCOUNT_ID   – Cloudflare account ID (32-char hex)
 #
-# OPTIONAL SECRETS (ad codes — if absent, placeholder zones are shown):
-#   AD_TOP_HTML             – 728×90 leaderboard ad HTML/JS code
-#   AD_160_HTML             – 160×600 skyscraper ad HTML/JS code (applied to both sides)
-#
-# PAGES PROJECT (one-time setup):
-#   1. Create a Pages project named "ip-linkozen" in the Cloudflare Dashboard
-#      (Workers & Pages → Pages → Create a project → Upload assets)
-#   2. After the first deploy, the action will update it automatically.
+# OPTIONAL SECRETS:
+#   AD_TOP_HTML             – 728×90 leaderboard ad code
+#   AD_160_HTML             – 160×600 skyscraper ad code (both sides)
 
-name: Deploy to Cloudflare
+name: Deploy to Cloudflare Pages
 
 on:
   push:
     branches: [main, master]
-  workflow_dispatch:   # allow manual runs from the Actions tab
+  workflow_dispatch:
 
-# ── Concurrency: only one deploy at a time per branch ────────────
 concurrency:
-  group: cloudflare-deploy-${{ github.ref }}
+  group: cf-pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-
-  # ── Worker (backend) ─────────────────────────────────────────────
-  deploy-worker:
-    name: Deploy Worker
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken:   ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId:  ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command:    deploy
-
-  # ── Pages (frontend) ─────────────────────────────────────────────
-  deploy-pages:
-    name: Deploy Pages
-    runs-on: ubuntu-latest
-    needs: []  # runs in parallel with deploy-worker
-    steps:
-      - uses: actions/checkout@v4
-
-      # Generate ads.js from GitHub Secrets.
-      # JSON.stringify() safely escapes ANY characters (quotes, newlines, </script>, etc.).
-      # Unset secrets → variables stay '' → renderAds() shows placeholder zones.
       - name: Generate ads.js from secrets
         env:
           AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
@@ -64,10 +41,9 @@ jobs:
           const fs = require('fs');
           const top = process.env.AD_TOP_HTML || '';
           const sky = process.env.AD_160_HTML || '';
-          const content =
+          fs.writeFileSync('ads.js',
             'window.__AD_TOP = ' + JSON.stringify(top) + ';\n' +
-            'window.__AD_SKY = ' + JSON.stringify(sky) + ';\n';
-          fs.writeFileSync('ads.js', content);
+            'window.__AD_SKY = ' + JSON.stringify(sky) + ';\n');
           ENDSCRIPT
 
       - name: Deploy to Cloudflare Pages
