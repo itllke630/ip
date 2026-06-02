@@ -1,7 +1,19 @@
-# wrangler.toml — Cloudflare Pages project
-# Vars are pushed to Cloudflare via `wrangler pages env set` in deploy.yml
-
 name = "ip-linkozen"
+main = "worker/index.js"
+
+# 打包配置
+minify = true
 compatibility_date = "2026-06-03"
-pages_build_output_dir = "."
 keep_vars = true
+
+# 定义环境变量和密钥
+[vars]
+IPINFO_TOKEN = "${IPINFO_TOKEN}"
+ABUSEIPDB_TOKEN = "${ABUSEIPDB_TOKEN}"
+AD_TOP_HTML = "${AD_TOP_HTML}"
+AD_160_HTML = "${AD_160_HTML}"
+
+# 静态资源配置
+[assets]
+binding = "ASSETS"
+directory = "."

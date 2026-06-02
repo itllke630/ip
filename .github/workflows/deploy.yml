@@ -38,61 +38,38 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Deploy to Cloudflare Pages
-        run: npx wrangler pages deploy . --project-name=ip-linkozen --branch=main
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-
-      - name: Set environment variables in Cloudflare
+      - name: Configure Wrangler
+        run: |
+          python3 << 'PYEOF'
+          import os
+          with open('wrangler.toml', 'r') as f:
+              lines = f.readlines()
+          all_vars = [
+              'IPINFO_TOKEN', 'ABUSEIPDB_TOKEN',
+              'AD_TOP_HTML', 'AD_160_HTML',
+          ]
+          result = []
+          for line in lines:
+              for var in all_vars:
+                  val = os.environ.get(var, '')
+                  if line.strip().startswith(var + ' =') and not val:
+                      line = None
+                      break
+                  esc = val.replace("'''", "''" + "'")
+                  line = line.replace('"${' + var + '}"', "'''" + esc + "'''")
+              if line is not None:
+                  result.append(line)
+          with open('wrangler.toml', 'w') as f:
+              f.writelines(result)
+          PYEOF
         env:
           IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
           ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
           AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
           AD_160_HTML: ${{ secrets.AD_160_HTML }}
+
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy
+        env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-        run: |
-          node << 'ENDSCRIPT'
-          const https = require('https');
-
-          const token = process.env.CLOUDFLARE_API_TOKEN || '';
-          const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || '';
-          const projectName = 'ip-linkozen';
-          const baseUrl = 'https://api.cloudflare.com/client/v4/accounts/' + accountId +
-                          '/pages/projects/' + projectName + '/envvars';
-
-          const vars = [
-            { name: 'IPINFO_TOKEN',    value: process.env.IPINFO_TOKEN    || '' },
-            { name: 'ABUSEIPDB_TOKEN', value: process.env.ABUSEIPDB_TOKEN || '' },
-            { name: 'AD_TOP_HTML',     value: process.env.AD_TOP_HTML     || '' },
-            { name: 'AD_160_HTML',     value: process.env.AD_160_HTML     || '' },
-          ].filter(v => v.value);
-
-          if (vars.length === 0) { console.log('No env vars to set.'); process.exit(0); }
-
-          // Cloudflare API: PATCH to upsert env vars
-          const body = JSON.stringify(vars.map(v => ({ name: v.name, value: v.value })));
-          const req = https.request(baseUrl, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': 'Bearer ' + token,
-              'Content-Type': 'application/json',
-            },
-          }, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-              const r = JSON.parse(data);
-              if (r.success) {
-                console.log('Env vars set:', vars.map(v => v.name).join(', '));
-              } else {
-                console.error('API error:', JSON.stringify(r.errors));
-                process.exit(1);
-              }
-            });
-          });
-          req.on('error', e => { console.error(e); process.exit(1); });
-          req.write(body);
-          req.end();
-          ENDSCRIPT
