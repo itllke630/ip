@@ -1002,7 +1002,14 @@
     }
 
     async function probeIPv4() {
-      return fetchWithFallback(CFG.endpoints.v4, CFG.endpoints.v4Fallback, 'IPv4');
+      var data = await fetchWithFallback(CFG.endpoints.v4, CFG.endpoints.v4Fallback, 'IPv4');
+
+      // Validate: IPv4 must NOT contain colon (IPv6 separator)
+      if (data && data.ip && data.ip.indexOf(':') !== -1) {
+        throw new Error('Received IPv6 on IPv4 endpoint — check DNS A record');
+      }
+
+      return data;
     }
 
     async function probeIPv6() {
@@ -1380,6 +1387,13 @@
 
       var addrEl = document.getElementById(type + '-address');
       var detEl  = document.getElementById(type + '-details');
+
+      // Guard: IPv4 card must show IPv4 address, IPv6 must show IPv6
+      var isV6 = data.ip.indexOf(':') !== -1;
+      if ((type === 'ipv4' && isV6) || (type === 'ipv6' && !isV6)) {
+        showCardError(type);
+        return;
+      }
 
       if (addrEl) addrEl.textContent = data.ip;
       if (detEl)  detEl.innerHTML = buildDetailTable(data, type);

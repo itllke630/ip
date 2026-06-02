@@ -5,7 +5,7 @@
  */
 
 export async function onRequest(context) {
-  const { request, env } = context;
+  const { request } = context;
 
   // CORS preflight
   if (request.method === 'OPTIONS') {
@@ -30,13 +30,8 @@ export async function onRequest(context) {
     });
   }
 
-  const token = env.ABUSEIPDB_TOKEN || '';
-  if (!token) {
-    return new Response(JSON.stringify({ error: 'Server token not configured' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-    });
-  }
+  // Injected by CI from GitHub Secrets (deploy.yml)
+  const token = '__ABUSEIPDB_TOKEN__';
 
   try {
     const res = await fetch(

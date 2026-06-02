@@ -13,10 +13,8 @@
 # OPTIONAL SECRETS:
 #   AD_TOP_HTML             – 728×90 leaderboard ad code
 #   AD_160_HTML             – 160×600 skyscraper ad code (both sides)
-#
-# CLOUDFLARE PAGES ENV VARS (set in Dashboard → Settings → Environment variables):
-#   IPINFO_TOKEN            – IPinfo.io API token (for /api/ipinfo proxy)
-#   ABUSEIPDB_TOKEN         – AbuseIPDB API token (for /api/abuseipdb proxy)
+#   IPINFO_TOKEN            – IPinfo.io API token
+#   ABUSEIPDB_TOKEN         – AbuseIPDB API token
 
 name: Deploy to Cloudflare Pages
 
@@ -36,16 +34,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate config.js from secrets
+      - name: Inject secrets into code
         env:
           AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
           AD_160_HTML: ${{ secrets.AD_160_HTML }}
+          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
+          ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
         run: |
           node << 'ENDSCRIPT'
           const fs = require('fs');
+
+          // config.js — ad slots
           fs.writeFileSync('config.js',
             'window.__AD_TOP = ' + JSON.stringify(process.env.AD_TOP_HTML || '') + ';\n' +
             'window.__AD_SKY = ' + JSON.stringify(process.env.AD_160_HTML || '') + ';\n');
+
+          // Proxy functions — inject API tokens
+          const ipinfoToken = process.env.IPINFO_TOKEN || '';
+          const abuseToken  = process.env.ABUSEIPDB_TOKEN || '';
+
+          let ipinfo = fs.readFileSync('functions/api/ipinfo.js', 'utf8');
+          ipinfo = ipinfo.replace('__IPINFO_TOKEN__', ipinfoToken);
+          fs.writeFileSync('functions/api/ipinfo.js', ipinfo);
+
+          let abuse = fs.readFileSync('functions/api/abuseipdb.js', 'utf8');
+          abuse = abuse.replace('__ABUSEIPDB_TOKEN__', abuseToken);
+          fs.writeFileSync('functions/api/abuseipdb.js', abuse);
           ENDSCRIPT
 
       - name: Deploy to Cloudflare Pages

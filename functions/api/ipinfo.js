@@ -5,7 +5,7 @@
  */
 
 export async function onRequest(context) {
-  const { request, env } = context;
+  const { request } = context;
 
   // CORS preflight
   if (request.method === 'OPTIONS') {
@@ -30,8 +30,9 @@ export async function onRequest(context) {
     });
   }
 
-  const token = env.IPINFO_TOKEN || '';
-  const tokenParam = token ? '?token=' + token : '';
+  // Injected by CI from GitHub Secrets (deploy.yml)
+  const token = '__IPINFO_TOKEN__';
+  const tokenParam = token.startsWith('__') ? '' : '?token=' + token;
 
   try {
     const res = await fetch('https://ipinfo.io/' + encodeURIComponent(ip) + tokenParam);
