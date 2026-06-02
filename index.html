@@ -14,6 +14,12 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
+  <!-- ── Ad slot placeholders (replaced by CI via GitHub Secrets) ── -->
+  <script>
+    window.__AD_TOP      = '__AD_TOP_HTML__';
+    window.__AD_SKY      = '__AD_160_HTML__';
+  </script>
+
   <!-- Tailwind Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -114,7 +120,7 @@
   <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
   <!-- ================================================================ -->
   <div class="max-w-[728px] mx-auto mt-5 px-4">
-    <div class="w-full h-[50px] md:h-[90px]
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
                 border-2 border-dashed border-slate-200 rounded-xl
                 flex items-center justify-center bg-white/60 text-xs text-slate-400
                 select-none transition-colors hover:border-slate-300">
@@ -126,12 +132,20 @@
   <!--  MAIN GRID                                                        -->
   <!-- ================================================================ -->
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
       <!-- ============================================================ -->
-      <!--  LEFT COLUMN  (3/4 on lg)                                     -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
       <!-- ============================================================ -->
-      <div class="lg:col-span-3 space-y-5">
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        </div>
+      </aside>
+
+      <!-- ============================================================ -->
+      <!--  MAIN CONTENT  (8/12 on lg)                                    -->
+      <!-- ============================================================ -->
+      <div class="lg:col-span-8 space-y-5">
 
         <!-- ── IP Cards Row ──────────────────────────────────────── -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -361,14 +375,10 @@
       </div><!-- /left column -->
 
       <!-- ============================================================ -->
-      <!--  RIGHT COLUMN  —  AD ZONE B  (1/4 on lg, hidden below)       -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
       <!-- ============================================================ -->
-      <aside class="hidden lg:flex flex-col items-center">
-        <div class="sticky top-24 w-[160px] h-[600px]
-                    border-2 border-dashed border-slate-200 rounded-xl
-                    flex items-center justify-center bg-white/60 text-xs text-slate-400
-                    select-none transition-colors hover:border-slate-300 text-center leading-relaxed">
-          <span data-i18n="ad.zoneB">Advertisement<br/>160×600</span>
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
         </div>
       </aside>
 
@@ -794,19 +804,19 @@
     };
 
     function auditWebRTC() {
-      if (auditCache.webrtc !== null) return auditCache.webrtc;
+      // Only cache definitive results — not pending/checking
+      if (auditCache.webrtc && auditCache.webrtc._final) return auditCache.webrtc;
 
       // No data yet
       if (state.webrtcError) {
-        auditCache.webrtc = { status: 'failed', detail: state.webrtcError };
+        auditCache.webrtc = { status: 'failed', detail: state.webrtcError, _final: true };
         return auditCache.webrtc;
       }
 
       // Need at least one public IP from fetch to compare
       var publicIP = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip) || null;
       if (!publicIP) {
-        auditCache.webrtc = { status: 'pending' };
-        return auditCache.webrtc;
+        return { status: 'pending' }; // don't cache — data may arrive later
       }
 
       var leaked = state.webrtcIPs.some(function (ip) {
@@ -814,13 +824,13 @@
       });
 
       auditCache.webrtc = leaked
-        ? { status: 'leak', detail: 'WebRTC exposes: ' + state.webrtcIPs.join(', ') }
-        : { status: 'safe', detail: null };
+        ? { status: 'leak', detail: 'WebRTC exposes: ' + state.webrtcIPs.join(', '), _final: true }
+        : { status: 'safe', detail: null, _final: true };
       return auditCache.webrtc;
     }
 
     function auditProxy() {
-      if (auditCache.proxy !== null) return auditCache.proxy;
+      if (auditCache.proxy && auditCache.proxy._final) return auditCache.proxy;
 
       // Prefer IPv4 data for AS info; fall back to IPv6
       var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
@@ -828,8 +838,7 @@
                : state.ipv4 || state.ipv6;
 
       if (!data || !data.asOrganization) {
-        auditCache.proxy = { status: 'unknown' };
-        return auditCache.proxy;
+        return { status: 'unknown' }; // don't cache — AS data may arrive later
       }
 
       var org = data.asOrganization || '';
@@ -839,27 +848,25 @@
       });
 
       auditCache.proxy = matched
-        ? { status: 'datacenter', detail: org }
-        : { status: 'residential', detail: org };
+        ? { status: 'datacenter', detail: org, _final: true }
+        : { status: 'residential', detail: org, _final: true };
       return auditCache.proxy;
     }
 
     function auditTimezone() {
-      if (auditCache.timezone !== null) return auditCache.timezone;
+      if (auditCache.timezone && auditCache.timezone._final) return auditCache.timezone;
 
       var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
                : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
                : state.ipv4 || state.ipv6;
 
       if (!data || !data.timezone) {
-        auditCache.timezone = { status: 'unknown' };
-        return auditCache.timezone;
+        return { status: 'unknown' }; // don't cache — TZ data may arrive later
       }
 
       var remoteOffset = getTZOffsetMinutes(data.timezone);
       if (remoteOffset === null) {
-        auditCache.timezone = { status: 'unknown' };
-        return auditCache.timezone;
+        return { status: 'unknown' };
       }
 
       var localOffset = -new Date().getTimezoneOffset(); // convert "minutes west of UTC" → "minutes east of UTC"
@@ -868,34 +875,32 @@
       var diff = Math.abs(remoteOffset - localOffset);
       if (diff > 60) {
         auditCache.timezone = {
-          status: 'mismatch',
+          status: 'mismatch', _final: true,
           detail: 'Local: UTC' + (localOffset >= 0 ? '+' : '') + (localOffset / 60).toFixed(1) +
                   'h, IP location (' + data.timezone + '): UTC' +
                   (remoteOffset >= 0 ? '+' : '') + (remoteOffset / 60).toFixed(1) + 'h',
         };
       } else {
-        auditCache.timezone = { status: 'match', detail: data.timezone };
+        auditCache.timezone = { status: 'match', detail: data.timezone, _final: true };
       }
       return auditCache.timezone;
     }
 
     function auditLanguage() {
-      if (auditCache.language !== null) return auditCache.language;
+      if (auditCache.language && auditCache.language._final) return auditCache.language;
 
       var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
                : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
                : state.ipv4 || state.ipv6;
 
       if (!data || !data.country) {
-        auditCache.language = { status: 'unknown' };
-        return auditCache.language;
+        return { status: 'unknown' }; // don't cache — country data may arrive later
       }
 
       var expectedLangs = COUNTRY_LANGS[data.country.toUpperCase()];
       if (!expectedLangs) {
         // Country not in our lookup table — can't verify
-        auditCache.language = { status: 'unknown', detail: 'No language map for ' + data.country };
-        return auditCache.language;
+        return { status: 'unknown', detail: 'No language map for ' + data.country };
       }
 
       var browserLangs = (navigator.languages && navigator.languages.length)
@@ -909,8 +914,8 @@
       });
 
       auditCache.language = matched
-        ? { status: 'match', detail: null }
-        : { status: 'mismatch', detail: 'Expected: ' + expectedLangs.join(', ') + ' — Browser: ' + browserLangs.join(', ') };
+        ? { status: 'match', detail: null, _final: true }
+        : { status: 'mismatch', detail: 'Expected: ' + expectedLangs.join(', ') + ' — Browser: ' + browserLangs.join(', '), _final: true };
       return auditCache.language;
     }
 
@@ -939,6 +944,36 @@
     /* ── HTML escape ────────────────────────────────────────────── */
     function escHtml(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      function fill(el, code, labelKey) {
+        if (!el) return;
+        // Treat literal placeholder strings (not replaced by CI) as empty
+        var isPlaceholder = !code || (typeof code === 'string' && code.indexOf('__AD_') === 0);
+        if (!isPlaceholder) {
+          el.innerHTML = code;
+          el.className = el.className.replace(/border-dashed/g, '');
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+        }
+        // Re-run i18n on any new [data-i18n] elements inside
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  window.__AD_SKY, 'ad.zoneB');
+      fill(right, window.__AD_SKY, 'ad.zoneB');
+      if (topEl) fill(topEl, window.__AD_TOP, 'ad.zoneA');
     }
 
     /* ── Country flag emoji ─────────────────────────────────────── */
@@ -1351,8 +1386,9 @@
         updateLanguage(browserLang.startsWith('zh') ? 'zh' : 'en');
       }
 
-      // 2. Init map immediately (so it's ready when data arrives)
+      // 2. Init map + ads
       initMap();
+      renderAds();
 
       // 3. Launch all probes in parallel
       var tasks = [
@@ -1400,11 +1436,26 @@
       renderAllIPCards();
       renderAllAuditResults();
 
-      // Map — final update
+      // Map — final update (with free geolocation fallback)
       var geoData = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
                   : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
                   : state.ipv4 || state.ipv6;
-      if (geoData && geoData.latitude != null && geoData.longitude != null) {
+
+      if (!geoData || geoData.latitude == null || geoData.longitude == null || (geoData.latitude === 0 && geoData.longitude === 0)) {
+        // Fallback: use a free IP geolocation service
+        var ip = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip);
+        if (ip) {
+          try {
+            var geoRes = await fetchWithTimeout('https://ipapi.co/' + encodeURIComponent(ip) + '/json/', 5000);
+            if (geoRes.ok) {
+              var geoJson = await geoRes.json();
+              if (geoJson && geoJson.latitude && geoJson.longitude) {
+                updateMap(geoJson.latitude, geoJson.longitude, geoJson.city || geoJson.country_name || '');
+              }
+            }
+          } catch (_) { /* geolocation fallback failed — map stays at default view */ }
+        }
+      } else {
         updateMap(geoData.latitude, geoData.longitude, geoData.city || geoData.country || '');
       }
 

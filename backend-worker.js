@@ -14,6 +14,25 @@
 
 export default {
   async fetch(request, env, ctx) {
+    // ── Block browser navigation — API-only endpoints ──────────────
+    // v4 / v6 subdomains are meant for fetch() / XHR, not direct browsing.
+    var accept = (request.headers.get('Accept') || '').toLowerCase();
+    var isBrowser = accept.includes('text/html') && !accept.includes('application/json');
+    if (isBrowser) {
+      return new Response(
+        'This endpoint is for API use only.\n\n' +
+        'Please visit https://ip.linkozen.com to use the IP detection tool.\n' +
+        'These subdomains (v4 / v6) are probed automatically by the frontend.',
+        {
+          status: 403,
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      );
+    }
+
     // ── CORS Preflight ────────────────────────────────────────────────
     if (request.method === 'OPTIONS') {
       return new Response(null, {
