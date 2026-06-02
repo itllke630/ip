@@ -265,6 +265,9 @@
                 <span id="time-system-value" class="text-xs font-mono text-slate-700 break-all leading-tight">—</span>
               </div>
 
+              <!-- Time difference -->
+              <p id="time-diff" class="hidden text-[11px] text-amber-600 font-medium mt-1"></p>
+
               <!-- Mismatch warning -->
               <p id="time-warn" class="hidden text-[11px] text-red-500 font-medium flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -471,6 +474,7 @@
         'common.copy':             'Copy',
         'common.copied':           'Copied!',
         'error.fetch':             'Unable to fetch IP data',
+        'error.fallback':          'Limited data — check v4/v6 DNS configuration',
         'error.ipv6_unavailable':  'IPv6 Not Available',
         'map.title':               'Geolocation Map',
         'ad.zoneA':                'Advertisement · 728×90',
@@ -531,6 +535,7 @@
         'common.copy':             '复制',
         'common.copied':           '已复制！',
         'error.fetch':             '无法获取 IP 数据',
+        'error.fallback':          '数据受限 — 请检查 v4/v6 DNS 配置',
         'error.ipv6_unavailable':  'IPv6 不可用',
         'map.title':               '地理位置',
         'ad.zoneA':                '广告位 · 728×90',
@@ -720,7 +725,7 @@
     function fetchWithTimeout(url, timeoutMs) {
       var ctrl = new AbortController();
       var timer = setTimeout(function () { ctrl.abort(); }, timeoutMs);
-      return fetch(url, { signal: ctrl.signal }).finally(function () {
+      return fetch(url, { signal: ctrl.signal, mode: 'cors' }).finally(function () {
         clearTimeout(timer);
       });
     }
@@ -792,7 +797,19 @@
 
     async function probeIPv6() {
       // IPv6 is often unavailable — shorter timeout
-      return fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallbacks, 'IPv6', 4000);
+      var data = await fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallbacks, 'IPv6', 4000);
+
+      // Backend signals IPv6 unsupported
+      if (data && data.ipv6_unsupported) {
+        throw new Error('IPv6 not supported on this network');
+      }
+
+      // Validate the returned IP is actually IPv6 format
+      if (data && data.ip && data.ip.indexOf(':') === -1) {
+        throw new Error('Received IPv4 on IPv6 endpoint — network lacks IPv6');
+      }
+
+      return data;
     }
 
     /* ================================================================
@@ -1091,9 +1108,9 @@
       rightRows.push(row('detail.asn',    d.asn            ? 'AS' + escHtml(String(d.asn)) + ' ' + (d.asOrganization ? escHtml(d.asOrganization) : '') : na));
       rightRows.push(row('EU',            d.is_eu === true ? 'Yes' : 'No'));
 
-      // Fallback warning
+      // Fallback warning — primary API failed, showing limited data
       if (d._fallback) {
-        rightRows.push('<div class="mt-2 text-[11px] text-amber-500">⚠ ' + t('error.fetch') + '</div>');
+        rightRows.push('<div class="mt-2 text-[11px] text-amber-500">⚠ ' + t('error.fallback') + '</div>');
       }
 
       return '<div class="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">'
@@ -1206,17 +1223,36 @@
       document.getElementById('time-tz-value').textContent   = tzName;
       document.getElementById('time-local-value').textContent = localTime || '—';
 
-      // Highlight rows on mismatch
+      // Compute hour difference
+      var diffEl = document.getElementById('time-diff');
+      if (diffEl && data && data.timezone) {
+        var remoteOff = getTZOffsetMinutes(data.timezone);
+        var localOff  = -new Date().getTimezoneOffset();
+        if (remoteOff !== null) {
+          var diffH = Math.round((localOff - remoteOff) / 60 * 10) / 10;
+          if (Math.abs(diffH) > 0.5) {
+            var ahead = diffH > 0;
+            diffEl.textContent = (currentLang === 'zh' ? '您的系统时间比当地时间' : 'Your system time is ')
+              + (ahead ? (currentLang === 'zh' ? '快 ' : 'ahead by ') : (currentLang === 'zh' ? '慢 ' : 'behind by '))
+              + Math.abs(diffH).toFixed(1) + ' ' + (currentLang === 'zh' ? '小时' : 'hours');
+            diffEl.classList.remove('hidden');
+          } else {
+            diffEl.classList.add('hidden');
+          }
+        }
+      }
+
+      // Highlight rows + red borders on mismatch
       var localRow = document.getElementById('time-local-row');
       var sysRow   = document.getElementById('time-system-row');
       var warnEl   = document.getElementById('time-warn');
       if (mismatch) {
-        if (localRow) localRow.className = 'bg-red-50/70 rounded-lg px-3 py-2 -mx-1';
-        if (sysRow)   sysRow.className   = 'bg-red-50/70 rounded-lg px-3 py-2 -mx-1';
+        if (localRow) localRow.className = 'bg-red-50/70 border border-red-400 rounded-lg px-3 py-2 -mx-1';
+        if (sysRow)   sysRow.className   = 'bg-red-50/70 border border-red-400 rounded-lg px-3 py-2 -mx-1';
         if (warnEl)   warnEl.classList.remove('hidden');
       } else {
-        if (localRow) localRow.className = '';
-        if (sysRow)   sysRow.className   = '';
+        if (localRow) localRow.className = 'transition-colors duration-300 rounded-lg px-3 py-2 -mx-1';
+        if (sysRow)   sysRow.className   = 'transition-colors duration-300 rounded-lg px-3 py-2 -mx-1';
         if (warnEl)   warnEl.classList.add('hidden');
       }
     }
@@ -1367,7 +1403,9 @@
     }
 
     function updateMap(lat, lng, label) {
-      if (lat == null || lng == null) return;
+      lat = Number(lat);
+      lng = Number(lng);
+      if (isNaN(lat) || isNaN(lng)) return;
       if (lat === 0 && lng === 0) return; // Cloudflare sometimes returns 0,0 for unknown
       if (!state.map) initMap();
       if (!state.map) return;
