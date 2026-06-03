@@ -1,5 +1,10 @@
-name = "ip-linkozen"
+name = "linkozen"
 main = "worker/index.js"
+
+# 部署时需要配置以下路由 (Cloudflare Dashboard → Workers → Routes):
+#   www.linkozen.com/*   → linkozen
+#   v4.linkozen.com/*    → linkozen  (DNS: 仅 A 记录)
+#   v6.linkozen.com/*    → linkozen  (DNS: 仅 AAAA 记录)
 
 # 打包配置
 minify = true

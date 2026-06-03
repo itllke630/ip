@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Free online text cleaner — remove spaces, trim lines, merge blank lines, convert to single line. 100% client-side, instant formatting." />
+  <title>Text Cleaner & Formatter — LinkoZen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'fade-in':  'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+          },
+          keyframes: {
+            fadeIn:  { '0%':{opacity:'0'}, '100%':{opacity:'1'} },
+            slideUp: { '0%':{opacity:'0',transform:'translateY(12px)'}, '100%':{opacity:'1',transform:'translateY(0)'} },
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    textarea:focus { outline: none; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================================================================== -->
+  <!--  HEADER                                                             -->
+  <!-- ================================================================== -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3 no-underline">
+        <div class="w-9 h-9 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">Tx</div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">Text Cleaner</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Instant Formatting &amp; Whitespace Control</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
+        <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm" onclick="toggleLangMenu()" aria-label="Switch language">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!--  MAIN CONTENT — 12-col grid                                         -->
+  <!-- ================================================================== -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        </div>
+      </aside>
+
+      <!-- CENTER COLUMN (8/12) -->
+      <div class="lg:col-span-8 space-y-5">
+
+        <!-- ========================================================== -->
+        <!--  ACTION BAR                                                  -->
+        <!-- ========================================================== -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-5 animate-slide-up">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider mr-1" data-i18n="actions.label">Actions:</span>
+            <button onclick="toggleAction('removeSpaces')" data-action="removeSpaces"
+                    class="action-btn px-3 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    data-i18n="actions.remove_spaces">Remove All Spaces</button>
+            <button onclick="toggleAction('removeEmptyLines')" data-action="removeEmptyLines"
+                    class="action-btn px-3 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    data-i18n="actions.remove_empty_lines">Remove Empty Lines</button>
+            <button onclick="toggleAction('trimLines')" data-action="trimLines"
+                    class="action-btn px-3 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    data-i18n="actions.trim_lines">Trim Line Edits</button>
+            <button onclick="toggleAction('mergeEmptyLines')" data-action="mergeEmptyLines"
+                    class="action-btn px-3 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    data-i18n="actions.merge_empty_lines">Merge Empty Lines</button>
+            <button onclick="toggleAction('toSingleLine')" data-action="toSingleLine"
+                    class="action-btn px-3 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    data-i18n="actions.to_single_line">To Single Line</button>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!--  TWO-COLUMN TEXTAREAS                                        -->
+        <!-- ========================================================== -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Input -->
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-5 animate-slide-up flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <span data-i18n="input.title">Input</span>
+              </h2>
+              <button onclick="clearAll()" class="text-[10px] text-slate-400 hover:text-red-500 transition-colors" data-i18n="actions.clear_all">Clear</button>
+            </div>
+            <textarea id="input-text" rows="14"
+                      class="flex-1 w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm font-mono placeholder:text-slate-400 focus:ring-2 focus:ring-sky-400 focus:border-sky-400 transition-shadow resize-y"
+                      placeholder="Paste or type your text here…"
+                      oninput="onInputChanged()" aria-label="Input text"></textarea>
+            <!-- Metrics -->
+            <div id="input-metrics" class="flex items-center gap-3 mt-3 text-[10px] text-slate-400 font-mono">
+              <span><span data-i18n="metrics.chars">Chars (no space)</span>: <strong id="im-chars" class="text-slate-600">0</strong></span>
+              <span class="text-slate-300">|</span>
+              <span><span data-i18n="metrics.total_chars">Total chars</span>: <strong id="im-total" class="text-slate-600">0</strong></span>
+              <span class="text-slate-300">|</span>
+              <span><span data-i18n="metrics.lines">Lines</span>: <strong id="im-lines" class="text-slate-600">0</strong></span>
+            </div>
+          </div>
+
+          <!-- Output -->
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-5 animate-slide-up flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span data-i18n="output.title">Output</span>
+              </h2>
+              <button id="btn-copy" onclick="copyOutput()"
+                      class="px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 active:scale-95 transition-all"
+                      data-i18n="actions.copy_output">Copy Output</button>
+            </div>
+            <textarea id="output-text" rows="14" readonly
+                      class="flex-1 w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm font-mono text-slate-600 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-400 focus:border-sky-400 transition-shadow resize-y"
+                      placeholder="Formatted text will appear here…"
+                      aria-label="Output text"></textarea>
+            <!-- Metrics -->
+            <div id="output-metrics" class="flex items-center gap-3 mt-3 text-[10px] text-slate-400 font-mono">
+              <span><span data-i18n="metrics.chars">Chars (no space)</span>: <strong id="om-chars" class="text-slate-600">0</strong></span>
+              <span class="text-slate-300">|</span>
+              <span><span data-i18n="metrics.total_chars">Total chars</span>: <strong id="om-total" class="text-slate-600">0</strong></span>
+              <span class="text-slate-300">|</span>
+              <span><span data-i18n="metrics.lines">Lines</span>: <strong id="om-lines" class="text-slate-600">0</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!--  INFO — About Text Cleaning                                  -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span data-i18n="info.title">About Text Cleaning &amp; Formatting</span>
+          </h2>
+
+          <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+
+            <p data-i18n="info.intro">
+              Copying text from PDFs, emails, websites, or code editors often brings along unwanted whitespace, empty lines, and formatting cruft. This tool gives you precise control over how your text is cleaned — each operation can be toggled independently and combined in any way, with results updating in real-time as you type.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-sky-600 mb-1" data-i18n="info.spaces_title">Remove All Spaces</p>
+                <p class="text-xs text-slate-500" data-i18n="info.spaces_desc">Strips every regular space, full-width space (common in CJK text), and tab character. Useful for compacting JSON, minifying code snippets, joining comma-separated values, or removing accidental whitespace from copied data. <em>Note: line breaks are preserved unless you also enable "To Single Line."</em></p>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-sky-600 mb-1" data-i18n="info.empty_title">Remove Empty Lines</p>
+                <p class="text-xs text-slate-500" data-i18n="info.empty_desc">Deletes any line that contains only whitespace (spaces, tabs) or is completely blank. Ideal for cleaning up logs, tightening exported reports, or preparing text for further processing where blank lines cause issues.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-sky-600 mb-1" data-i18n="info.trim_title">Trim Line Edits</p>
+                <p class="text-xs text-slate-500" data-i18n="info.trim_desc">Removes leading and trailing whitespace from each line individually while preserving all internal spacing and indentation. Perfect for normalizing text copied from emails where each line may have inconsistent leading spaces, or cleaning up padded table data.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-sky-600 mb-1" data-i18n="info.merge_title">Merge Extra Empty Lines</p>
+                <p class="text-xs text-slate-500" data-i18n="info.merge_desc">Collapses three or more consecutive blank lines into exactly two blank lines. This preserves intentional paragraph breaks while removing excessive vertical whitespace — great for cleaning documents that have accumulated multiple blank lines through repeated editing.</p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-sky-50 border border-sky-200">
+              <p class="text-xs font-semibold text-sky-700 mb-1" data-i18n="info.single_title">To Single Line — The Power Tool</p>
+              <p class="text-xs text-sky-600" data-i18n="info.single_desc">
+                Converts every line break into a single space, merging the entire document into one continuous line. Combined with <strong>Remove All Spaces</strong>, this produces completely compact text. Standalone, it's perfect for pasting multi-line addresses into single-line form fields, flattening paragraphs for spreadsheet cells, or normalizing text for machine processing.
+              </p>
+            </div>
+
+            <p class="text-xs text-slate-400" data-i18n="info.privacy">
+              <strong>Privacy note:</strong> All text processing happens in real-time within your browser using JavaScript regular expressions. No text is ever sent to any server — everything stays on your device.
+            </p>
+          </div>
+        </section>
+
+      </div><!-- /center column -->
+
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ================================================================== -->
+  <!--  FOOTER                                                             -->
+  <!-- ================================================================== -->
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a href="index.html" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 ml-1 font-medium">LinkoZen</a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No logs. No tracking. All text processing happens locally in your browser.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ====================================================================== -->
+  <!--  APPLICATION LOGIC                                                      -->
+  <!-- ====================================================================== -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+     *  i18n — 11 LANGUAGES
+     * ================================================================ */
+    var LANGS = [
+      { code:'en', label:'English',    native:'English',    region:'US' },
+      { code:'zh', label:'简体中文',    native:'简体中文',    region:'CN' },
+      { code:'ja', label:'日本語',      native:'日本語',      region:'JP' },
+      { code:'ko', label:'한국어',      native:'한국어',      region:'KR' },
+      { code:'fr', label:'Français',   native:'Français',   region:'FR' },
+      { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
+      { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+      { code:'pt', label:'Português',  native:'Português',  region:'BR' },
+      { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
+      { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
+      { code:'zh-TW', label:'繁體中文',  native:'繁體中文',    region:'TW' },
+    ];
+
+    var DICT = {
+      en: {
+        'app.title':'Text Cleaner','app.subtitle':'Instant Formatting & Whitespace Control',
+        'nav.home':'Home',
+        'actions.label':'Actions:','actions.remove_spaces':'Remove All Spaces',
+        'actions.remove_empty_lines':'Remove Empty Lines','actions.trim_lines':'Trim Line Edits',
+        'actions.merge_empty_lines':'Merge Empty Lines','actions.to_single_line':'To Single Line',
+        'actions.copy_output':'Copy Output','actions.clear_all':'Clear','actions.copied':'Copied!',
+        'input.title':'Input','output.title':'Output',
+        'metrics.chars':'Chars (no space)','metrics.total_chars':'Total chars','metrics.lines':'Lines',
+        'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. All text processing happens locally in your browser.',
+        'ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600','ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
+        'info.title':'About Text Cleaning & Formatting',
+        'info.intro':'Copying text from PDFs, emails, websites, or code editors often brings along unwanted whitespace, empty lines, and formatting cruft. This tool gives you precise control over how your text is cleaned — each operation can be toggled independently and combined in any way, with results updating in real-time as you type.',
+        'info.spaces_title':'Remove All Spaces',
+        'info.spaces_desc':'Strips every regular space, full-width space (common in CJK text), and tab character. Useful for compacting JSON, minifying code snippets, joining comma-separated values, or removing accidental whitespace from copied data. <em>Note: line breaks are preserved unless you also enable "To Single Line."</em>',
+        'info.empty_title':'Remove Empty Lines',
+        'info.empty_desc':'Deletes any line that contains only whitespace (spaces, tabs) or is completely blank. Ideal for cleaning up logs, tightening exported reports, or preparing text for further processing where blank lines cause issues.',
+        'info.trim_title':'Trim Line Edits',
+        'info.trim_desc':'Removes leading and trailing whitespace from each line individually while preserving all internal spacing and indentation. Perfect for normalizing text copied from emails where each line may have inconsistent leading spaces, or cleaning up padded table data.',
+        'info.merge_title':'Merge Extra Empty Lines',
+        'info.merge_desc':'Collapses three or more consecutive blank lines into exactly two blank lines. This preserves intentional paragraph breaks while removing excessive vertical whitespace — great for cleaning documents that have accumulated multiple blank lines through repeated editing.',
+        'info.single_title':'To Single Line — The Power Tool',
+        'info.single_desc':'Converts every line break into a single space, merging the entire document into one continuous line. Combined with <strong>Remove All Spaces</strong>, this produces completely compact text. Standalone, it\'s perfect for pasting multi-line addresses into single-line form fields, flattening paragraphs for spreadsheet cells, or normalizing text for machine processing.',
+        'info.privacy':'<strong>Privacy note:</strong> All text processing happens in real-time within your browser using JavaScript regular expressions. No text is ever sent to any server — everything stays on your device.',
+      },
+      zh: {
+        'app.title':'文本清洗器','app.subtitle':'即时格式化与空白字符控制',
+        'nav.home':'首页',
+        'actions.label':'操作：','actions.remove_spaces':'去除所有空格',
+        'actions.remove_empty_lines':'去除空行','actions.trim_lines':'修剪行首尾空白',
+        'actions.merge_empty_lines':'合并多余空行','actions.to_single_line':'转为单行',
+        'actions.copy_output':'复制结果','actions.clear_all':'清空','actions.copied':'已复制！',
+        'input.title':'输入','output.title':'输出',
+        'metrics.chars':'字符数（无空格）','metrics.total_chars':'总字符数','metrics.lines':'行数',
+        'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 所有文本处理均在浏览器本地完成。',
+        'ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600','ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
+        'info.title':'关于文本清洗与格式化',
+        'info.intro':'从 PDF、邮件、网页或代码编辑器复制文本时，往往会带入多余的空格、空行和格式垃圾。本工具让您精确控制文本的清洗方式——每个操作可独立开关并任意组合，结果随您输入实时更新。',
+        'info.spaces_title':'去除所有空格',
+        'info.spaces_desc':'去除所有普通空格、全角空格（CJK 文本中常见）和制表符。适用于压缩 JSON、精简代码片段、合并逗号分隔值，或清除复制数据中的意外空格。<em>注意：除非同时启用"转为单行"，否则换行符将被保留。</em>',
+        'info.empty_title':'去除空行',
+        'info.empty_desc':'删除任何仅含空白字符（空格、制表符）或完全为空的行。非常适合清理日志、精简导出报告，或为后续处理准备文本。',
+        'info.trim_title':'修剪行首尾空白',
+        'info.trim_desc':'逐行去除首尾空白字符，同时保留所有内部空格和缩进。非常适合规范化从邮件中复制的文本（每行可能有不一致的前导空格），或清理填充的表格数据。',
+        'info.merge_title':'合并多余空行',
+        'info.merge_desc':'将连续三个及以上的空行压缩为恰好两个空行。既保留有意的段落分隔，又去除多余的纵向空白——非常适合清理经过反复编辑而积累了大量空行的文档。',
+        'info.single_title':'转为单行 — 强力工具',
+        'info.single_desc':'将所有换行符转换为单个空格，将整个文档合并为一个连续行。与<strong>去除所有空格</strong>组合使用，可生成完全紧凑的文本。单独使用时，非常适合将多行地址粘贴到单行表单字段、将段落展平以放入电子表格单元格，或规范化文本以供机器处理。',
+        'info.privacy':'<strong>隐私说明：</strong>所有文本处理均使用 JavaScript 正则表达式在浏览器内实时完成。文本不会被发送到任何服务器——一切保留在您的设备上。',
+      },
+      ja: {
+        'app.title':'テキストクリーナー','app.subtitle':'即時フォーマットと空白制御',
+        'nav.home':'ホーム',
+        'actions.label':'操作:','actions.remove_spaces':'すべてのスペースを削除',
+        'actions.remove_empty_lines':'空行を削除','actions.trim_lines':'行の空白をトリム',
+        'actions.merge_empty_lines':'空行を統合','actions.to_single_line':'1行に変換',
+        'actions.copy_output':'結果をコピー','actions.clear_all':'クリア','actions.copied':'コピー完了！',
+        'input.title':'入力','output.title':'出力',
+        'metrics.chars':'文字数(空白除く)','metrics.total_chars':'総文字数','metrics.lines':'行数',
+        'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・すべてのテキスト処理はブラウザ内で行われます。',
+        'ad.zoneA':'広告 · 728×90','ad.zoneB':'広告<br/>160×600','ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
+        'info.title':'テキストクリーニングとフォーマットについて',
+        'info.intro':'PDF、メール、ウェブサイト、コードエディタからテキストをコピーすると、不要な空白や空行、フォーマットのゴミが付いてくることがよくあります。このツールは各操作を個別に切り替えて自由に組み合わせることができ、入力に応じてリアルタイムで結果が更新されます。',
+        'info.spaces_title':'すべてのスペースを削除',
+        'info.spaces_desc':'通常のスペース、全角スペース（CJKテキストで一般的）、タブ文字をすべて削除します。JSONの圧縮、コードスニペットの縮小、CSV値の結合、コピーデータの不要な空白除去に便利です。<em>注意：「1行に変換」を有効にしない限り、改行は保持されます。</em>',
+        'info.empty_title':'空行を削除',
+        'info.empty_desc':'空白文字（スペース、タブ）のみを含む行や完全に空の行を削除します。ログのクリーンアップ、エクスポートレポートの簡素化、空行が問題となる後続処理のためのテキスト準備に最適です。',
+        'info.trim_title':'行の空白をトリム',
+        'info.trim_desc':'各行の先頭と末尾の空白を削除し、内部のスペースとインデントは保持します。メールからコピーした各行に不揃いな先行スペースがあるテキストの正規化や、パディングされたテーブルデータのクリーンアップに最適です。',
+        'info.merge_title':'空行を統合',
+        'info.merge_desc':'連続する3つ以上の空行を正確に2つの空行に圧縮します。意図的な段落区切りを保持しながら、過剰な縦方向の空白を除去します。繰り返し編集で複数の空行が蓄積されたドキュメントのクリーンアップに最適です。',
+        'info.single_title':'1行に変換 — パワーツール',
+        'info.single_desc':'すべての改行を単一のスペースに変換し、ドキュメント全体を1つの連続行に統合します。<strong>すべてのスペースを削除</strong>と組み合わせると、完全にコンパクトなテキストが生成されます。単独では、複数行の住所を単一行のフォームフィールドに貼り付けたり、段落をスプレッドシートセル用に平坦化したりするのに最適です。',
+        'info.privacy':'<strong>プライバシーについて：</strong>すべてのテキスト処理は、JavaScript正規表現を使用してブラウザ内でリアルタイムに行われます。テキストがサーバーに送信されることはありません。',
+      },
+      ko: {
+        'app.title':'텍스트 클리너','app.subtitle':'즉시 포맷팅 및 공백 제어',
+        'nav.home':'홈',
+        'actions.label':'작업:','actions.remove_spaces':'모든 공백 제거',
+        'actions.remove_empty_lines':'빈 줄 제거','actions.trim_lines':'줄 공백 정리',
+        'actions.merge_empty_lines':'빈 줄 병합','actions.to_single_line':'한 줄로 변환',
+        'actions.copy_output':'결과 복사','actions.clear_all':'지우기','actions.copied':'복사 완료!',
+        'input.title':'입력','output.title':'출력',
+        'metrics.chars':'문자 수(공백 제외)','metrics.total_chars':'총 문자 수','metrics.lines':'줄 수',
+        'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 모든 텍스트 처리는 브라우저에서 로컬로 수행됩니다.',
+        'ad.zoneA':'광고 · 728×90','ad.zoneB':'광고<br/>160×600','ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
+        'info.title':'텍스트 정리 및 포맷팅 정보',
+        'info.intro':'PDF, 이메일, 웹사이트, 코드 편집기에서 텍스트를 복사하면 원치 않는 공백, 빈 줄, 서식 찌꺼기가 함께 따라오는 경우가 많습니다. 이 도구는 각 작업을 독립적으로 전환하고 자유롭게 조합할 수 있으며, 입력에 따라 실시간으로 결과가 업데이트됩니다.',
+        'info.spaces_title':'모든 공백 제거',
+        'info.spaces_desc':'일반 공백, 전각 공백(CJK 텍스트에서 흔함), 탭 문자를 모두 제거합니다. JSON 압축, 코드 스니펫 축소, CSV 값 결합, 복사된 데이터의 불필요한 공백 제거에 유용합니다. <em>참고: "한 줄로 변환"을 활성화하지 않으면 줄 바꿈이 유지됩니다.</em>',
+        'info.empty_title':'빈 줄 제거',
+        'info.empty_desc':'공백 문자(스페이스, 탭)만 포함하거나 완전히 비어 있는 줄을 삭제합니다. 로그 정리, 내보낸 보고서 간소화, 빈 줄이 문제가 되는 후속 처리를 위한 텍스트 준비에 이상적입니다.',
+        'info.trim_title':'줄 공백 정리',
+        'info.trim_desc':'각 줄의 앞뒤 공백을 제거하면서 내부 공백과 들여쓰기는 보존합니다. 이메일에서 복사한 텍스트 정규화나 패딩된 테이블 데이터 정리에 완벽합니다.',
+        'info.merge_title':'빈 줄 병합',
+        'info.merge_desc':'연속된 3개 이상의 빈 줄을 정확히 2개의 빈 줄로 압축합니다. 의도적인 단락 구분은 유지하면서 과도한 세로 공백을 제거합니다.',
+        'info.single_title':'한 줄로 변환 — 강력한 도구',
+        'info.single_desc':'모든 줄 바꿈을 단일 공백으로 변환하여 문서 전체를 하나의 연속된 줄로 병합합니다. <strong>모든 공백 제거</strong>와 함께 사용하면 완전히 압축된 텍스트가 생성됩니다.',
+        'info.privacy':'<strong>개인정보 보호:</strong> 모든 텍스트 처리는 JavaScript 정규식을 사용하여 브라우저 내에서 실시간으로 이루어집니다. 텍스트가 서버로 전송되지 않습니다.',
+      },
+      fr: {
+        'app.title':'Nettoyeur de texte','app.subtitle':'Formatage instantané et contrôle des espaces',
+        'nav.home':'Accueil',
+        'actions.label':'Actions :','actions.remove_spaces':'Supprimer les espaces',
+        'actions.remove_empty_lines':'Supprimer lignes vides','actions.trim_lines':'Découper les lignes',
+        'actions.merge_empty_lines':'Fusionner lignes vides','actions.to_single_line':'En une seule ligne',
+        'actions.copy_output':'Copier résultat','actions.clear_all':'Effacer','actions.copied':'Copié !',
+        'input.title':'Entrée','output.title':'Sortie',
+        'metrics.chars':'Caractères (sans espaces)','metrics.total_chars':'Total caractères','metrics.lines':'Lignes',
+        'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Tout le traitement se fait localement dans votre navigateur.',
+        'ad.zoneA':'Publicité · 728×90','ad.zoneB':'Publicité<br/>160×600','ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'À propos du nettoyage et formatage de texte',
+        'info.intro':'Copier du texte depuis des PDF, e-mails, sites web ou éditeurs de code apporte souvent des espaces indésirables, des lignes vides et des résidus de formatage. Cet outil vous donne un contrôle précis — chaque opération peut être activée indépendamment et combinée librement, avec des résultats en temps réel.',
+        'info.spaces_title':'Supprimer tous les espaces',
+        'info.spaces_desc':'Supprime tous les espaces réguliers, espaces pleine chasse et tabulations. Utile pour compresser du JSON, minifier du code, ou nettoyer des données copiées.',
+        'info.empty_title':'Supprimer les lignes vides',
+        'info.empty_desc':'Supprime toute ligne ne contenant que des espaces ou étant complètement vide. Idéal pour nettoyer des logs ou préparer du texte pour un traitement ultérieur.',
+        'info.trim_title':'Découper les lignes',
+        'info.trim_desc':'Supprime les espaces de début et de fin de chaque ligne tout en préservant l\'espacement interne. Parfait pour normaliser du texte copié depuis des e-mails.',
+        'info.merge_title':'Fusionner les lignes vides',
+        'info.merge_desc':'Réduit trois lignes vides consécutives ou plus en exactement deux lignes vides, préservant les sauts de paragraphe intentionnels.',
+        'info.single_title':'En une seule ligne — L\'outil puissant',
+        'info.single_desc':'Convertit tous les sauts de ligne en un seul espace. Combiné avec <strong>Supprimer tous les espaces</strong>, cela produit un texte entièrement compact.',
+        'info.privacy':'<strong>Confidentialité :</strong> Tout le traitement du texte s\'effectue en temps réel dans votre navigateur via des expressions régulières JavaScript. Rien n\'est jamais envoyé à un serveur.',
+      },
+      de: {
+        'app.title':'Textreiniger','app.subtitle':'Sofortige Formatierung und Leerzeichenkontrolle',
+        'nav.home':'Startseite',
+        'actions.label':'Aktionen:','actions.remove_spaces':'Alle Leerzeichen entfernen',
+        'actions.remove_empty_lines':'Leere Zeilen entfernen','actions.trim_lines':'Zeilen trimmen',
+        'actions.merge_empty_lines':'Leere Zeilen zusammenführen','actions.to_single_line':'In eine Zeile',
+        'actions.copy_output':'Ergebnis kopieren','actions.clear_all':'Löschen','actions.copied':'Kopiert!',
+        'input.title':'Eingabe','output.title':'Ausgabe',
+        'metrics.chars':'Zeichen (ohne Leerz.)','metrics.total_chars':'Gesamtzeichen','metrics.lines':'Zeilen',
+        'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Alle Textverarbeitung erfolgt lokal im Browser.',
+        'ad.zoneA':'Werbung · 728×90','ad.zoneB':'Werbung<br/>160×600','ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
+        'info.title':'Über Textbereinigung & Formatierung',
+        'info.intro':'Beim Kopieren von Text aus PDFs, E-Mails, Websites oder Code-Editoren entstehen oft unerwünschte Leerzeichen, Leerzeilen und Formatierungsreste. Dieses Tool gibt Ihnen präzise Kontrolle — jede Operation kann unabhängig geschaltet und beliebig kombiniert werden, mit Echtzeit-Ergebnissen.',
+        'info.spaces_title':'Alle Leerzeichen entfernen',
+        'info.spaces_desc':'Entfernt alle regulären Leerzeichen, breite Leerzeichen und Tabulatoren. Nützlich zum Komprimieren von JSON, Minifizieren von Code oder Bereinigen kopierter Daten.',
+        'info.empty_title':'Leere Zeilen entfernen',
+        'info.empty_desc':'Löscht Zeilen, die nur Leerzeichen enthalten oder vollständig leer sind. Ideal zum Bereinigen von Logs oder Vorbereiten von Text für die Weiterverarbeitung.',
+        'info.trim_title':'Zeilen trimmen',
+        'info.trim_desc':'Entfernt führende und nachfolgende Leerzeichen jeder Zeile, während interne Abstände erhalten bleiben. Perfekt zum Normalisieren von kopiertem E-Mail-Text.',
+        'info.merge_title':'Leere Zeilen zusammenführen',
+        'info.merge_desc':'Reduziert drei oder mehr aufeinanderfolgende Leerzeilen auf genau zwei Leerzeilen, wobei absichtliche Absatzumbrüche erhalten bleiben.',
+        'info.single_title':'In eine Zeile — Das Power-Tool',
+        'info.single_desc':'Wandelt alle Zeilenumbrüche in ein einzelnes Leerzeichen um. In Kombination mit <strong>Alle Leerzeichen entfernen</strong> entsteht vollständig kompakter Text.',
+        'info.privacy':'<strong>Datenschutzhinweis:</strong> Die gesamte Textverarbeitung erfolgt in Echtzeit in Ihrem Browser mit JavaScript-RegEx. Es wird kein Text an einen Server gesendet.',
+      },
+      it: {
+        'app.title':'Pulitore di testo','app.subtitle':'Formattazione immediata e controllo spazi',
+        'nav.home':'Home',
+        'actions.label':'Azioni:','actions.remove_spaces':'Rimuovi tutti gli spazi',
+        'actions.remove_empty_lines':'Rimuovi righe vuote','actions.trim_lines':'Taglia righe',
+        'actions.merge_empty_lines':'Unisci righe vuote','actions.to_single_line':'In una riga',
+        'actions.copy_output':'Copia risultato','actions.clear_all':'Cancella','actions.copied':'Copiato!',
+        'input.title':'Input','output.title':'Output',
+        'metrics.chars':'Caratteri (senza spazi)','metrics.total_chars':'Caratteri totali','metrics.lines':'Righe',
+        'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. L\'elaborazione avviene localmente nel browser.',
+        'ad.zoneA':'Pubblicità · 728×90','ad.zoneB':'Pubblicità<br/>160×600','ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Informazioni sulla pulizia e formattazione del testo',
+        'info.intro':'Copiare testo da PDF, email, siti web o editor di codice spesso porta con sé spazi indesiderati, righe vuote e residui di formattazione. Questo strumento offre un controllo preciso: ogni operazione può essere attivata indipendentemente e combinata liberamente, con risultati in tempo reale.',
+        'info.spaces_title':'Rimuovi tutti gli spazi',
+        'info.spaces_desc':'Rimuove tutti gli spazi regolari, gli spazi a larghezza intera (comuni nel testo CJK) e i caratteri di tabulazione. Utile per compattare JSON, minificare snippet di codice o pulire dati copiati.',
+        'info.empty_title':'Rimuovi righe vuote',
+        'info.empty_desc':'Elimina qualsiasi riga che contenga solo spazi bianchi o sia completamente vuota. Ideale per pulire log o preparare testo per l\'elaborazione successiva.',
+        'info.trim_title':'Taglia le righe',
+        'info.trim_desc':'Rimuove gli spazi iniziali e finali da ogni riga preservando la spaziatura interna. Perfetto per normalizzare testo copiato da email.',
+        'info.merge_title':'Unisci righe vuote',
+        'info.merge_desc':'Comprime tre o più righe vuote consecutive in esattamente due righe vuote, preservando le interruzioni di paragrafo intenzionali.',
+        'info.single_title':'In una riga — Lo strumento potente',
+        'info.single_desc':'Converte ogni interruzione di riga in uno spazio singolo, unendo l\'intero documento in una riga continua. Combinato con <strong>Rimuovi tutti gli spazi</strong>, produce testo completamente compatto.',
+        'info.privacy':'<strong>Nota sulla privacy:</strong> Tutta l\'elaborazione del testo avviene in tempo reale nel browser utilizzando espressioni regolari JavaScript. Nessun testo viene mai inviato a un server.',
+      },
+      pt: {
+        'app.title':'Limpador de texto','app.subtitle':'Formatação instantânea e controle de espaços',
+        'nav.home':'Início',
+        'actions.label':'Ações:','actions.remove_spaces':'Remover todos os espaços',
+        'actions.remove_empty_lines':'Remover linhas vazias','actions.trim_lines':'Aparar linhas',
+        'actions.merge_empty_lines':'Mesclar linhas vazias','actions.to_single_line':'Para uma linha',
+        'actions.copy_output':'Copiar resultado','actions.clear_all':'Limpar','actions.copied':'Copiado!',
+        'input.title':'Entrada','output.title':'Saída',
+        'metrics.chars':'Caracteres (sem espaços)','metrics.total_chars':'Total caracteres','metrics.lines':'Linhas',
+        'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Todo processamento ocorre localmente no navegador.',
+        'ad.zoneA':'Publicidade · 728×90','ad.zoneB':'Publicidade<br/>160×600','ad.728x90':'PUBLICIDADE · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Sobre limpeza e formatação de texto',
+        'info.intro':'Copiar texto de PDFs, e-mails, sites ou editores de código frequentemente traz espaços indesejados, linhas vazias e resíduos de formatação. Esta ferramenta oferece controle preciso — cada operação pode ser ativada independentemente e combinada livremente, com resultados em tempo real.',
+        'info.spaces_title':'Remover todos os espaços',
+        'info.spaces_desc':'Remove todos os espaços regulares, espaços de largura total e tabulações. Útil para compactar JSON, minificar código ou limpar dados copiados.',
+        'info.empty_title':'Remover linhas vazias',
+        'info.empty_desc':'Exclui qualquer linha que contenha apenas espaços em branco ou esteja completamente vazia. Ideal para limpar logs ou preparar texto para processamento posterior.',
+        'info.trim_title':'Aparar linhas',
+        'info.trim_desc':'Remove espaços iniciais e finais de cada linha preservando o espaçamento interno. Perfeito para normalizar texto copiado de e-mails.',
+        'info.merge_title':'Mesclar linhas vazias',
+        'info.merge_desc':'Comprime três ou mais linhas vazias consecutivas em exatamente duas linhas vazias, preservando quebras de parágrafo intencionais.',
+        'info.single_title':'Para uma linha — A ferramenta poderosa',
+        'info.single_desc':'Converte todas as quebras de linha em um único espaço. Combinado com <strong>Remover todos os espaços</strong>, produz texto completamente compacto.',
+        'info.privacy':'<strong>Nota de privacidade:</strong> Todo o processamento de texto ocorre em tempo real no navegador usando expressões regulares JavaScript. Nenhum texto é enviado a um servidor.',
+      },
+      ru: {
+        'app.title':'Очиститель текста','app.subtitle':'Мгновенное форматирование и управление пробелами',
+        'nav.home':'Главная',
+        'actions.label':'Действия:','actions.remove_spaces':'Удалить все пробелы',
+        'actions.remove_empty_lines':'Удалить пустые строки','actions.trim_lines':'Обрезать строки',
+        'actions.merge_empty_lines':'Объединить пустые строки','actions.to_single_line':'В одну строку',
+        'actions.copy_output':'Копировать','actions.clear_all':'Очистить','actions.copied':'Скопировано!',
+        'input.title':'Ввод','output.title':'Вывод',
+        'metrics.chars':'Символов (без проб.)','metrics.total_chars':'Всего символов','metrics.lines':'Строк',
+        'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Вся обработка текста выполняется локально в браузере.',
+        'ad.zoneA':'Реклама · 728×90','ad.zoneB':'Реклама<br/>160×600','ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
+        'info.title':'Об очистке и форматировании текста',
+        'info.intro':'При копировании текста из PDF, писем, сайтов или редакторов кода часто появляются лишние пробелы, пустые строки и мусор форматирования. Этот инструмент даёт точный контроль — каждую операцию можно включать независимо и комбинировать, с обновлением результатов в реальном времени.',
+        'info.spaces_title':'Удалить все пробелы',
+        'info.spaces_desc':'Удаляет все обычные пробелы, полноширинные пробелы и символы табуляции. Полезно для сжатия JSON, минификации кода или очистки скопированных данных.',
+        'info.empty_title':'Удалить пустые строки',
+        'info.empty_desc':'Удаляет любую строку, содержащую только пробельные символы или полностью пустую. Идеально для очистки логов или подготовки текста к дальнейшей обработке.',
+        'info.trim_title':'Обрезать строки',
+        'info.trim_desc':'Удаляет начальные и конечные пробелы каждой строки, сохраняя внутренние отступы. Отлично подходит для нормализации текста, скопированного из писем.',
+        'info.merge_title':'Объединить пустые строки',
+        'info.merge_desc':'Сжимает три или более последовательных пустых строки ровно в две, сохраняя намеренные разрывы абзацев.',
+        'info.single_title':'В одну строку — мощный инструмент',
+        'info.single_desc':'Преобразует все переносы строк в один пробел, объединяя весь документ в одну непрерывную строку. В сочетании с <strong>Удалить все пробелы</strong> создаёт полностью компактный текст.',
+        'info.privacy':'<strong>Конфиденциальность:</strong> Вся обработка текста происходит в реальном времени в браузере с помощью регулярных выражений JavaScript. Текст никогда не отправляется на сервер.',
+      },
+      tr: {
+        'app.title':'Metin Temizleyici','app.subtitle':'Anında Biçimlendirme ve Boşluk Kontrolü',
+        'nav.home':'Ana Sayfa',
+        'actions.label':'İşlemler:','actions.remove_spaces':'Tüm Boşlukları Kaldır',
+        'actions.remove_empty_lines':'Boş Satırları Kaldır','actions.trim_lines':'Satırları Kırp',
+        'actions.merge_empty_lines':'Boş Satırları Birleştir','actions.to_single_line':'Tek Satıra Dönüştür',
+        'actions.copy_output':'Sonucu Kopyala','actions.clear_all':'Temizle','actions.copied':'Kopyalandı!',
+        'input.title':'Giriş','output.title':'Çıkış',
+        'metrics.chars':'Karakter (boşluksuz)','metrics.total_chars':'Toplam karakter','metrics.lines':'Satır',
+        'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Tüm metin işleme tarayıcınızda yerel olarak gerçekleşir.',
+        'ad.zoneA':'Reklam · 728×90','ad.zoneB':'Reklam<br/>160×600','ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
+        'info.title':'Metin Temizleme ve Biçimlendirme Hakkında',
+        'info.intro':'PDF\'lerden, e-postalardan, web sitelerinden veya kod düzenleyicilerden metin kopyalamak genellikle istenmeyen boşluklar, boş satırlar ve biçimlendirme kalıntıları getirir. Bu araç size hassas kontrol sağlar — her işlem bağımsız olarak açılıp kapatılabilir ve serbestçe birleştirilebilir, sonuçlar gerçek zamanlı olarak güncellenir.',
+        'info.spaces_title':'Tüm Boşlukları Kaldır',
+        'info.spaces_desc':'Tüm normal boşlukları, tam genişlikli boşlukları ve sekme karakterlerini kaldırır. JSON sıkıştırma, kod küçültme veya kopyalanan verileri temizleme için kullanışlıdır.',
+        'info.empty_title':'Boş Satırları Kaldır',
+        'info.empty_desc':'Yalnızca boşluk karakterleri içeren veya tamamen boş olan satırları siler. Günlükleri temizlemek veya metni sonraki işlemler için hazırlamak için idealdir.',
+        'info.trim_title':'Satırları Kırp',
+        'info.trim_desc':'Her satırın başındaki ve sonundaki boşlukları kaldırırken iç boşlukları korur. E-postalardan kopyalanan metni normalleştirmek için mükemmeldir.',
+        'info.merge_title':'Boş Satırları Birleştir',
+        'info.merge_desc':'Ardışık üç veya daha fazla boş satırı tam olarak iki boş satıra sıkıştırır, kasıtlı paragraf aralarını korur.',
+        'info.single_title':'Tek Satıra Dönüştür — Güçlü Araç',
+        'info.single_desc':'Tüm satır sonlarını tek bir boşluğa dönüştürerek tüm belgeyi tek bir sürekli satırda birleştirir. <strong>Tüm Boşlukları Kaldır</strong> ile birlikte tamamen sıkıştırılmış metin üretir.',
+        'info.privacy':'<strong>Gizlilik notu:</strong> Tüm metin işleme, JavaScript düzenli ifadeleri kullanılarak tarayıcınızda gerçek zamanlı olarak gerçekleşir. Hiçbir metin sunucuya gönderilmez.',
+      },
+      'zh-TW': {
+        'app.title':'文字清洗器','app.subtitle':'即時格式化與空白字元控制',
+        'nav.home':'首頁',
+        'actions.label':'操作：','actions.remove_spaces':'去除所有空格',
+        'actions.remove_empty_lines':'去除空行','actions.trim_lines':'修剪行首尾空白',
+        'actions.merge_empty_lines':'合併多餘空行','actions.to_single_line':'轉為單行',
+        'actions.copy_output':'複製結果','actions.clear_all':'清空','actions.copied':'已複製！',
+        'input.title':'輸入','output.title':'輸出',
+        'metrics.chars':'字元數（無空格）','metrics.total_chars':'總字元數','metrics.lines':'行數',
+        'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 所有文字處理均在瀏覽器本機完成。',
+        'ad.zoneA':'廣告 · 728×90','ad.zoneB':'廣告<br/>160×600','ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
+        'info.title':'關於文字清洗與格式化',
+        'info.intro':'從 PDF、郵件、網頁或程式碼編輯器複製文字時，往往會帶入多餘的空格、空行和格式垃圾。本工具讓您精確控制文字的清洗方式——每個操作可獨立開關並任意組合，結果隨您輸入即時更新。',
+        'info.spaces_title':'去除所有空格',
+        'info.spaces_desc':'去除所有普通空格、全形空格（CJK 文字中常見）和定位字元。適用於壓縮 JSON、精簡程式碼片段、合併逗號分隔值，或清除複製資料中的意外空格。<em>注意：除非同時啟用「轉為單行」，否則換行符將被保留。</em>',
+        'info.empty_title':'去除空行',
+        'info.empty_desc':'刪除任何僅含空白字元（空格、定位字元）或完全為空的行。非常適合清理日誌、精簡匯出報告，或為後續處理準備文字。',
+        'info.trim_title':'修剪行首尾空白',
+        'info.trim_desc':'逐行去除首尾空白字元，同時保留所有內部空格和縮排。非常適合規範化從郵件中複製的文字（每行可能有不一致的前導空格），或清理填充的表格資料。',
+        'info.merge_title':'合併多餘空行',
+        'info.merge_desc':'將連續三個及以上的空行壓縮為恰好兩個空行。既保留有意的段落分隔，又去除多餘的縱向空白——非常適合清理經過反覆編輯而積累了大量空行的文件。',
+        'info.single_title':'轉為單行 — 強力工具',
+        'info.single_desc':'將所有換行符轉換為單個空格，將整個文件合併為一個連續行。與<strong>去除所有空格</strong>組合使用，可生成完全緊湊的文字。單獨使用時，非常適合將多行地址貼到單行表單欄位、將段落展平以放入試算表儲存格，或規範化文字以供機器處理。',
+        'info.privacy':'<strong>隱私說明：</strong>所有文字處理均使用 JavaScript 正則表達式在瀏覽器內即時完成。文字不會被傳送到任何伺服器——一切保留在您的裝置上。',
+      },
+    };
+
+    /* ================================================================
+     *  i18n ENGINE
+     * ================================================================ */
+    var currentLang = localStorage.getItem('tx-lang') || 'en';
+    var fallbackDict = DICT.en;
+
+    function t(key) {
+      var d = DICT[currentLang];
+      return (d && d[key]) || fallbackDict[key] || key;
+    }
+
+    function updateLanguageUI() {
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var k = els[i].getAttribute('data-i18n');
+        if (k) els[i].innerHTML = t(k);
+      }
+      // Re-render button text
+      updateActionButtons();
+    }
+
+    function updateLangButton() {
+      var found = LANGS.filter(function (L) { return L.code === currentLang; })[0];
+      var label = document.getElementById('btn-lang-label');
+      if (label && found) label.textContent = found.label;
+      document.documentElement.lang = (currentLang === 'zh') ? 'zh-CN' : (currentLang === 'zh-TW') ? 'zh-TW' : currentLang;
+    }
+
+    function buildLangMenu() {
+      var menu = document.getElementById('lang-menu');
+      if (!menu) return;
+      var html = '';
+      for (var i = 0; i < LANGS.length; i++) {
+        var L = LANGS[i];
+        var active = L.code === currentLang ? ' bg-cyan-50' : '';
+        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+          '<span class="text-[11px] font-bold text-gray-400 w-7">' + L.region + '</span>' +
+          '<span class="text-slate-700">' + L.native + '</span></button>';
+      }
+      menu.innerHTML = html;
+    }
+
+    window.switchLanguage = function (lang) {
+      currentLang = lang;
+      localStorage.setItem('tx-lang', lang);
+      updateLangButton();
+      buildLangMenu();
+      updateLanguageUI();
+    };
+
+    window.toggleLangMenu = function () {
+      buildLangMenu();
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.toggle('hidden');
+    };
+    window.closeLangMenu = function () {
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.add('hidden');
+    };
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('lang-dropdown');
+      if (dd && !dd.contains(e.target)) {
+        var menu = document.getElementById('lang-menu');
+        if (menu) menu.classList.add('hidden');
+      }
+    });
+
+    /* ================================================================
+     *  DARK MODE
+     * ================================================================ */
+    var IS_DARK = localStorage.getItem('tx-dark') === '1';
+    function applyTheme() { if (IS_DARK) document.documentElement.classList.add('dark'); }
+    window.toggleDark = function () { IS_DARK = !IS_DARK; localStorage.setItem('tx-dark', IS_DARK ? '1' : '0'); location.reload(); };
+    applyTheme();
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
+          } else {
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+          }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
+          iframe.setAttribute('srcdoc',
+            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
+            '</head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
+
+    /* ================================================================
+     *  STATE
+     * ================================================================ */
+    var activeActions = {}; // { removeSpaces: true, trimLines: true, ... }
+
+    /* ================================================================
+     *  TEXT TRANSFORMATIONS
+     * ================================================================ */
+    function applyTransformations(text) {
+      var result = text;
+      // Apply in consistent order for predictable stacking
+      if (activeActions['trimLines'])        result = trimLines(result);
+      if (activeActions['removeEmptyLines']) result = removeEmptyLines(result);
+      if (activeActions['mergeEmptyLines'])  result = mergeEmptyLines(result);
+      if (activeActions['removeSpaces'])     result = removeAllSpaces(result);
+      if (activeActions['toSingleLine'])     result = toSingleLine(result);
+      return result;
+    }
+
+    function removeAllSpaces(text) {
+      // Strip regular spaces, full-width spaces (U+3000), tabs, and other ASCII whitespace
+      return text.replace(/[ \t　]+/g, '');
+    }
+
+    function removeEmptyLines(text) {
+      return text.replace(/^[ \t]*\n/gm, '').replace(/\n[ \t]*$/gm, '').replace(/\n[ \t]*\n/g, '\n').replace(/^\s+|\s+$/g, function(m) {
+        return m.indexOf('\n') >= 0 ? m.replace(/^[ \t]*\n|[ \t]*\n$/g, '') : '';
+      });
+    }
+
+    function trimLines(text) {
+      return text.split('\n').map(function (line) { return line.trim(); }).join('\n');
+    }
+
+    function mergeEmptyLines(text) {
+      return text.replace(/\n{3,}/g, '\n\n');
+    }
+
+    function toSingleLine(text) {
+      return text.replace(/\r?\n/g, ' ').replace(/[ \t]+/g, ' ').trim();
+    }
+
+    /* ================================================================
+     *  METRICS
+     * ================================================================ */
+    function getMetrics(text) {
+      var totalChars = text.length;
+      var charsNoSpace = text.replace(/[ \t\n\r　]/g, '').length;
+      var lines = text === '' ? 0 : text.split('\n').length;
+      return { charsNoSpace: charsNoSpace, totalChars: totalChars, lines: lines };
+    }
+
+    function updateMetrics(prefix, text, charsEl, totalEl, linesEl) {
+      var m = getMetrics(text);
+      document.getElementById(prefix + 'm-chars').textContent = m.charsNoSpace;
+      document.getElementById(prefix + 'm-total').textContent = m.totalChars;
+      document.getElementById(prefix + 'm-lines').textContent = m.lines;
+    }
+
+    /* ================================================================
+     *  UI UPDATE
+     * ================================================================ */
+    var inputEl  = document.getElementById('input-text');
+    var outputEl = document.getElementById('output-text');
+
+    function refreshOutput() {
+      var raw = inputEl.value;
+      var transformed = applyTransformations(raw);
+      outputEl.value = transformed;
+      updateMetrics('i', raw, 'im-chars', 'im-total', 'im-lines');
+      updateMetrics('o', transformed, 'om-chars', 'om-total', 'om-lines');
+    }
+
+    window.onInputChanged = function () {
+      refreshOutput();
+    };
+
+    /* ================================================================
+     *  TOGGLE ACTIONS
+     * ================================================================ */
+    window.toggleAction = function (actionKey) {
+      if (activeActions[actionKey]) {
+        delete activeActions[actionKey];
+      } else {
+        activeActions[actionKey] = true;
+      }
+      updateActionButtons();
+      refreshOutput();
+    };
+
+    function updateActionButtons() {
+      var btns = document.querySelectorAll('.action-btn');
+      btns.forEach(function (btn) {
+        var key = btn.dataset.action;
+        if (activeActions[key]) {
+          btn.className = 'action-btn px-3 py-2 rounded-xl text-xs font-semibold border transition-all bg-sky-50 border-sky-300 text-sky-700';
+        } else {
+          btn.className = 'action-btn px-3 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300';
+        }
+        // Update button text from i18n
+        var i18nKey = 'actions.' + key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        // Map camelCase to dict keys
+        var keyMap = {
+          removeSpaces: 'actions.remove_spaces',
+          removeEmptyLines: 'actions.remove_empty_lines',
+          trimLines: 'actions.trim_lines',
+          mergeEmptyLines: 'actions.merge_empty_lines',
+          toSingleLine: 'actions.to_single_line',
+        };
+        btn.innerHTML = t(keyMap[key] || i18nKey);
+      });
+    }
+
+    /* ================================================================
+     *  COPY OUTPUT
+     * ================================================================ */
+    window.copyOutput = function () {
+      var text = outputEl.value;
+      var btn = document.getElementById('btn-copy');
+      var orig = btn.textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = t('actions.copied');
+          btn.classList.add('text-emerald-600', 'bg-emerald-50');
+          setTimeout(function () { btn.textContent = orig; btn.classList.remove('text-emerald-600', 'bg-emerald-50'); }, 1500);
+        }).catch(function () { fallbackCopy(text, btn, orig); });
+      } else {
+        fallbackCopy(text, btn, orig);
+      }
+    };
+
+    function fallbackCopy(text, btn, orig) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      btn.textContent = t('actions.copied');
+      btn.classList.add('text-emerald-600', 'bg-emerald-50');
+      setTimeout(function () { btn.textContent = orig; btn.classList.remove('text-emerald-600', 'bg-emerald-50'); }, 1500);
+    }
+
+    /* ================================================================
+     *  CLEAR ALL
+     * ================================================================ */
+    window.clearAll = function () {
+      inputEl.value = '';
+      outputEl.value = '';
+      activeActions = {};
+      updateActionButtons();
+      updateMetrics('i', '', 'im-chars', 'im-total', 'im-lines');
+      updateMetrics('o', '', 'om-chars', 'om-total', 'om-lines');
+    };
+
+    /* ================================================================
+     *  INIT
+     * ================================================================ */
+    updateLangButton();
+    buildLangMenu();
+    updateLanguageUI();
+    refreshOutput();
+    renderAds();
+
+    console.log('%c📝 Text Cleaner ready %c| %cLang %c' + currentLang,
+      'font-weight:bold;', '', 'color:#0ea5e9;', 'font-weight:bold;');
+
+  })();
+  </script>
+
+</body>
+</html>

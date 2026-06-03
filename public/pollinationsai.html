@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Free AI Avatar Generator — create realistic portraits or cartoon avatars instantly. Powered by Pollinations.ai, 100% free, no sign-up required." />
+  <title>AI Avatar Generator — LinkoZen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'fade-in':  'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+            'skeleton': 'shimmer 1.6s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn:  { '0%':{opacity:'0'}, '100%':{opacity:'1'} },
+            slideUp: { '0%':{opacity:'0',transform:'translateY(12px)'}, '100%':{opacity:'1',transform:'translateY(0)'} },
+            shimmer: { '0%,100%':{opacity:'1'}, '50%':{opacity:'0.4'} },
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="common.css" />
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================================================================== -->
+  <!--  HEADER                                                             -->
+  <!-- ================================================================== -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3 no-underline">
+        <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">AI</div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">AI Avatar Generator</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Free AI-Powered Profile Picture Creator</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
+        <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm" onclick="toggleLangMenu()" aria-label="Switch language">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!--  MAIN CONTENT                                                        -->
+  <!-- ================================================================== -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        </div>
+      </aside>
+
+      <div class="lg:col-span-8 space-y-5">
+
+        <!-- ========================================================== -->
+        <!--  INTRO BLOCK                                                 -->
+        <!-- ========================================================== -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-lg font-bold text-slate-800" data-i18n="intro.title">Free AI Avatar Generator</h2>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed" data-i18n="intro.desc">
+            Powered by open-source AI compute, simply describe your ideal avatar and generate it instantly. Supports one-click switching between realistic ID-style portraits and cartoon/anime avatars. Completely free — no registration required.
+          </p>
+          <div class="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
+            <span class="inline-flex items-center gap-1"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg> <span data-i18n="intro.free">100% Free</span></span>
+            <span class="inline-flex items-center gap-1"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg> <span data-i18n="intro.no_auth">No Sign-Up</span></span>
+            <span class="inline-flex items-center gap-1"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg> <span data-i18n="intro.fast">Fast Generation</span></span>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!--  CONTROL PANEL                                               -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            <span data-i18n="ctrl.title">Avatar Settings</span>
+          </h2>
+
+          <!-- Style Buttons -->
+          <div class="mb-4">
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-2" data-i18n="ctrl.style">Avatar Style</p>
+            <div class="flex gap-2">
+              <button onclick="setStyle('realistic')" data-style="realistic"
+                      class="style-btn flex-1 px-4 py-3 rounded-xl text-xs font-semibold border transition-all bg-violet-50 border-violet-300 text-violet-700">
+                <svg class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                <span data-i18n="ctrl.realistic">Realistic Portrait</span>
+              </button>
+              <button onclick="setStyle('cartoon')" data-style="cartoon"
+                      class="style-btn flex-1 px-4 py-3 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300">
+                <svg class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span data-i18n="ctrl.cartoon">Cartoon Avatar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Prompt Input -->
+          <div class="mb-4">
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-2" data-i18n="ctrl.prompt">Custom Description (optional)</p>
+            <input type="text" id="prompt-input"
+                   class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-shadow"
+                   data-i18n-placeholder="ctrl.placeholder"
+                   placeholder="e.g. programmer with glasses, blonde girl, business professional... (leave empty for random)">
+          </div>
+
+          <!-- Dimension Selector -->
+          <div class="mb-5">
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-2" data-i18n="ctrl.dimension">Aspect Ratio</p>
+            <div class="flex gap-2">
+              <button onclick="setDimension('1:1')" data-dim="1:1"
+                      class="dim-btn flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all bg-violet-50 border-violet-300 text-violet-700">
+                <span data-i18n="ctrl.dim_square">1:1 Square</span> <span class="font-mono text-[10px] ml-1 text-violet-400">1024×1024</span>
+              </button>
+              <button onclick="setDimension('4:3')" data-dim="4:3"
+                      class="dim-btn flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300">
+                <span data-i18n="ctrl.dim_idphoto">4:3 ID Photo</span> <span class="font-mono text-[10px] ml-1 text-slate-400">1024×768</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Generate Button -->
+          <button id="generate-btn" onclick="generate()"
+                  class="w-full rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 px-5 py-3.5 text-sm font-semibold text-white hover:from-violet-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-400 active:scale-[0.98] transition-all shadow-md shadow-violet-500/20">
+            <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
+            <span data-i18n="ctrl.generate">Generate Avatar</span>
+          </button>
+        </section>
+
+        <!-- ========================================================== -->
+        <!--  RESULT PANEL                                                -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span data-i18n="result.title">Generated Avatar</span>
+          </h2>
+
+          <!-- Loading skeleton -->
+          <div id="loading-skel" class="hidden">
+            <div class="flex flex-col items-center gap-3 p-4">
+              <div class="skeleton-bar w-full max-w-[400px] aspect-square rounded-xl"></div>
+              <div class="skeleton-bar h-4 w-48"></div>
+              <div class="skeleton-bar h-3 w-64"></div>
+            </div>
+          </div>
+
+          <!-- Result image -->
+          <div id="result-area" class="hidden animate-fade-in">
+            <div class="flex flex-col items-center">
+              <div class="relative w-full max-w-[400px] rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+                <img id="result-img" class="w-full h-auto block" alt="Generated avatar" crossorigin="anonymous" />
+              </div>
+
+              <!-- Prompt info -->
+              <p class="mt-3 text-xs text-slate-400 text-center max-w-[400px]">
+                <span class="font-mono text-[10px] break-all" id="result-url"></span>
+              </p>
+
+              <!-- Action buttons -->
+              <div class="flex items-center gap-2 mt-4">
+                <button onclick="downloadImage()"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 active:scale-95 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span data-i18n="result.download">Download</span>
+                </button>
+                <button id="copy-link-btn" onclick="copyImageLink()"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 active:scale-95 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                  <span data-i18n="result.copy_link">Copy Link</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div id="result-empty" class="flex flex-col items-center justify-center py-12 text-slate-400">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-white shadow-sm mb-3">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            </div>
+            <p class="text-xs font-medium" data-i18n="result.empty">Click <strong>Generate Avatar</strong> to create your AI avatar</p>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ================================================================== -->
+  <!--  FOOTER                                                             -->
+  <!-- ================================================================== -->
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a href="https://pollinations.ai" target="_blank" rel="noopener" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 mx-1 font-medium">Pollinations.ai</a>
+        <span class="mx-1">·</span>
+        <a href="index.html" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 font-medium">LinkoZen</a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No registration required. Images generated via open-source AI.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ====================================================================== -->
+  <!--  APPLICATION LOGIC                                                      -->
+  <!-- ====================================================================== -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+     *  i18n
+     * ================================================================ */
+    var LANGS = [
+      { code:'en', label:'English',    native:'English',    region:'US' },
+      { code:'zh', label:'简体中文',    native:'简体中文',    region:'CN' },
+    ];
+
+    var T = {
+      en:{'app.title':'AI Avatar Generator','app.subtitle':'Free AI-Powered Profile Picture Creator','nav.home':'Home','intro.title':'Free AI Avatar Generator','intro.desc':'Powered by open-source AI compute, simply describe your ideal avatar and generate it instantly. Supports one-click switching between realistic ID-style portraits and cartoon/anime avatars. Completely free — no registration required.','intro.free':'100% Free','intro.no_auth':'No Sign-Up','intro.fast':'Fast Generation','ctrl.title':'Avatar Settings','ctrl.style':'Avatar Style','ctrl.realistic':'Realistic Portrait','ctrl.cartoon':'Cartoon Avatar','ctrl.prompt':'Custom Description (optional)','ctrl.placeholder':'e.g. programmer with glasses, blonde girl, business professional... (leave empty for random)','ctrl.dimension':'Aspect Ratio','ctrl.dim_square':'1:1 Square','ctrl.dim_idphoto':'4:3 ID Photo','ctrl.generate':'Generate Avatar','result.title':'Generated Avatar','result.empty':'Click <strong>Generate Avatar</strong> to create your AI avatar','result.download':'Download','result.copy_link':'Copy Link','copied':'Copied!','footer.powered':'Powered by','footer.privacy':'No registration required. Images generated via open-source AI.','ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600','ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600'},
+      zh:{'app.title':'AI 头像生成器','app.subtitle':'免费 AI 个人头像制作工具','nav.home':'首页','intro.title':'免费 AI 头像生成器','intro.desc':'基于开源 AI 算力，输入描述即可快速生成专属个人头像。支持一键切换真实证件照肖像与动漫画风卡通头像，完全免费，无须注册。','intro.free':'100% 免费','intro.no_auth':'无需注册','intro.fast':'快速生成','ctrl.title':'头像设置','ctrl.style':'头像风格','ctrl.realistic':'真实人物头像','ctrl.cartoon':'卡通人物头像','ctrl.prompt':'自定义描述（可选）','ctrl.placeholder':'例如：戴眼镜的程序员、金发女生、商务人士...（不输入则随机生成）','ctrl.dimension':'画面比例','ctrl.dim_square':'1:1 正方形','ctrl.dim_idphoto':'4:3 证件照','ctrl.generate':'生成头像','result.title':'生成结果','result.empty':'点击<strong>生成头像</strong>创建您的 AI 头像','result.download':'下载图片','result.copy_link':'复制链接','copied':'已复制！','footer.powered':'技术支持','footer.privacy':'无需注册。图片由开源 AI 算力生成。','ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600','ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600'},
+    };
+    var DICT = T;
+
+    var currentLang = localStorage.getItem('ai-lang') || 'en';
+    function t(key){ var d=DICT[currentLang]; return (d&&d[key])||DICT.en[key]||key; }
+
+    function updateLangUI(){
+      var els=document.querySelectorAll('[data-i18n]');
+      for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-i18n');if(k)els[i].innerHTML=t(k);}
+      var inp=document.getElementById('prompt-input');
+      if(inp)inp.placeholder=t('ctrl.placeholder');
+      updateStyleBtns();updateDimBtns();
+    }
+
+    function updateLangBtn(){
+      var f=LANGS.filter(function(L){return L.code===currentLang;})[0];
+      var l=document.getElementById('btn-lang-label');if(l&&f)l.textContent=f.label;
+      document.documentElement.lang=(currentLang==='zh')?'zh-CN':currentLang;
+    }
+
+    function buildLangMenu(){
+      var m=document.getElementById('lang-menu');if(!m)return;var h='';
+      for(var i=0;i<LANGS.length;i++){var L=LANGS[i];var a=L.code===currentLang?' bg-cyan-50':'';
+        h+='<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3'+a+'" onclick="switchLang(\''+L.code+'\');closeLangMenu()"><span class="text-[11px] font-bold text-gray-400 w-7">'+L.region+'</span><span class="text-slate-700">'+L.native+'</span></button>';}
+      m.innerHTML=h;
+    }
+
+    window.switchLang=function(l){currentLang=l;localStorage.setItem('ai-lang',l);updateLangBtn();buildLangMenu();updateLangUI();};
+    window.toggleLangMenu=function(){buildLangMenu();var m=document.getElementById('lang-menu');if(m)m.classList.toggle('hidden');};
+    window.closeLangMenu=function(){var m=document.getElementById('lang-menu');if(m)m.classList.add('hidden');};
+    document.addEventListener('click',function(e){var d=document.getElementById('lang-dropdown');if(d&&!d.contains(e.target)){var m=document.getElementById('lang-menu');if(m)m.classList.add('hidden');}});
+
+    /* ================================================================
+     *  DARK MODE
+     * ================================================================ */
+    var IS_DARK=localStorage.getItem('ai-dark')==='1';
+    if(IS_DARK)document.documentElement.classList.add('dark');
+    window.toggleDark=function(){IS_DARK=!IS_DARK;localStorage.setItem('ai-dark',IS_DARK?'1':'0');location.reload();};
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
+          } else {
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+          }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
+          iframe.setAttribute('srcdoc',
+            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
+            '</head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
+
+    /* ================================================================
+     *  STATE
+     * ================================================================ */
+    var currentStyle='realistic';
+    var currentDim='1:1';
+    var lastGeneratedUrl='';
+
+    /* ================================================================
+     *  STYLE & DIMENSION BUTTONS
+     * ================================================================ */
+    window.setStyle=function(style){
+      currentStyle=style;
+      updateStyleBtns();
+    };
+
+    function updateStyleBtns(){
+      var btns=document.querySelectorAll('.style-btn');
+      btns.forEach(function(b){
+        var isActive=b.dataset.style===currentStyle;
+        b.className='style-btn flex-1 px-4 py-3 rounded-xl text-xs font-semibold border transition-all '+
+          (isActive?'bg-violet-50 border-violet-300 text-violet-700':'bg-white border-slate-200 text-slate-600 hover:border-slate-300');
+      });
+    }
+
+    window.setDimension=function(dim){
+      currentDim=dim;
+      updateDimBtns();
+    };
+
+    function updateDimBtns(){
+      var btns=document.querySelectorAll('.dim-btn');
+      btns.forEach(function(b){
+        var isActive=b.dataset.dim===currentDim;
+        b.className='dim-btn flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all '+
+          (isActive?'bg-violet-50 border-violet-300 text-violet-700':'bg-white border-slate-200 text-slate-600 hover:border-slate-300');
+      });
+    }
+
+    /* ================================================================
+     *  PROMPT ENGINEERING
+     * ================================================================ */
+    function buildPrompt(){
+      var userInput=(document.getElementById('prompt-input').value||'').trim();
+
+      var basePrompt=userInput||'a person portrait';
+
+      var styleModifiers='';
+      if(currentStyle==='realistic'){
+        styleModifiers='professional ID photo, studio lighting, clean solid background, center facing portrait, realistic human face, 4k, highly detailed';
+      }else{
+        styleModifiers='cute anime avatar, cartoon profile picture, solid background, center facing portrait, clean line art, 2D vector style';
+      }
+
+      return basePrompt+', '+styleModifiers;
+    }
+
+    function getDimensions(){
+      if(currentDim==='4:3')return{w:1024,h:768};
+      return{w:1024,h:1024};
+    }
+
+    /* ================================================================
+     *  GENERATE
+     * ================================================================ */
+    window.generate=function(){
+      var prompt=buildPrompt();
+      var dim=getDimensions();
+      var seed=Math.floor(Math.random()*1000000);
+      var encoded=encodeURIComponent(prompt);
+      var url='https://image.pollinations.ai/p/'+encoded+'?width='+dim.w+'&height='+dim.h+'&model=flux&seed='+seed;
+
+      lastGeneratedUrl=url;
+
+      // Show loading
+      document.getElementById('result-empty').classList.add('hidden');
+      document.getElementById('result-area').classList.add('hidden');
+      document.getElementById('loading-skel').classList.remove('hidden');
+
+      // Create new image to preload
+      var img=new Image();
+      img.crossOrigin='anonymous';
+      img.onload=function(){
+        document.getElementById('loading-skel').classList.add('hidden');
+        document.getElementById('result-area').classList.remove('hidden');
+        document.getElementById('result-img').src=url;
+        document.getElementById('result-url').textContent=url;
+      };
+      img.onerror=function(){
+        document.getElementById('loading-skel').classList.add('hidden');
+        document.getElementById('result-area').classList.remove('hidden');
+        // Show fallback — try direct URL anyway
+        document.getElementById('result-img').src=url;
+        document.getElementById('result-url').textContent=url;
+      };
+      img.src=url;
+    };
+
+    /* ================================================================
+     *  DOWNLOAD
+     * ================================================================ */
+    window.downloadImage=function(){
+      if(!lastGeneratedUrl)return;
+      // Fetch as blob to force download with filename
+      fetch(lastGeneratedUrl).then(function(r){return r.blob();}).then(function(blob){
+        var a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);
+        a.download='avatar-'+Date.now()+'.jpg';
+        document.body.appendChild(a);a.click();document.body.removeChild(a);
+        setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+      }).catch(function(){
+        // Fallback: open in new tab
+        window.open(lastGeneratedUrl,'_blank');
+      });
+    };
+
+    /* ================================================================
+     *  COPY LINK
+     * ================================================================ */
+    window.copyImageLink=function(){
+      if(!lastGeneratedUrl)return;
+      var btn=document.getElementById('copy-link-btn');
+      var orig=btn.innerHTML;
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(lastGeneratedUrl).then(function(){
+          btn.innerHTML='<span class="text-emerald-600">'+t('copied')+'</span>';
+          setTimeout(function(){btn.innerHTML=orig;},1500);
+        });
+      }else{
+        var ta=document.createElement('textarea');ta.value=lastGeneratedUrl;
+        ta.style.cssText='position:fixed;opacity:0;';document.body.appendChild(ta);
+        ta.select();document.execCommand('copy');document.body.removeChild(ta);
+        btn.innerHTML='<span class="text-emerald-600">'+t('copied')+'</span>';
+        setTimeout(function(){btn.innerHTML=orig;},1500);
+      }
+    };
+
+    // Keyboard shortcut
+    document.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();generate();}
+    });
+
+    /* ================================================================
+     *  INIT
+     * ================================================================ */
+    updateLangBtn();buildLangMenu();updateLangUI();
+    renderAds();
+
+    console.log('%c🎨 AI Avatar Generator ready %c| %cLang %c'+currentLang,
+      'font-weight:bold;','','color:#8b5cf6;','font-weight:bold;');
+
+  })();
+  </script>
+
+</body>
+</html>

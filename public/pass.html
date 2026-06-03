@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Password Generator — generate strong, cryptographically-random passwords with customizable length, character sets, and local history. 100% client-side." />
+  <title>Password Generator — LinkoZen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+          },
+          keyframes: {
+            fadeIn:  { '0%':{opacity:'0'}, '100%':{opacity:'1'} },
+            slideUp: { '0%':{opacity:'0',transform:'translateY(12px)'}, '100%':{opacity:'1',transform:'translateY(0)'} },
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .pw-digit  { color: #2563eb; }
+    .pw-symbol { color: #7c3aed; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================================================================== -->
+  <!--  HEADER                                                             -->
+  <!-- ================================================================== -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3 no-underline">
+        <div class="w-9 h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">PW</div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">Password Generator</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Cryptographically-Random &amp; Customizable</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
+        <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm" onclick="toggleLangMenu()" aria-label="Switch language">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!--  MAIN CONTENT — 12-col grid                                         -->
+  <!-- ================================================================== -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        </div>
+      </aside>
+
+      <!-- CENTER COLUMN (8/12) -->
+      <div class="lg:col-span-8 space-y-5">
+
+        <!-- ========================================================== -->
+        <!--  GENERATOR CARD                                              -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-5">
+            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span data-i18n="gen.title">Random Password Generator</span>
+          </h2>
+
+          <!-- Character Set Checkboxes -->
+          <div class="mb-5">
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-2" data-i18n="gen.charsets">Character Sets</p>
+            <div class="flex flex-wrap gap-2">
+              <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-slate-300 transition-colors text-xs font-medium text-slate-700 select-none">
+                <input type="checkbox" id="set-lower" checked class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" onchange="onSettingsChanged()"><span class="font-mono">a-z</span>
+              </label>
+              <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-slate-300 transition-colors text-xs font-medium text-slate-700 select-none">
+                <input type="checkbox" id="set-upper" checked class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" onchange="onSettingsChanged()"><span class="font-mono">A-Z</span>
+              </label>
+              <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-slate-300 transition-colors text-xs font-medium text-slate-700 select-none">
+                <input type="checkbox" id="set-digits" checked class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" onchange="onSettingsChanged()"><span class="font-mono">0-9</span>
+              </label>
+              <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-slate-300 transition-colors text-xs font-medium text-slate-700 select-none">
+                <input type="checkbox" id="set-symbols" class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" onchange="onSettingsChanged()"><span class="font-mono">!@#$%</span>
+              </label>
+            </div>
+            <p id="charset-warn" class="hidden mt-2 text-[11px] text-red-500" data-i18n="gen.no_set_selected">Please select at least one character set.</p>
+          </div>
+
+          <!-- Ambiguous Character Exclusion -->
+          <div class="mb-5">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider" data-i18n="gen.exclude_title">Exclude Ambiguous Characters</p>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="toggle-exclude" class="sr-only peer" onchange="onSettingsChanged()">
+                <div class="w-9 h-5 bg-slate-200 peer-checked:bg-blue-600 rounded-full transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+              </label>
+            </div>
+            <div id="exclude-field" class="hidden">
+              <input type="text" id="exclude-chars" value="ill1o0O"
+                     class="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-sm font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-shadow"
+                     oninput="onSettingsChanged()" maxlength="40" aria-label="Characters to exclude">
+              <p class="mt-1 text-[11px] text-slate-400" data-i18n="gen.exclude_hint">Characters to exclude from generated passwords. Default: ambiguous look-alikes.</p>
+            </div>
+          </div>
+
+          <!-- Length & Quantity -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider" data-i18n="gen.length">Length</span>
+                <span id="len-display" class="text-sm font-bold font-mono text-slate-700">16</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="range" id="len-slider" min="1" max="100" value="16" class="flex-1" oninput="onLengthChange(this.value)">
+                <input type="number" id="len-input" min="1" max="100" value="16" class="w-16 rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-2 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-shadow" onchange="onLengthInput(this.value)" onkeydown="if(event.key==='Enter')onLengthInput(this.value)">
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider" data-i18n="gen.quantity">Quantity</span>
+                <span id="qty-display" class="text-sm font-bold font-mono text-slate-700">1</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="range" id="qty-slider" min="1" max="100" value="1" class="flex-1" oninput="onQuantityChange(this.value)">
+                <input type="number" id="qty-input" min="1" max="100" value="1" class="w-16 rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-2 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-shadow" onchange="onQuantityInput(this.value)" onkeydown="if(event.key==='Enter')onQuantityInput(this.value)">
+              </div>
+            </div>
+          </div>
+
+          <!-- Generate Button -->
+          <button id="generate-btn"
+                  class="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-400 active:scale-[0.98] transition-all shadow-md shadow-blue-500/20">
+            <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span data-i18n="gen.button">Generate Password</span>
+          </button>
+
+          <div id="results-area" class="hidden mt-5 space-y-2"></div>
+          <div id="results-empty" class="mt-5 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-8 text-slate-400">
+            <svg class="h-6 w-6 mb-1.5 opacity-40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <p class="text-xs font-medium" data-i18n="gen.empty">Click <strong>Generate Password</strong> to create a strong, random password</p>
+          </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!--  HISTORY CARD                                                -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span data-i18n="history.title">Password History</span>
+              <span id="history-count" class="text-[11px] font-normal text-slate-400 ml-1">(0)</span>
+            </h2>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
+              <input type="checkbox" id="toggle-record" checked class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" onchange="onRecordToggle()">
+              <span class="text-[11px] text-slate-500" data-i18n="history.record">Record History</span>
+            </label>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3 flex-wrap">
+            <button id="btn-toggle-history" onclick="toggleHistoryVisibility()" class="px-3 py-1.5 text-[11px] font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors" data-i18n="history.hide">Hide History</button>
+            <button id="btn-clear-history" onclick="clearHistory()" class="px-3 py-1.5 text-[11px] font-medium rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" data-i18n="history.clear">Clear History</button>
+            <button id="btn-copy-all" onclick="copyAllHistory()" class="px-3 py-1.5 text-[11px] font-medium rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors hidden" data-i18n="history.copy_all">Copy All</button>
+          </div>
+
+          <div id="history-list" class="space-y-1.5 max-h-[480px] overflow-y-auto"></div>
+          <div id="history-empty" class="flex flex-col items-center justify-center py-6 text-slate-400">
+            <svg class="h-5 w-5 mb-1 opacity-30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <p class="text-[11px]" data-i18n="history.empty">No passwords generated yet</p>
+          </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!--  INFO — Why Strong Passwords Matter                          -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span data-i18n="info.title">Why Strong Passwords Matter</span>
+          </h2>
+
+          <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+            <p data-i18n="info.p1">
+              <strong>Passwords are the first line of defense</strong> for your online accounts. A weak or reused password is like leaving your front door unlocked — attackers can guess it, crack it with automated tools, or use it across multiple sites if it was exposed in a data breach. In fact, over 80% of hacking-related breaches involve compromised or weak passwords.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-slate-700 mb-1" data-i18n="info.len_title">Length &amp; Complexity</p>
+                <p class="text-xs text-slate-500" data-i18n="info.len_desc">A 12-character password with mixed letters, numbers, and symbols takes centuries to brute-force, while a 6-character lowercase-only password takes seconds. Every additional character exponentially increases security.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-slate-700 mb-1" data-i18n="info.unique_title">Unique Per Account</p>
+                <p class="text-xs text-slate-500" data-i18n="info.unique_desc">Reusing passwords across sites means one breached service exposes all your accounts. A password generator creates unique credentials for each login, containing the damage of any single breach.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-slate-700 mb-1" data-i18n="info.random_title">True Randomness</p>
+                <p class="text-xs text-slate-500" data-i18n="info.random_desc">Humans are bad at randomness — we use predictable patterns like "Password123!" or keyboard walks. This tool uses <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] font-mono">crypto.getRandomValues()</code> for cryptographically-secure entropy.</p>
+              </div>
+            </div>
+
+            <p data-i18n="info.p2">
+              <strong>Can't remember complex passwords?</strong> That's expected — and it's the whole point. Strong passwords are hard for humans to remember <em>because</em> they are hard for machines to guess. Use a password manager (like Bitwarden, 1Password, or your browser's built-in manager) to store them securely. You only need to remember <strong>one strong master password</strong> — let this generator create the rest.
+            </p>
+          </div>
+        </section>
+
+      </div><!-- /center column -->
+
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ================================================================== -->
+  <!--  FOOTER                                                             -->
+  <!-- ================================================================== -->
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a href="index.html" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 ml-1 font-medium">LinkoZen</a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No logs. No tracking. Your passwords never leave your browser.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ====================================================================== -->
+  <!--  APPLICATION LOGIC                                                      -->
+  <!-- ====================================================================== -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+     *  i18n — 11 LANGUAGES (matching 2fa.html)
+     * ================================================================ */
+    var LANGS = [
+      { code:'en', label:'English',    native:'English',    region:'US' },
+      { code:'zh', label:'简体中文',    native:'简体中文',    region:'CN' },
+      { code:'ja', label:'日本語',      native:'日本語',      region:'JP' },
+      { code:'ko', label:'한국어',      native:'한국어',      region:'KR' },
+      { code:'fr', label:'Français',   native:'Français',   region:'FR' },
+      { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
+      { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+      { code:'pt', label:'Português',  native:'Português',  region:'BR' },
+      { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
+      { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
+      { code:'zh-TW', label:'繁體中文',  native:'繁體中文',    region:'TW' },
+    ];
+
+    var DICT = {
+      en: {
+        'app.title':'Password Generator','app.subtitle':'Cryptographically-Random & Customizable',
+        'nav.home':'Home','common.copy':'Copy','common.copied':'Copied!',
+        'gen.title':'Random Password Generator','gen.charsets':'Character Sets',
+        'gen.no_set_selected':'Please select at least one character set.',
+        'gen.exclude_title':'Exclude Ambiguous Characters',
+        'gen.exclude_hint':'Characters to exclude from generated passwords. Default: ambiguous look-alikes.',
+        'gen.length':'Length','gen.quantity':'Quantity','gen.button':'Generate Password',
+        'gen.empty':'Click <strong>Generate Password</strong> to create a strong, random password',
+        'history.title':'Password History','history.record':'Record History',
+        'history.hide':'Hide History','history.show':'Show History',
+        'history.clear':'Clear History','history.copy_all':'Copy All',
+        'history.empty':'No passwords generated yet',
+        'history.confirm_clear':'Clear all {n} password history entries? This cannot be undone.',
+        'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. Your passwords never leave your browser.',
+        'ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600','ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
+        'info.title':'Why Strong Passwords Matter',
+        'info.p1':'<strong>Passwords are the first line of defense</strong> for your online accounts. A weak or reused password is like leaving your front door unlocked — attackers can guess it, crack it with automated tools, or use it across multiple sites if it was exposed in a data breach. In fact, over 80% of hacking-related breaches involve compromised or weak passwords.',
+        'info.len_title':'Length & Complexity','info.len_desc':'A 12-character password with mixed letters, numbers, and symbols takes centuries to brute-force, while a 6-character lowercase-only password takes seconds. Every additional character exponentially increases security.',
+        'info.unique_title':'Unique Per Account','info.unique_desc':'Reusing passwords across sites means one breached service exposes all your accounts. A password generator creates unique credentials for each login, containing the damage of any single breach.',
+        'info.random_title':'True Randomness','info.random_desc':'Humans are bad at randomness — we use predictable patterns like "Password123!" or keyboard walks. This tool uses crypto.getRandomValues() for cryptographically-secure entropy.',
+        'info.p2':'<strong>Can\'t remember complex passwords?</strong> That\'s expected — and it\'s the whole point. Strong passwords are hard for humans to remember <em>because</em> they are hard for machines to guess. Use a password manager (like Bitwarden, 1Password, or your browser\'s built-in manager) to store them securely. You only need to remember <strong>one strong master password</strong> — let this generator create the rest.',
+      },
+      zh: {
+        'app.title':'密码生成器','app.subtitle':'加密随机 · 高度可定制',
+        'nav.home':'首页','common.copy':'复制','common.copied':'已复制！',
+        'gen.title':'随机密码生成器','gen.charsets':'字符集',
+        'gen.no_set_selected':'请至少选择一个字符集。',
+        'gen.exclude_title':'排除易混淆字符',
+        'gen.exclude_hint':'从生成的密码中排除这些字符。默认值：易混淆的相似字符。',
+        'gen.length':'长度','gen.quantity':'数量','gen.button':'生成密码',
+        'gen.empty':'点击<strong>生成密码</strong>创建高强度的随机密码',
+        'history.title':'密码历史记录','history.record':'记录历史',
+        'history.hide':'隐藏历史','history.show':'显示历史',
+        'history.clear':'清空历史','history.copy_all':'复制全部',
+        'history.empty':'尚未生成密码',
+        'history.confirm_clear':'确定要清空全部 {n} 条密码历史记录吗？此操作无法撤销。',
+        'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 您的密码绝不会离开浏览器。',
+        'ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600','ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
+        'info.title':'为什么强密码如此重要',
+        'info.p1':'<strong>密码是您在线账户的第一道防线。</strong>一个弱密码或重复使用的密码就像让您的前门不上锁——攻击者可以猜出它，用自动化工具破解它，或者如果它在数据泄露中被暴露，就可能在多个网站上使用。事实上，超过 80% 的黑客相关泄露事件涉及被泄露或弱密码。',
+        'info.len_title':'长度与复杂度','info.len_desc':'一个包含大小写字母、数字和符号的 12 位密码需要几个世纪才能暴力破解，而一个只有小写字母的 6 位密码只需要几秒钟。每增加一个字符，安全性都会呈指数级增长。',
+        'info.unique_title':'每个账户独立使用','info.unique_desc':'在不同网站重复使用密码意味着一个服务被攻破，您所有的账户都会暴露。密码生成器可以为每个登录创建唯一的凭据，将单次泄露的影响降到最低。',
+        'info.random_title':'真正的随机性','info.random_desc':'人类不擅长生成随机内容——我们会使用可预测的模式，比如 "Password123!" 或键盘顺序。本工具使用 crypto.getRandomValues() 来产生加密安全的熵值。',
+        'info.p2':'<strong>记不住复杂密码？</strong>这很正常——这正是关键所在。强密码之所以难以被人类记住，<em>正是因为</em>它们难以被机器猜出。使用密码管理器（如 Bitwarden、1Password 或浏览器内置的管理器）来安全存储它们。您只需记住<strong>一个强主密码</strong>——其余的让本生成器来创建。',
+      },
+      ja: {
+        'app.title':'パスワード生成','app.subtitle':'暗号論的乱数 · カスタマイズ可能',
+        'nav.home':'ホーム','common.copy':'コピー','common.copied':'コピー完了！',
+        'gen.title':'ランダムパスワード生成','gen.charsets':'文字セット',
+        'gen.no_set_selected':'少なくとも1つの文字セットを選択してください。',
+        'gen.exclude_title':'あいまいな文字を除外',
+        'gen.exclude_hint':'生成されたパスワードから除外する文字。デフォルト：見分けにくい類似文字。',
+        'gen.length':'長さ','gen.quantity':'数量','gen.button':'パスワードを生成',
+        'gen.empty':'<strong>パスワードを生成</strong>をクリックして強力なパスワードを作成',
+        'history.title':'パスワード履歴','history.record':'履歴を記録',
+        'history.hide':'履歴を非表示','history.show':'履歴を表示',
+        'history.clear':'履歴を消去','history.copy_all':'すべてコピー',
+        'history.empty':'まだパスワードが生成されていません',
+        'history.confirm_clear':'{n}件のパスワード履歴をすべて消去しますか？この操作は元に戻せません。',
+        'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・パスワードがブラウザから出ることはありません。',
+        'ad.zoneA':'広告 · 728×90','ad.zoneB':'広告<br/>160×600','ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
+        'info.title':'強力なパスワードが重要な理由',
+        'info.p1':'<strong>パスワードはオンラインアカウントの第一防衛線です。</strong>弱いパスワードや使い回しのパスワードは、玄関の鍵をかけないようなものです。攻撃者は推測したり、自動ツールで解読したり、データ漏洩で露出したパスワードを複数のサイトで使い回したりします。実際、ハッキング関連の侵害の80%以上が、侵害されたパスワードや弱いパスワードに関係しています。',
+        'info.len_title':'長さと複雑さ','info.len_desc':'大文字小文字、数字、記号を混ぜた12文字のパスワードは総当たり攻撃に数世紀かかりますが、小文字のみの6文字のパスワードは数秒で破られます。1文字増えるごとにセキュリティが指数関数的に向上します。',
+        'info.unique_title':'アカウントごとに固有','info.unique_desc':'複数のサイトで同じパスワードを使うと、1つのサービスが侵害されただけで全アカウントが危険にさらされます。パスワードジェネレーターはログインごとに固有の認証情報を作成し、被害を最小限に抑えます。',
+        'info.random_title':'真のランダム性','info.random_desc':'人間はランダムな生成が苦手で、「Password123!」のような予測可能なパターンを使いがちです。このツールは crypto.getRandomValues() を使用して暗号論的に安全なエントロピーを生成します。',
+        'info.p2':'<strong>複雑なパスワードを覚えられない？</strong>それは想定内であり、それが重要なポイントです。強力なパスワードが人間にとって覚えにくいのは、<em>機械にとっても推測が難しいから</em>です。パスワードマネージャー（Bitwarden、1Password、ブラウザ内蔵のマネージャーなど）を使って安全に保存しましょう。覚える必要があるのは<strong>1つの強力なマスターパスワード</strong>だけです。',
+      },
+      ko: {
+        'app.title':'비밀번호 생성기','app.subtitle':'암호학적 난수 · 사용자 정의 가능',
+        'nav.home':'홈','common.copy':'복사','common.copied':'복사 완료!',
+        'gen.title':'랜덤 비밀번호 생성기','gen.charsets':'문자 집합',
+        'gen.no_set_selected':'최소 하나 이상의 문자 집합을 선택하세요.',
+        'gen.exclude_title':'모호한 문자 제외',
+        'gen.exclude_hint':'생성된 비밀번호에서 제외할 문자입니다. 기본값: 혼동하기 쉬운 유사 문자.',
+        'gen.length':'길이','gen.quantity':'개수','gen.button':'비밀번호 생성',
+        'gen.empty':'<strong>비밀번호 생성</strong>을 클릭하여 강력한 비밀번호를 만드세요',
+        'history.title':'비밀번호 기록','history.record':'기록 저장',
+        'history.hide':'기록 숨기기','history.show':'기록 보기',
+        'history.clear':'기록 삭제','history.copy_all':'전체 복사',
+        'history.empty':'아직 생성된 비밀번호가 없습니다',
+        'history.confirm_clear':'{n}개의 비밀번호 기록을 모두 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.',
+        'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 비밀번호가 브라우저를 떠나지 않습니다.',
+        'ad.zoneA':'광고 · 728×90','ad.zoneB':'광고<br/>160×600','ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
+        'info.title':'강력한 비밀번호가 중요한 이유',
+        'info.p1':'<strong>비밀번호는 온라인 계정의 첫 번째 방어선입니다.</strong> 약하거나 재사용된 비밀번호는 현관문을 잠그지 않은 것과 같습니다. 공격자는 추측하거나 자동화 도구로 크래킹하거나 데이터 유출로 노출된 비밀번호를 여러 사이트에서 사용할 수 있습니다. 실제로 해킹 관련 침해의 80% 이상이 손상되거나 약한 비밀번호와 관련되어 있습니다.',
+        'info.len_title':'길이와 복잡성','info.len_desc':'대소문자, 숫자, 기호를 혼합한 12자리 비밀번호는 무차별 대입 공격에 수백 년이 걸리지만, 소문자만 사용한 6자리 비밀번호는 몇 초면 깨집니다. 문자 하나가 추가될 때마다 보안이 기하급수적으로 증가합니다.',
+        'info.unique_title':'계정별 고유 비밀번호','info.unique_desc':'여러 사이트에서 비밀번호를 재사용하면 하나의 서비스가 침해되어도 모든 계정이 노출됩니다. 비밀번호 생성기는 각 로그인마다 고유한 자격 증명을 만들어 피해를 최소화합니다.',
+        'info.random_title':'진정한 무작위성','info.random_desc':'인간은 무작위 생성에 서툽니다. "Password123!" 같은 예측 가능한 패턴을 사용하기 쉽습니다. 이 도구는 crypto.getRandomValues()를 사용하여 암호학적으로 안전한 엔트로피를 생성합니다.',
+        'info.p2':'<strong>복잡한 비밀번호를 기억할 수 없다고요?</strong> 당연한 일입니다 — 그게 바로 핵심입니다. 강력한 비밀번호는 기계가 추측하기 어렵기 <em>때문에</em> 인간이 기억하기도 어렵습니다. 비밀번호 관리자(Bitwarden, 1Password, 브라우저 내장 관리자 등)를 사용하여 안전하게 저장하세요. <strong>하나의 강력한 마스터 비밀번호</strong>만 기억하면 됩니다.',
+      },
+      fr: {
+        'app.title':'Générateur de mots de passe','app.subtitle':'Aléatoire cryptographique & personnalisable',
+        'nav.home':'Accueil','common.copy':'Copier','common.copied':'Copié !',
+        'gen.title':'Générateur de mots de passe aléatoires','gen.charsets':'Jeux de caractères',
+        'gen.no_set_selected':'Veuillez sélectionner au moins un jeu de caractères.',
+        'gen.exclude_title':'Exclure les caractères ambigus',
+        'gen.exclude_hint':'Caractères à exclure des mots de passe générés. Par défaut : caractères similaires ambigus.',
+        'gen.length':'Longueur','gen.quantity':'Quantité','gen.button':'Générer le mot de passe',
+        'gen.empty':'Cliquez sur <strong>Générer le mot de passe</strong> pour créer un mot de passe fort',
+        'history.title':'Historique des mots de passe','history.record':'Enregistrer l\'historique',
+        'history.hide':'Masquer l\'historique','history.show':'Afficher l\'historique',
+        'history.clear':'Effacer l\'historique','history.copy_all':'Tout copier',
+        'history.empty':'Aucun mot de passe généré pour le moment',
+        'history.confirm_clear':'Effacer les {n} entrées de l\'historique ? Cette action est irréversible.',
+        'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Vos mots de passe ne quittent jamais votre navigateur.',
+        'ad.zoneA':'Publicité · 728×90','ad.zoneB':'Publicité<br/>160×600','ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Pourquoi les mots de passe forts sont importants',
+        'info.p1':'<strong>Les mots de passe sont la première ligne de défense</strong> de vos comptes en ligne. Un mot de passe faible ou réutilisé, c\'est comme laisser votre porte d\'entrée déverrouillée — les attaquants peuvent le deviner, le cracker avec des outils automatisés, ou l\'utiliser sur plusieurs sites s\'il a été exposé lors d\'une fuite de données. Plus de 80 % des violations liées au piratage impliquent des mots de passe compromis ou faibles.',
+        'info.len_title':'Longueur et complexité','info.len_desc':'Un mot de passe de 12 caractères avec des lettres, chiffres et symboles mélangés prend des siècles à cracker par force brute, alors qu\'un mot de passe de 6 caractères en minuscules prend quelques secondes. Chaque caractère supplémentaire augmente exponentiellement la sécurité.',
+        'info.unique_title':'Unique par compte','info.unique_desc':'Réutiliser le même mot de passe sur plusieurs sites signifie qu\'un seul service compromis expose tous vos comptes. Un générateur de mots de passe crée des identifiants uniques pour chaque connexion.',
+        'info.random_title':'Véritable aléatoire','info.random_desc':'Les humains sont mauvais pour générer de l\'aléatoire — nous utilisons des motifs prévisibles. Cet outil utilise crypto.getRandomValues() pour une entropie cryptographiquement sécurisée.',
+        'info.p2':'<strong>Vous ne pouvez pas retenir des mots de passe complexes ?</strong> C\'est normal — et c\'est tout l\'intérêt. Utilisez un gestionnaire de mots de passe (Bitwarden, 1Password, ou le gestionnaire intégré de votre navigateur). Vous n\'avez besoin de retenir qu\'<strong>un seul mot de passe maître fort</strong>.',
+      },
+      de: {
+        'app.title':'Passwort-Generator','app.subtitle':'Kryptografisch zufällig & anpassbar',
+        'nav.home':'Startseite','common.copy':'Kopieren','common.copied':'Kopiert!',
+        'gen.title':'Zufälliger Passwort-Generator','gen.charsets':'Zeichensätze',
+        'gen.no_set_selected':'Bitte wählen Sie mindestens einen Zeichensatz aus.',
+        'gen.exclude_title':'Mehrdeutige Zeichen ausschließen',
+        'gen.exclude_hint':'Zeichen, die aus generierten Passwörtern ausgeschlossen werden. Standard: mehrdeutige ähnliche Zeichen.',
+        'gen.length':'Länge','gen.quantity':'Anzahl','gen.button':'Passwort generieren',
+        'gen.empty':'Klicken Sie auf <strong>Passwort generieren</strong>, um ein starkes Passwort zu erstellen',
+        'history.title':'Passwort-Verlauf','history.record':'Verlauf aufzeichnen',
+        'history.hide':'Verlauf ausblenden','history.show':'Verlauf anzeigen',
+        'history.clear':'Verlauf löschen','history.copy_all':'Alle kopieren',
+        'history.empty':'Noch keine Passwörter generiert',
+        'history.confirm_clear':'Alle {n} Verlaufseinträge löschen? Dies kann nicht rückgängig gemacht werden.',
+        'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Ihre Passwörter verlassen nie Ihren Browser.',
+        'ad.zoneA':'Werbung · 728×90','ad.zoneB':'Werbung<br/>160×600','ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
+        'info.title':'Warum starke Passwörter wichtig sind',
+        'info.p1':'<strong>Passwörter sind die erste Verteidigungslinie</strong> für Ihre Online-Konten. Ein schwaches oder wiederverwendetes Passwort ist wie eine unverschlossene Haustür — Angreifer können es erraten, mit automatisierten Tools knacken oder auf mehreren Websites verwenden. Über 80 % der Hacking-bedingten Verstöße betreffen kompromittierte oder schwache Passwörter.',
+        'info.len_title':'Länge & Komplexität','info.len_desc':'Ein 12-stelliges Passwort mit gemischten Buchstaben, Zahlen und Symbolen braucht Jahrhunderte zum Knacken, ein 6-stelliges nur Kleinbuchstaben dagegen Sekunden. Jedes zusätzliche Zeichen erhöht die Sicherheit exponentiell.',
+        'info.unique_title':'Einzigartig pro Konto','info.unique_desc':'Passwörter auf mehreren Seiten wiederzuverwenden bedeutet, dass ein kompromittierter Dienst alle Ihre Konten offenlegt. Ein Passwort-Generator erstellt für jedes Login einzigartige Zugangsdaten.',
+        'info.random_title':'Echte Zufälligkeit','info.random_desc':'Menschen sind schlecht im Erzeugen von Zufall — wir nutzen vorhersehbare Muster. Dieses Tool verwendet crypto.getRandomValues() für kryptografisch sichere Entropie.',
+        'info.p2':'<strong>Komplexe Passwörter nicht merken können?</strong> Das ist normal — und genau der Punkt. Nutzen Sie einen Passwort-Manager (Bitwarden, 1Password oder den integrierten Manager Ihres Browsers). Sie müssen sich nur <strong>ein starkes Master-Passwort</strong> merken.',
+      },
+      it: {
+        'app.title':'Generatore di password','app.subtitle':'Casuale crittografico e personalizzabile',
+        'nav.home':'Home','common.copy':'Copia','common.copied':'Copiato!',
+        'gen.title':'Generatore di password casuali','gen.charsets':'Set di caratteri',
+        'gen.no_set_selected':'Seleziona almeno un set di caratteri.',
+        'gen.exclude_title':'Escludi caratteri ambigui',
+        'gen.exclude_hint':'Caratteri da escludere dalle password generate. Predefinito: caratteri simili ambigui.',
+        'gen.length':'Lunghezza','gen.quantity':'Quantità','gen.button':'Genera password',
+        'gen.empty':'Clicca <strong>Genera password</strong> per creare una password sicura',
+        'history.title':'Cronologia password','history.record':'Registra cronologia',
+        'history.hide':'Nascondi cronologia','history.show':'Mostra cronologia',
+        'history.clear':'Cancella cronologia','history.copy_all':'Copia tutto',
+        'history.empty':'Nessuna password ancora generata',
+        'history.confirm_clear':'Cancellare tutte le {n} voci della cronologia? Questa azione non può essere annullata.',
+        'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. Le tue password non lasciano mai il browser.',
+        'ad.zoneA':'Pubblicità · 728×90','ad.zoneB':'Pubblicità<br/>160×600','ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Perché le password forti sono importanti',
+        'info.p1':'<strong>Le password sono la prima linea di difesa</strong> per i tuoi account online. Una password debole o riutilizzata è come lasciare la porta di casa aperta — gli attaccanti possono indovinarla, decifrarla con strumenti automatici o usarla su più siti. Oltre l\'80% delle violazioni legate all\'hacking coinvolge password compromesse o deboli.',
+        'info.len_title':'Lunghezza e complessità','info.len_desc':'Una password di 12 caratteri con lettere, numeri e simboli richiede secoli per essere decifrata, mentre una di 6 caratteri solo minuscole richiede secondi. Ogni carattere aggiuntivo aumenta esponenzialmente la sicurezza.',
+        'info.unique_title':'Unica per ogni account','info.unique_desc':'Riutilizzare le password su più siti significa che un servizio violato espone tutti i tuoi account. Un generatore di password crea credenziali uniche per ogni accesso.',
+        'info.random_title':'Vera casualità','info.random_desc':'Gli umani non sono bravi con la casualità — usiamo schemi prevedibili. Questo strumento utilizza crypto.getRandomValues() per un\'entropia crittograficamente sicura.',
+        'info.p2':'<strong>Non ricordi password complesse?</strong> È normale — ed è proprio il punto. Usa un gestore di password (Bitwarden, 1Password o il gestore integrato del browser). Devi ricordare solo <strong>una password master forte</strong>.',
+      },
+      pt: {
+        'app.title':'Gerador de senhas','app.subtitle':'Aleatório criptográfico e personalizável',
+        'nav.home':'Início','common.copy':'Copiar','common.copied':'Copiado!',
+        'gen.title':'Gerador de senhas aleatórias','gen.charsets':'Conjuntos de caracteres',
+        'gen.no_set_selected':'Selecione pelo menos um conjunto de caracteres.',
+        'gen.exclude_title':'Excluir caracteres ambíguos',
+        'gen.exclude_hint':'Caracteres a excluir das senhas geradas. Padrão: caracteres semelhantes ambíguos.',
+        'gen.length':'Comprimento','gen.quantity':'Quantidade','gen.button':'Gerar senha',
+        'gen.empty':'Clique em <strong>Gerar senha</strong> para criar uma senha forte',
+        'history.title':'Histórico de senhas','history.record':'Registrar histórico',
+        'history.hide':'Ocultar histórico','history.show':'Mostrar histórico',
+        'history.clear':'Limpar histórico','history.copy_all':'Copiar tudo',
+        'history.empty':'Nenhuma senha gerada ainda',
+        'history.confirm_clear':'Limpar todas as {n} entradas do histórico? Esta ação não pode ser desfeita.',
+        'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Suas senhas nunca saem do navegador.',
+        'ad.zoneA':'Publicidade · 728×90','ad.zoneB':'Publicidade<br/>160×600','ad.728x90':'PUBLICIDADE · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Por que senhas fortes são importantes',
+        'info.p1':'<strong>As senhas são a primeira linha de defesa</strong> das suas contas online. Uma senha fraca ou reutilizada é como deixar a porta de casa destrancada — os atacantes podem adivinhá-la, quebrá-la com ferramentas automatizadas ou usá-la em vários sites. Mais de 80% das violações relacionadas a hackers envolvem senhas comprometidas ou fracas.',
+        'info.len_title':'Comprimento e complexidade','info.len_desc':'Uma senha de 12 caracteres com letras, números e símbolos leva séculos para ser quebrada por força bruta, enquanto uma de 6 caracteres só com minúsculas leva segundos. Cada caractere adicional aumenta exponencialmente a segurança.',
+        'info.unique_title':'Única por conta','info.unique_desc':'Reutilizar senhas em vários sites significa que um serviço violado expõe todas as suas contas. Um gerador de senhas cria credenciais únicas para cada login.',
+        'info.random_title':'Aleatoriedade verdadeira','info.random_desc':'Humanos são ruins em gerar aleatoriedade — usamos padrões previsíveis. Esta ferramenta usa crypto.getRandomValues() para entropia criptograficamente segura.',
+        'info.p2':'<strong>Não consegue lembrar senhas complexas?</strong> É esperado — e esse é o objetivo. Use um gerenciador de senhas (Bitwarden, 1Password ou o gerenciador integrado do navegador). Você só precisa lembrar de <strong>uma senha mestra forte</strong>.',
+      },
+      ru: {
+        'app.title':'Генератор паролей','app.subtitle':'Криптографически случайный и настраиваемый',
+        'nav.home':'Главная','common.copy':'Копировать','common.copied':'Скопировано!',
+        'gen.title':'Генератор случайных паролей','gen.charsets':'Наборы символов',
+        'gen.no_set_selected':'Пожалуйста, выберите хотя бы один набор символов.',
+        'gen.exclude_title':'Исключить неоднозначные символы',
+        'gen.exclude_hint':'Символы, исключаемые из создаваемых паролей. По умолчанию: неоднозначные похожие символы.',
+        'gen.length':'Длина','gen.quantity':'Количество','gen.button':'Создать пароль',
+        'gen.empty':'Нажмите <strong>Создать пароль</strong>, чтобы создать надёжный пароль',
+        'history.title':'История паролей','history.record':'Записывать историю',
+        'history.hide':'Скрыть историю','history.show':'Показать историю',
+        'history.clear':'Очистить историю','history.copy_all':'Копировать всё',
+        'history.empty':'Пароли ещё не созданы',
+        'history.confirm_clear':'Очистить все {n} записей истории паролей? Это действие нельзя отменить.',
+        'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Ваши пароли никогда не покидают браузер.',
+        'ad.zoneA':'Реклама · 728×90','ad.zoneB':'Реклама<br/>160×600','ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
+        'info.title':'Почему важны надёжные пароли',
+        'info.p1':'<strong>Пароли — это первая линия обороны</strong> ваших онлайн-аккаунтов. Слабый или повторно используемый пароль — как незапертая входная дверь. Злоумышленники могут угадать его, взломать автоматическими инструментами или использовать на других сайтах. Более 80% взломов связаны со скомпрометированными или слабыми паролями.',
+        'info.len_title':'Длина и сложность','info.len_desc':'12-значный пароль с буквами, цифрами и символами взламывается веками, а 6-значный только строчными — за секунды. Каждый дополнительный символ экспоненциально повышает безопасность.',
+        'info.unique_title':'Уникальный для каждого сервиса','info.unique_desc':'Использование одного пароля на разных сайтах означает, что один взлом раскрывает все ваши аккаунты. Генератор создаёт уникальные учётные данные для каждого входа.',
+        'info.random_title':'Настоящая случайность','info.random_desc':'Люди плохо генерируют случайные данные — мы используем предсказуемые шаблоны. Этот инструмент использует crypto.getRandomValues() для криптографически безопасной энтропии.',
+        'info.p2':'<strong>Не можете запомнить сложные пароли?</strong> Это нормально — в этом и суть. Используйте менеджер паролей (Bitwarden, 1Password или встроенный менеджер браузера). Вам нужно помнить только <strong>один надёжный мастер-пароль</strong>.',
+      },
+      tr: {
+        'app.title':'Şifre Oluşturucu','app.subtitle':'Kriptografik Rastgele ve Özelleştirilebilir',
+        'nav.home':'Ana Sayfa','common.copy':'Kopyala','common.copied':'Kopyalandı!',
+        'gen.title':'Rastgele Şifre Oluşturucu','gen.charsets':'Karakter Setleri',
+        'gen.no_set_selected':'Lütfen en az bir karakter seti seçin.',
+        'gen.exclude_title':'Belirsiz Karakterleri Hariç Tut',
+        'gen.exclude_hint':'Oluşturulan şifrelerden hariç tutulacak karakterler. Varsayılan: belirsiz benzer karakterler.',
+        'gen.length':'Uzunluk','gen.quantity':'Adet','gen.button':'Şifre Oluştur',
+        'gen.empty':'Güçlü bir şifre oluşturmak için <strong>Şifre Oluştur</strong>\'a tıklayın',
+        'history.title':'Şifre Geçmişi','history.record':'Geçmişi Kaydet',
+        'history.hide':'Geçmişi Gizle','history.show':'Geçmişi Göster',
+        'history.clear':'Geçmişi Temizle','history.copy_all':'Tümünü Kopyala',
+        'history.empty':'Henüz şifre oluşturulmadı',
+        'history.confirm_clear':'{n} şifre geçmişi kaydı temizlensin mi? Bu işlem geri alınamaz.',
+        'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Şifreleriniz asla tarayıcıdan çıkmaz.',
+        'ad.zoneA':'Reklam · 728×90','ad.zoneB':'Reklam<br/>160×600','ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
+        'info.title':'Güçlü Şifreler Neden Önemlidir',
+        'info.p1':'<strong>Şifreler çevrimiçi hesaplarınızın ilk savunma hattıdır.</strong> Zayıf veya yeniden kullanılan bir şifre, ön kapınızı kilitlemeden bırakmak gibidir — saldırganlar tahmin edebilir, otomatik araçlarla kırabilir veya veri ihlalinde açığa çıktıysa birden fazla sitede kullanabilir. Bilgisayar korsanlığı ihlallerinin %80\'inden fazlası, ele geçirilmiş veya zayıf şifrelerle ilgilidir.',
+        'info.len_title':'Uzunluk ve Karmaşıklık','info.len_desc':'Karışık harf, rakam ve sembollerden oluşan 12 karakterli bir şifrenin kaba kuvvetle kırılması yüzyıllar sürerken, yalnızca küçük harfli 6 karakterli bir şifre saniyeler içinde kırılır. Her ek karakter güvenliği katlanarak artırır.',
+        'info.unique_title':'Her Hesap İçin Benzersiz','info.unique_desc':'Şifreleri siteler arasında yeniden kullanmak, bir hizmetin ihlal edilmesiyle tüm hesaplarınızın açığa çıkması demektir. Şifre oluşturucu her giriş için benzersiz kimlik bilgileri oluşturur.',
+        'info.random_title':'Gerçek Rastgelelik','info.random_desc':'İnsanlar rastgelelik konusunda kötüdür — "Password123!" gibi tahmin edilebilir kalıplar kullanırız. Bu araç, kriptografik olarak güvenli entropi için crypto.getRandomValues() kullanır.',
+        'info.p2':'<strong>Karmaşık şifreleri hatırlayamıyor musunuz?</strong> Bu beklenen bir şey — ve asıl mesele de bu. Bir şifre yöneticisi (Bitwarden, 1Password veya tarayıcınızın yerleşik yöneticisi) kullanın. Sadece <strong>bir güçlü ana şifreyi</strong> hatırlamanız yeterli.',
+      },
+      'zh-TW': {
+        'app.title':'密碼產生器','app.subtitle':'加密隨機 · 高度可自訂',
+        'nav.home':'首頁','common.copy':'複製','common.copied':'已複製！',
+        'gen.title':'隨機密碼產生器','gen.charsets':'字元集',
+        'gen.no_set_selected':'請至少選擇一個字元集。',
+        'gen.exclude_title':'排除易混淆字元',
+        'gen.exclude_hint':'從產生的密碼中排除這些字元。預設值：易混淆的相似字元。',
+        'gen.length':'長度','gen.quantity':'數量','gen.button':'產生密碼',
+        'gen.empty':'點擊<strong>產生密碼</strong>建立高強度的隨機密碼',
+        'history.title':'密碼歷史記錄','history.record':'記錄歷史',
+        'history.hide':'隱藏歷史','history.show':'顯示歷史',
+        'history.clear':'清空歷史','history.copy_all':'複製全部',
+        'history.empty':'尚未產生密碼',
+        'history.confirm_clear':'確定要清空全部 {n} 條密碼歷史記錄嗎？此操作無法復原。',
+        'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 您的密碼絕不會離開瀏覽器。',
+        'ad.zoneA':'廣告 · 728×90','ad.zoneB':'廣告<br/>160×600','ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
+        'info.title':'為什麼強密碼如此重要',
+        'info.p1':'<strong>密碼是您線上帳戶的第一道防線。</strong>一個弱密碼或重複使用的密碼就像讓您的前門不上鎖——攻擊者可以猜出它，用自動化工具破解它，或者如果它在資料外洩中被暴露，就可能在多個網站上使用。事實上，超過 80% 的駭客相關洩露事件涉及被盜或弱密碼。',
+        'info.len_title':'長度與複雜度','info.len_desc':'一個包含大小寫字母、數字和符號的 12 位密碼需要幾個世紀才能暴力破解，而一個只有小寫字母的 6 位密碼只需要幾秒鐘。每增加一個字元，安全性都會呈指數級增長。',
+        'info.unique_title':'每個帳戶獨立使用','info.unique_desc':'在不同網站重複使用密碼意味著一個服務被攻破，您所有的帳戶都會暴露。密碼產生器可以為每個登入建立唯一的憑據，將單次洩露的影響降到最低。',
+        'info.random_title':'真正的隨機性','info.random_desc':'人類不擅長生成隨機內容——我們會使用可預測的模式，比如 "Password123!" 或鍵盤順序。本工具使用 crypto.getRandomValues() 來產生加密安全的熵值。',
+        'info.p2':'<strong>記不住複雜密碼？</strong>這很正常——這正是關鍵所在。強密碼之所以難以被人類記住，<em>正是因為</em>它們難以被機器猜出。使用密碼管理器（如 Bitwarden、1Password 或瀏覽器內建的管理器）來安全儲存它們。您只需記住<strong>一個強主密碼</strong>——其餘的讓本產生器來建立。',
+      },
+    };
+
+    /* ================================================================
+     *  i18n ENGINE
+     * ================================================================ */
+    var currentLang = localStorage.getItem('pw-lang') || 'en';
+    var fallbackDict = DICT.en;
+
+    function t(key) {
+      var d = DICT[currentLang];
+      return (d && d[key]) || fallbackDict[key] || key;
+    }
+
+    function updateLanguageUI() {
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var k = els[i].getAttribute('data-i18n');
+        if (k) els[i].innerHTML = t(k);
+      }
+      var btnToggle = document.getElementById('btn-toggle-history');
+      if (btnToggle) btnToggle.textContent = historyVisible ? t('history.hide') : t('history.show');
+      updateCopyAllBtn();
+    }
+
+    function updateLangButton() {
+      var found = LANGS.filter(function (L) { return L.code === currentLang; })[0];
+      var label = document.getElementById('btn-lang-label');
+      if (label && found) label.textContent = found.label;
+      document.documentElement.lang = (currentLang === 'zh') ? 'zh-CN' : (currentLang === 'zh-TW') ? 'zh-TW' : currentLang;
+    }
+
+    function buildLangMenu() {
+      var menu = document.getElementById('lang-menu');
+      if (!menu) return;
+      var html = '';
+      for (var i = 0; i < LANGS.length; i++) {
+        var L = LANGS[i];
+        var active = L.code === currentLang ? ' bg-cyan-50' : '';
+        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+          '<span class="text-[11px] font-bold text-gray-400 w-7">' + L.region + '</span>' +
+          '<span class="text-slate-700">' + L.native + '</span></button>';
+      }
+      menu.innerHTML = html;
+    }
+
+    window.switchLanguage = function (lang) {
+      currentLang = lang;
+      localStorage.setItem('pw-lang', lang);
+      updateLangButton();
+      buildLangMenu();
+      updateLanguageUI();
+      renderHistory();
+    };
+
+    window.toggleLangMenu = function () {
+      buildLangMenu();
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.toggle('hidden');
+    };
+    window.closeLangMenu = function () {
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.add('hidden');
+    };
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('lang-dropdown');
+      if (dd && !dd.contains(e.target)) {
+        var menu = document.getElementById('lang-menu');
+        if (menu) menu.classList.add('hidden');
+      }
+    });
+
+    /* ================================================================
+     *  DARK MODE
+     * ================================================================ */
+    var IS_DARK = localStorage.getItem('pw-dark') === '1';
+    function applyTheme() { if (IS_DARK) document.documentElement.classList.add('dark'); }
+    window.toggleDark = function () { IS_DARK = !IS_DARK; localStorage.setItem('pw-dark', IS_DARK ? '1' : '0'); location.reload(); };
+    applyTheme();
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
+          } else {
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+          }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
+          iframe.setAttribute('srcdoc',
+            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
+            '</head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
+
+    /* ================================================================
+     *  DOM REFS
+     * ================================================================ */
+    var $ = function (s) { return document.querySelector(s); };
+    var setLower = $('#set-lower'), setUpper = $('#set-upper'), setDigits = $('#set-digits'), setSymbols = $('#set-symbols');
+    var toggleExclude = $('#toggle-exclude'), excludeField = $('#exclude-field'), excludeChars = $('#exclude-chars');
+    var lenSlider = $('#len-slider'), lenInput = $('#len-input'), lenDisplay = $('#len-display');
+    var qtySlider = $('#qty-slider'), qtyInput = $('#qty-input'), qtyDisplay = $('#qty-display');
+    var generateBtn = $('#generate-btn'), resultsArea = $('#results-area'), resultsEmpty = $('#results-empty');
+    var charsetWarn = $('#charset-warn'), toggleRecord = $('#toggle-record');
+    var historyList = $('#history-list'), historyEmpty = $('#history-empty'), historyCount = $('#history-count');
+    var btnToggleHist = $('#btn-toggle-history'), btnCopyAll = $('#btn-copy-all');
+
+    /* ================================================================
+     *  STATE
+     * ================================================================ */
+    var historyVisible = true;
+    var STORAGE_KEY = 'pw-generator-history';
+    var MAX_HISTORY = 1000;
+    var currentPasswords = [];
+
+    /* ================================================================
+     *  CHARACTER SETS
+     * ================================================================ */
+    var CHAR_SETS = {
+      lower: 'abcdefghijklmnopqrstuvwxyz',
+      upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      digits: '0123456789',
+      symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?/~`"\'',
+    };
+
+    function getActiveSets() {
+      var sets = [];
+      if (setLower.checked)   sets.push(CHAR_SETS.lower);
+      if (setUpper.checked)   sets.push(CHAR_SETS.upper);
+      if (setDigits.checked)  sets.push(CHAR_SETS.digits);
+      if (setSymbols.checked) sets.push(CHAR_SETS.symbols);
+      return sets;
+    }
+
+    function getExcludedChars() {
+      if (!toggleExclude.checked) return '';
+      return excludeChars.value || '';
+    }
+
+    function buildCharPool() {
+      var sets = getActiveSets();
+      if (sets.length === 0) return '';
+      var pool = sets.join('');
+      var excl = getExcludedChars();
+      if (excl) {
+        var exclSet = {};
+        for (var i = 0; i < excl.length; i++) exclSet[excl[i]] = true;
+        pool = pool.split('').filter(function (c) { return !exclSet[c]; }).join('');
+      }
+      return pool;
+    }
+
+    /* ================================================================
+     *  PASSWORD GENERATION
+     * ================================================================ */
+    function generatePassword(length, pool) {
+      if (!pool || pool.length === 0) return null;
+      var arr = new Uint32Array(length);
+      crypto.getRandomValues(arr);
+      var result = '';
+      for (var i = 0; i < length; i++) result += pool[arr[i] % pool.length];
+      return result;
+    }
+
+    function generateBatch() {
+      var pool = buildCharPool();
+      if (!pool) { charsetWarn.classList.remove('hidden'); return []; }
+      charsetWarn.classList.add('hidden');
+      var len = Math.max(1, Math.min(100, parseInt(lenInput.value) || 16));
+      var qty = Math.max(1, Math.min(100, parseInt(qtyInput.value) || 1));
+      var passwords = [];
+      for (var i = 0; i < qty; i++) passwords.push(generatePassword(len, pool));
+      return passwords;
+    }
+
+    /* ================================================================
+     *  SYNTAX HIGHLIGHTING
+     * ================================================================ */
+    function highlightPassword(pw) {
+      var html = '';
+      for (var i = 0; i < pw.length; i++) {
+        var ch = pw[i];
+        if (/[0-9]/.test(ch)) html += '<span class="pw-digit">' + escHtml(ch) + '</span>';
+        else if (/[^a-zA-Z0-9]/.test(ch)) html += '<span class="pw-symbol">' + escHtml(ch) + '</span>';
+        else html += '<span>' + escHtml(ch) + '</span>';
+      }
+      return html;
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /* ================================================================
+     *  RENDER RESULTS
+     * ================================================================ */
+    function renderResults(passwords) {
+      currentPasswords = passwords;
+      resultsArea.innerHTML = '';
+      if (passwords.length === 0) { resultsArea.classList.add('hidden'); resultsEmpty.classList.remove('hidden'); return; }
+      resultsArea.classList.remove('hidden');
+      resultsEmpty.classList.add('hidden');
+
+      for (var i = 0; i < passwords.length; i++) {
+        var pw = passwords[i];
+        var row = document.createElement('div');
+        row.className = 'flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 group hover:border-slate-300 transition-colors animate-fade-in';
+        var pwSpan = document.createElement('code');
+        pwSpan.className = 'flex-1 text-sm font-mono font-medium break-all select-all';
+        pwSpan.innerHTML = highlightPassword(pw);
+        row.appendChild(pwSpan);
+        var copyBtn = document.createElement('button');
+        copyBtn.className = 'flex-shrink-0 px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all';
+        copyBtn.textContent = t('common.copy');
+        copyBtn.addEventListener('click', function () { copySingle(pw, copyBtn); });
+        row.appendChild(copyBtn);
+        resultsArea.appendChild(row);
+      }
+
+      if (passwords.length > 1) {
+        var allRow = document.createElement('div'); allRow.className = 'flex justify-end pt-1';
+        var allBtn = document.createElement('button');
+        allBtn.className = 'px-4 py-2 text-[11px] font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-sm';
+        allBtn.textContent = t('history.copy_all') + ' (' + passwords.length + ')';
+        allBtn.addEventListener('click', function () { copyAllCurrent(allBtn); });
+        allRow.appendChild(allBtn);
+        resultsArea.appendChild(allRow);
+      }
+    }
+
+    /* ================================================================
+     *  COPY FUNCTIONS
+     * ================================================================ */
+    function copySingle(text, btn) {
+      var orig = btn.textContent;
+      copyToClipboard(text, function () {
+        btn.textContent = t('common.copied'); btn.classList.add('text-emerald-600', 'bg-emerald-50');
+        setTimeout(function () { btn.textContent = orig; btn.classList.remove('text-emerald-600', 'bg-emerald-50'); }, 1500);
+      });
+    }
+
+    function copyAllCurrent(btn) {
+      var text = currentPasswords.join('\n'); var orig = btn.textContent;
+      copyToClipboard(text, function () { btn.textContent = t('common.copied'); setTimeout(function () { btn.textContent = orig; }, 1500); });
+    }
+
+    function copyToClipboard(text, onSuccess) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(onSuccess).catch(function () { fallbackCopy(text, onSuccess); });
+      } else { fallbackCopy(text, onSuccess); }
+    }
+
+    function fallbackCopy(text, onSuccess) {
+      var ta = document.createElement('textarea'); ta.value = text;
+      ta.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      if (onSuccess) onSuccess();
+    }
+
+    /* ================================================================
+     *  HISTORY MANAGEMENT
+     * ================================================================ */
+    function loadHistory() {
+      try { var raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; } catch (_) { return []; }
+    }
+
+    function saveHistory(entries) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries.slice(0, MAX_HISTORY))); } catch (_) {}
+    }
+
+    function addToHistory(passwords) {
+      if (!toggleRecord.checked) return;
+      var history = loadHistory();
+      var now = new Date();
+      var ts = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' +
+               String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+      for (var i = 0; i < passwords.length; i++) history.unshift({ password: passwords[i], timestamp: ts });
+      saveHistory(history);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      var history = loadHistory();
+      historyList.innerHTML = '';
+      historyCount.textContent = '(' + history.length + ')';
+      if (history.length === 0) {
+        historyEmpty.classList.remove('hidden'); historyList.classList.add('hidden'); btnCopyAll.classList.add('hidden');
+      } else {
+        historyEmpty.classList.add('hidden');
+        if (historyVisible) historyList.classList.remove('hidden');
+        btnCopyAll.classList.remove('hidden');
+        for (var i = 0; i < history.length; i++) {
+          var entry = history[i];
+          var row = document.createElement('div');
+          row.className = 'flex items-center gap-2 md:gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors text-xs';
+          var tsSpan = document.createElement('span');
+          tsSpan.className = 'text-[10px] text-slate-400 font-mono flex-shrink-0 w-[130px] hidden sm:inline';
+          tsSpan.textContent = entry.timestamp;
+          row.appendChild(tsSpan);
+          var pwCode = document.createElement('code');
+          pwCode.className = 'flex-1 text-xs font-mono font-medium truncate select-all';
+          pwCode.innerHTML = highlightPassword(entry.password);
+          pwCode.title = entry.password;
+          row.appendChild(pwCode);
+          var cpBtn = document.createElement('button');
+          cpBtn.className = 'flex-shrink-0 px-2 py-1 text-[10px] font-medium rounded-md bg-slate-200 text-slate-600 hover:bg-slate-300 active:scale-95 transition-all';
+          cpBtn.textContent = t('common.copy');
+          cpBtn.addEventListener('click', function () { copySingle(entry.password, cpBtn); });
+          row.appendChild(cpBtn);
+          historyList.appendChild(row);
+        }
+      }
+      updateCopyAllBtn();
+    }
+
+    function updateCopyAllBtn() {
+      var history = loadHistory();
+      if (history.length > 0 && historyVisible) {
+        btnCopyAll.classList.remove('hidden');
+        btnCopyAll.textContent = t('history.copy_all') + ' (' + history.length + ')';
+      } else { btnCopyAll.classList.add('hidden'); }
+    }
+
+    function clearHistory() {
+      var history = loadHistory();
+      if (history.length === 0) return;
+      if (confirm(t('history.confirm_clear').replace('{n}', history.length))) { saveHistory([]); renderHistory(); }
+    }
+
+    function toggleHistoryVisibility() {
+      historyVisible = !historyVisible;
+      if (historyVisible) { historyList.classList.remove('hidden'); btnToggleHist.textContent = t('history.hide'); }
+      else { historyList.classList.add('hidden'); btnCopyAll.classList.add('hidden'); btnToggleHist.textContent = t('history.show'); }
+      renderHistory();
+    }
+
+    function copyAllHistory() {
+      var history = loadHistory();
+      var text = history.map(function (e) { return e.password; }).join('\n');
+      var btn = btnCopyAll, orig = btn.textContent;
+      copyToClipboard(text, function () { btn.textContent = t('common.copied'); setTimeout(function () { btn.textContent = orig; }, 1500); });
+    }
+
+    /* ================================================================
+     *  EVENT HANDLERS
+     * ================================================================ */
+    function onSettingsChanged() {
+      if (toggleExclude.checked) excludeField.classList.remove('hidden'); else excludeField.classList.add('hidden');
+      if (getActiveSets().length === 0) charsetWarn.classList.remove('hidden'); else charsetWarn.classList.add('hidden');
+    }
+
+    window.onLengthChange = function (val) { lenInput.value = val; lenDisplay.textContent = val; };
+    window.onLengthInput = function (val) { var v = Math.max(1, Math.min(100, parseInt(val) || 16)); lenSlider.value = v; lenInput.value = v; lenDisplay.textContent = v; };
+    window.onQuantityChange = function (val) { qtyInput.value = val; qtyDisplay.textContent = val; };
+    window.onQuantityInput = function (val) { var v = Math.max(1, Math.min(100, parseInt(val) || 1)); qtySlider.value = v; qtyInput.value = v; qtyDisplay.textContent = v; };
+    window.onRecordToggle = function () {};
+    window.onSettingsChanged = onSettingsChanged;
+    window.toggleHistoryVisibility = toggleHistoryVisibility;
+    window.clearHistory = clearHistory;
+    window.copyAllHistory = copyAllHistory;
+
+    generateBtn.addEventListener('click', function () {
+      var passwords = generateBatch();
+      if (passwords.length === 0) return;
+      renderResults(passwords);
+      addToHistory(passwords);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); generateBtn.click(); }
+    });
+
+    /* ================================================================
+     *  INIT
+     * ================================================================ */
+    updateLangButton();
+    buildLangMenu();
+    updateLanguageUI();
+    onSettingsChanged();
+    renderHistory();
+    renderAds();
+
+    console.log('%c🔒 Password Generator ready %c| %cLang %c' + currentLang,
+      'font-weight:bold;', '', 'color:#2563eb;', 'font-weight:bold;');
+
+  })();
+  </script>
+
+</body>
+</html>
