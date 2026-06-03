@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Dual-Stack IP Detection & Privacy Audit Tool — check your IPv4, IPv6, WebRTC leaks, proxy detection, and more." />
+  <title>ip.linkozen.com — IP Lookup & Privacy Audit</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans:  ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono:  ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'skeleton': 'shimmer 1.6s ease-in-out infinite',
+            'fade-in': 'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+            'scale-tap': 'scaleTap 0.15s ease-in-out',
+          },
+          keyframes: {
+            shimmer: {
+              '0%, 100%': { opacity: 1 },
+              '50%':    { opacity: 0.4 },
+            },
+            fadeIn: {
+              '0%':   { opacity: 0 },
+              '100%': { opacity: 1 },
+            },
+            slideUp: {
+              '0%':   { opacity: 0, transform: 'translateY(12px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+            scaleTap: {
+              '0%':   { transform: 'scale(1)' },
+              '50%':  { transform: 'scale(0.92)' },
+              '100%': { transform: 'scale(1)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    /* ── Leaflet overrides ── */
+    #map { height: 380px; width: 100%; border-radius: 1rem; z-index: 0; }
+    .leaflet-control-zoom a {
+      border-radius: 0.5rem !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08) !important;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================================================================ -->
+  <!--  HEADER                                                           -->
+  <!-- ================================================================ -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm">
+          IP
+        </div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">IP Lookup</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Dual-Stack Detection &amp; Privacy Audit</p>
+        </div>
+      </div>
+
+      <!-- Right: Dark Mode + Lang Switcher -->
+      <div class="flex items-center gap-2">
+        <!-- Dark mode toggle -->
+        <button id="btn-dark" onclick="toggleDark()"
+                class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                title="Toggle dark mode">
+          <svg id="icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Language dropdown -->
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle"
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm"
+                  onclick="toggleLangMenu()">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+
+          <!-- Dropdown menu -->
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden">
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!--  MAIN GRID                                                        -->
+  <!-- ================================================================ -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        </div>
+      </aside>
+
+      <!-- ============================================================ -->
+      <!--  MAIN CONTENT  (8/12 on lg)                                    -->
+      <!-- ============================================================ -->
+      <div class="lg:col-span-8 space-y-5">
+
+        <!-- ── Map Card ──────────────────────────────────────────── -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden animate-slide-up">
+          <div class="px-5 pt-4 pb-2 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-700" data-i18n="map.title">Geolocation Map</h2>
+            <span id="map-coords" class="text-xs font-mono text-slate-400"></span>
+          </div>
+          <div id="map" class="w-full"></div>
+        </div>
+
+        <!-- ── IP Cards Row ──────────────────────────────────────── -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- ·· IPv4 Card ·· -->
+          <div id="card-ipv4"
+               class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-fade-in">
+            <!-- Skeleton -->
+            <div id="skel-ipv4" class="space-y-3">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-600">IPv4</span>
+                <div class="skeleton-bar h-4 w-16"></div>
+              </div>
+              <div class="skeleton-bar h-10 w-full"></div>
+              <div class="skeleton-bar h-4 w-3/4"></div>
+              <div class="skeleton-bar h-4 w-1/2"></div>
+            </div>
+            <!-- Data (hidden initially) -->
+            <div id="data-ipv4" class="hidden space-y-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-600">IPv4</span>
+                <button class="copy-btn px-3 py-1.5 text-xs font-medium rounded-lg
+                               bg-slate-100 text-slate-600 hover:bg-slate-200
+                               active:scale-95 transition-all duration-150 flex items-center gap-1"
+                        data-copy-target="ipv4"
+                        data-i18n-title="common.copy">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span data-i18n="common.copy">Copy</span>
+                </button>
+              </div>
+              <p id="ipv4-address" class="text-2xl font-mono font-medium text-slate-900 tracking-tight break-all"></p>
+              <div class="mt-3" id="ipv4-details"></div>
+            </div>
+            <!-- Error -->
+            <div id="err-ipv4" class="hidden text-center py-4">
+              <p class="text-sm text-red-500 font-medium" data-i18n="error.fetch">Unable to fetch IPv4</p>
+              <p class="text-xs text-slate-400 mt-1" id="err-ipv4-msg"></p>
+            </div>
+          </div>
+
+          <!-- ·· IPv6 Card ·· -->
+          <div id="card-ipv6"
+               class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-fade-in">
+            <!-- Skeleton -->
+            <div id="skel-ipv6" class="space-y-3">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-violet-50 text-violet-600">IPv6</span>
+                <div class="skeleton-bar h-4 w-16"></div>
+              </div>
+              <div class="skeleton-bar h-10 w-full"></div>
+              <div class="skeleton-bar h-4 w-3/4"></div>
+              <div class="skeleton-bar h-4 w-1/2"></div>
+            </div>
+            <!-- Data -->
+            <div id="data-ipv6" class="hidden space-y-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-violet-50 text-violet-600">IPv6</span>
+                <button class="copy-btn px-3 py-1.5 text-xs font-medium rounded-lg
+                               bg-slate-100 text-slate-600 hover:bg-slate-200
+                               active:scale-95 transition-all duration-150 flex items-center gap-1"
+                        data-copy-target="ipv6"
+                        data-i18n-title="common.copy">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span data-i18n="common.copy">Copy</span>
+                </button>
+              </div>
+              <p id="ipv6-address" class="text-xl font-mono font-medium text-slate-900 tracking-tight break-all"></p>
+              <div class="mt-3" id="ipv6-details"></div>
+            </div>
+            <!-- Error -->
+            <div id="err-ipv6" class="hidden text-center py-4">
+              <p class="text-sm text-amber-500 font-medium" data-i18n="error.ipv6_unavailable">IPv6 Not Available</p>
+              <p class="text-xs text-slate-400 mt-1" id="err-ipv6-msg"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Time + Deep Audit Row ──────────────────────────────── -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+          <!-- ·· Time Analysis (compact) ·· -->
+          <div id="time-card-container" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 animate-slide-up">
+            <h2 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span data-i18n="time.title">Time Analysis</span>
+              <span id="time-tz-value" class="text-[11px] font-mono text-slate-400 ml-auto">—</span>
+            </h2>
+
+            <div id="time-card" class="space-y-1">
+              <div id="time-local-row" class="flex items-center justify-between py-2 transition-colors duration-300 rounded-lg px-2 -mx-2">
+                <div>
+                  <span class="text-[10px] text-slate-400 block leading-tight" data-i18n="time.local_time">Local Time</span>
+                  <span id="time-local-clock" class="text-xl font-mono font-semibold text-slate-800 tabular-nums">--:--:--</span>
+                </div>
+                <div class="text-right">
+                  <span id="time-local-date" class="text-[10px] text-slate-500 block">----.--.--</span>
+                  <span id="time-local-zone" class="text-[10px] text-slate-400">GMT+X</span>
+                </div>
+              </div>
+              <div id="time-system-row" class="flex items-center justify-between py-2 border-t border-gray-100 transition-colors duration-300 rounded-lg px-2 -mx-2">
+                <div>
+                  <span class="text-[10px] text-slate-400 block leading-tight" data-i18n="time.system_time">System Time</span>
+                  <span id="time-system-clock" class="text-xl font-mono font-semibold text-slate-800 tabular-nums">--:--:--</span>
+                </div>
+                <div class="text-right">
+                  <span id="time-system-date" class="text-[10px] text-slate-500 block">----.--.--</span>
+                  <span id="time-system-zone" class="text-[10px] text-slate-400">GMT+X</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="time-warn" class="hidden mt-2 flex items-start gap-2 p-2 rounded-lg bg-amber-50 border border-amber-200">
+              <span class="text-amber-500 text-sm font-bold animate-pulse">!</span>
+              <p id="time-warn-text" class="text-[10px] text-amber-600 leading-relaxed"></p>
+            </div>
+          </div>
+
+          <!-- ·· Deep Audit Panel ·· -->
+          <div id="deep-audit-card" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 animate-slide-up relative overflow-hidden">
+            <h2 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <span data-i18n="deep.title">Deep Audit</span>
+            </h2>
+
+            <!-- Deep audit results -->
+            <div id="deep-results" class="space-y-2 text-xs">
+              <div class="flex justify-between py-1.5 border-b border-gray-100">
+                <span class="text-slate-500" data-i18n="deep.hostname">Hostname</span>
+                <span id="deep-hostname" class="font-mono text-slate-700">—</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b border-gray-100">
+                <span class="text-slate-500" data-i18n="deep.company_type">Company Type</span>
+                <span id="deep-company-type" class="font-mono text-slate-700">—</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b border-gray-100">
+                <span class="text-slate-500" data-i18n="deep.blacklist">Blacklist</span>
+                <span id="deep-blacklist" class="font-mono text-slate-700">—</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b border-gray-100">
+                <span class="text-slate-500" data-i18n="deep.abuse_score">Abuse Score</span>
+                <span id="deep-abuse-score" class="font-mono text-slate-700">—</span>
+              </div>
+              <div class="flex justify-between py-1.5">
+                <span class="text-slate-500" data-i18n="deep.dns_leak">DNS Leak</span>
+                <span id="deep-dns-leak" class="font-mono text-slate-700">—</span>
+              </div>
+            </div>
+
+            <!-- Run Deep Audit button -->
+            <button id="btn-deep-audit" onclick="runDeepAudit()"
+                    class="mt-3 w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all active:scale-[0.98] shadow-md shadow-cyan-500/20">
+              <span data-i18n="deep.run">Run Deep Audit</span>
+            </button>
+
+            <!-- Loading mask -->
+            <div id="deep-mask" class="hidden absolute inset-0 bg-white/80 backdrop-blur-[8px] rounded-2xl flex items-center justify-center z-10">
+              <div class="flex flex-col items-center gap-3">
+                <svg class="w-8 h-8 animate-spin text-cyan-500" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span class="text-xs text-slate-500 font-medium" data-i18n="deep.loading">Analyzing…</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Privacy Audit Card ────────────────────────────────── -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 mb-5 flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span data-i18n="audit.title">Privacy Audit</span>
+          </h2>
+
+          <!-- ── Circular Anonymity Gauge ──────────────────────────── -->
+          <div class="flex flex-col items-center mb-6">
+            <div class="relative w-36 h-36">
+              <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+                <!-- Background track -->
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#e2e8f0" stroke-width="8" />
+                <!-- Progress arc -->
+                <circle id="score-ring" cx="60" cy="60" r="52" fill="none" stroke="#94a3b8" stroke-width="8"
+                        stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
+                        class="transition-all duration-700 ease-out" />
+              </svg>
+              <!-- Center overlay (un-rotated) -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="score-text" class="text-[28px] font-bold text-slate-300 font-mono leading-none">--</span>
+                <span id="score-label" class="text-[10px] font-semibold text-slate-400 tracking-wider mt-0.5" data-i18n="audit.score.label">SCORE</span>
+              </div>
+            </div>
+            <p id="score-subtitle" class="text-xs text-slate-400 mt-2.5 font-medium" data-i18n="audit.score.pending">Gathering data…</p>
+          </div>
+
+          <!-- ── Audit Items (dark cards, Whoer-style) ──────────────── -->
+          <div class="space-y-2.5">
+
+            <!-- Proxy / DC -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-proxy-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.proxy.label">Connection Type</p>
+                  <p id="audit-proxy-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.proxy.checking">Analyzing…</p>
+                </div>
+              </div>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
+            </div>
+
+            <!-- Timezone -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-tz-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.tz.label">Timezone Check</p>
+                  <p id="audit-tz-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.tz.checking">Comparing…</p>
+                </div>
+              </div>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
+            </div>
+
+            <!-- Language -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-lang-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.lang.label">Language Match</p>
+                  <p id="audit-lang-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.lang.checking">Checking…</p>
+                </div>
+              </div>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
+            </div>
+
+            <!-- DoNotTrack -->
+            <div id="audit-dnt-row" class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-dnt-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.dnt.label">Do Not Track</p>
+                  <p id="audit-dnt-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.dnt.checking">Checking…</p>
+                </div>
+              </div>
+              <a href="#" id="audit-dnt-fix" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
+            </div>
+
+            <!-- WebRTC -->
+            <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-950 text-white/90">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="audit-webrtc-icon" class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium" data-i18n="audit.webrtc.label">WebRTC Leak Test</p>
+                  <p id="audit-webrtc-text" class="text-[11px] text-white/50 mt-0.5" data-i18n="audit.webrtc.checking">Checking…</p>
+                </div>
+              </div>
+              <a href="#" class="text-[10px] text-white/40 hover:text-white/70 whitespace-nowrap ml-2 flex-shrink-0" data-i18n="audit.howtofix">How to fix?</a>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /left column -->
+
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
+        </div>
+      </aside>
+
+    </div><!-- /grid -->
+  </main>
+
+  <!-- ================================================================ -->
+  <!--  FOOTER                                                           -->
+  <!-- ================================================================ -->
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a id="footer-domain" href="/" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 ml-1 font-medium"></a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No logs. No tracking. Your IP is never stored.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ================================================================ -->
+  <!--  SCRIPTS                                                          -->
+  <!-- ================================================================ -->
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <!-- ── Application Logic ───────────────────────────────────────────── -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+     *  CONFIGURATION
+     * ================================================================ */
+
+    const CFG = {
+      endpoints: {
+        v4: 'https://v4.ip.linkozen.com/api/ip',
+        v6: 'https://v6.ip.linkozen.com/api/ip',
+        v4Fallback: 'https://api4.ipify.org?format=json',
+        v6Fallbacks: [
+          'https://ipv6.icanhazip.com',
+          'https://api6.ipify.org?format=json',
+        ],
+      },
+      proxyKeywords: [
+        'Vultr', 'DigitalOcean', 'Gcore', 'Amazon', 'Google',
+        'Microsoft', 'Datacenter', 'Choopa', 'OvH', 'Linode',
+      ],
+      webrtcTimeout: 3000,
+      mapDefaultCenter: [20, 0],
+      mapDefaultZoom: 2,
+      mapFlyZoom: 14,
+    };
+
+    /* ================================================================
+     *  i18N  ENGINE
+     * ================================================================ */
+
+    // ── Language definitions ──────────────────────────────────────
+    const LANGS = [
+      { code: 'en',    label: 'English',    native: 'English',              region: 'US' },
+      { code: 'zh',    label: '简体中文',    native: '简体中文',              region: 'CN' },
+      { code: 'ja',    label: '日本語',      native: '日本語',                region: 'JP' },
+      { code: 'ko',    label: '한국어',      native: '한국어',                region: 'KR' },
+      { code: 'fr',    label: 'Français',   native: 'Français',             region: 'FR' },
+      { code: 'de',    label: 'Deutsch',    native: 'Deutsch',              region: 'DE' },
+      { code: 'it',    label: 'Italiano',   native: 'Italiano',             region: 'IT' },
+      { code: 'pt',    label: 'Português',  native: 'Português',            region: 'BR' },
+      { code: 'ru',    label: 'Русский',    native: 'Русский',              region: 'RU' },
+      { code: 'tr',    label: 'Türkçe',     native: 'Türkçe',               region: 'TR' },
+      { code: 'zh-TW', label: '繁體中文',    native: '繁體中文',              region: 'TW' },
+    ];
+
+    // ── Full i18n dictionaries ────────────────────────────────────
+    // Keys: all, ja, ko, fr, de, it, pt, ru, tr, zh-TW, zh (CN)
+    const DICT = {
+      en: {
+        'app.title':               'IP Lookup',
+        'app.subtitle':            'Dual-Stack Detection & Privacy Audit',
+        'common.copy':             'Copy',
+        'common.copied':           'Copied!',
+        'error.fetch':             'Unable to fetch IP data',
+        'error.fallback':          'Limited data — check v4/v6 DNS configuration',
+        'error.ipv6_unavailable':  'IPv6 Not Available',
+        'map.title':               'Geolocation Map',
+        'ad.zoneA':                'Advertisement · 728×90',
+        'ad.zoneB':                'Advertisement<br/>160×600',
+        'audit.title':             'Privacy Audit',
+        'audit.webrtc.label':      'WebRTC Leak Test',
+        'audit.webrtc.checking':   'Checking…',
+        'audit.webrtc.safe':       'No WebRTC leak detected',
+        'audit.webrtc.leak':       'Potential WebRTC leak — real IP exposed',
+        'audit.webrtc.failed':     'WebRTC check failed or not supported',
+        'audit.dnt.label':         'Do Not Track (DNT)',
+        'audit.dnt.checking':      'Checking…',
+        'audit.dnt.enabled':       'DNT: Enabled — your browser requests no tracking',
+        'audit.dnt.disabled':      'DNT: Disabled — your browser does not send a Do Not Track signal',
+        'audit.dnt.howtofix':      'Enable DNT in browser settings: Chrome → Settings → Privacy → "Do Not Track" request; Firefox → Settings → Privacy → "Send websites a Do Not Track signal".',
+        'audit.howtofix':          'How to fix?',
+        'audit.proxy.label':       'Connection Type',
+        'audit.proxy.checking':    'Analyzing…',
+        'audit.proxy.datacenter':  'Proxy / Datacenter detected',
+        'audit.proxy.residential': 'Residential ISP',
+        'audit.proxy.unknown':     'Unknown — insufficient data',
+        'audit.tz.label':          'Timezone Check',
+        'audit.tz.checking':       'Comparing…',
+        'audit.tz.match':          'Timezone matches IP location',
+        'audit.tz.mismatch':       'Timezone mismatch — possible VPN/proxy',
+        'audit.tz.unknown':        'Unable to verify timezone',
+        'audit.lang.label':        'Language Match',
+        'audit.lang.checking':     'Checking…',
+        'audit.lang.match':        'Browser language matches IP location',
+        'audit.lang.mismatch':     'Language mismatch — possible VPN/proxy',
+        'audit.lang.unknown':      'Unable to verify language match',
+        'audit.score.label':       'SCORE',
+        'audit.score.pending':     'Gathering data…',
+        'audit.score.excellent':   'Excellent Protection',
+        'audit.score.good':        'Good Protection',
+        'audit.score.moderate':    'Moderate Protection',
+        'audit.score.weak':        'Weak Protection',
+        'audit.score.poor':        'Minimal Protection',
+        'detail.country':          'Country',
+        'detail.region':           'Region',
+        'detail.city':             'City',
+        'detail.postal':           'Postal Code',
+        'detail.hostname':         'Hostname',
+        'detail.ip_range':         'IP Range',
+        'detail.isp':              'ISP',
+        'detail.asn':              'ASN',
+        'detail.company':          'Company',
+        'common.na':               'N/A',
+        'time.title':              'Time Analysis',
+        'time.local_time':         'Local Time',
+        'time.system_time':        'System Time',
+        'time.timezone':           'Timezone',
+        'time.warn_title':         'Timezone Mismatch',
+        'deep.title':              'Deep Audit',
+        'deep.hostname':           'Hostname',
+        'deep.company_type':       'Company Type',
+        'deep.blacklist':          'Blacklist',
+        'deep.abuse_score':        'Abuse Score',
+        'deep.dns_leak':           'DNS Leak',
+        'deep.run':                'Run Deep Audit',
+        'deep.loading':            'Analyzing…',
+        'deep.cached':             '(cached)',
+        'deep.hosting_yes':        'Hosting',
+        'deep.hosting_no':         'Non-Hosting',
+        'deep.blacklist_yes':      'Listed',
+        'deep.blacklist_no':       'Clean',
+        'deep.dns_ok':             'No Leak',
+        'deep.dns_leak_detected':  'Leak Detected',
+        'footer.powered':          'Powered by',
+        'footer.privacy':          'No logs. No tracking. Your IP is never stored.',
+      },
+      zh: {
+        'app.title':               'IP 查询',
+        'app.subtitle':            '双栈 IP 检测与隐私审计',
+        'common.copy':             '复制',
+        'common.copied':           '已复制！',
+        'error.fetch':             '无法获取 IP 数据',
+        'error.fallback':          '数据受限 — 请检查 v4/v6 DNS 配置',
+        'error.ipv6_unavailable':  'IPv6 不可用',
+        'map.title':               '地理位置',
+        'ad.zoneA':                '广告位 · 728×90',
+        'ad.zoneB':                '广告位<br/>160×600',
+        'audit.title':             '隐私审计',
+        'audit.webrtc.label':      'WebRTC 泄露检测',
+        'audit.webrtc.checking':   '检测中…',
+        'audit.webrtc.safe':       '未检测到 WebRTC 泄露',
+        'audit.webrtc.leak':       '⚠️ 检测到 WebRTC 泄露 — 真实 IP 已暴露',
+        'audit.webrtc.failed':     'WebRTC 检测失败或不支持',
+        'audit.dnt.label':         '请勿追踪 (DNT)',
+        'audit.dnt.checking':      '检测中…',
+        'audit.dnt.enabled':       'DNT 已启用 — 浏览器正在请求不追踪',
+        'audit.dnt.disabled':      'DNT 未启用 — 浏览器未发送"请勿追踪"信号',
+        'audit.dnt.howtofix':      '在浏览器中开启 DNT：Chrome → 设置 → 隐私 → "请勿追踪"请求；Firefox → 设置 → 隐私 → "向网站发送请勿追踪信号"。',
+        'audit.howtofix':          '如何更正？',
+        'audit.proxy.label':       '连接类型',
+        'audit.proxy.checking':    '分析中…',
+        'audit.proxy.datacenter':  '🖥️ 检测到数据中心 / 代理 IP',
+        'audit.proxy.residential': '🏠 住宅 ISP',
+        'audit.proxy.unknown':     '未知 — 数据不足',
+        'audit.tz.label':          '时区一致性',
+        'audit.tz.checking':       '比对中…',
+        'audit.tz.match':          '✅ 时区与 IP 归属地一致',
+        'audit.tz.mismatch':       '⚠️ 时区不匹配 — 可能存在 VPN/代理',
+        'audit.tz.unknown':        '无法验证时区',
+        'audit.lang.label':        '语言匹配度',
+        'audit.lang.checking':     '检测中…',
+        'audit.lang.match':        '✅ 浏览器语言与 IP 归属地匹配',
+        'audit.lang.mismatch':     '⚠️ 语言不匹配 — 可能存在 VPN/代理',
+        'audit.lang.unknown':      '无法验证语言匹配',
+        'audit.score.label':       '伪装度',
+        'audit.score.pending':     '正在收集数据…',
+        'audit.score.excellent':   '极佳防护',
+        'audit.score.good':        '良好防护',
+        'audit.score.moderate':    '一般防护',
+        'audit.score.weak':        '防护较弱',
+        'audit.score.poor':        '防护不足',
+        'detail.country':          '国家',
+        'detail.region':           '省份',
+        'detail.city':             '城市',
+        'detail.postal':           '邮编',
+        'detail.hostname':         '主机',
+        'detail.ip_range':         'IP 范围',
+        'detail.isp':              '提供商',
+        'detail.asn':              'AS 号码',
+        'detail.company':          '公司',
+        'common.na':               '无',
+        'time.title':              '时间分析',
+        'time.local_time':         '当地时间',
+        'time.system_time':        '系统时间',
+        'time.timezone':           '时区',
+        'time.warn_title':         '时区不匹配',
+        'deep.title':              '深度审计',
+        'deep.hostname':           '主机名',
+        'deep.company_type':       '公司类型',
+        'deep.blacklist':          '黑名单',
+        'deep.abuse_score':        '滥用分数',
+        'deep.dns_leak':           'DNS 泄漏',
+        'deep.run':                '运行深度审计',
+        'deep.loading':            '分析中…',
+        'deep.cached':             '(已缓存)',
+        'deep.hosting_yes':        '托管商',
+        'deep.hosting_no':         '非托管',
+        'deep.blacklist_yes':      '已列入',
+        'deep.blacklist_no':       '清白',
+        'deep.dns_ok':             '无泄漏',
+        'deep.dns_leak_detected':  '检测到泄漏',
+        'footer.powered':          '由',
+        'footer.privacy':          '无日志 · 无追踪 · 绝不存储您的 IP 地址',
+      },
+      ja: {
+        'app.title':'IP ルックアップ','app.subtitle':'デュアルスタック IP 検出とプライバシー監査','common.copy':'コピー','common.copied':'コピー完了！','error.fetch':'IP データを取得できません','error.fallback':'制限データ — v4/v6 DNS 設定を確認','error.ipv6_unavailable':'IPv6 は利用不可','map.title':'地理位置情報','ad.zoneA':'広告 · 728×90','ad.zoneB':'広告<br/>160×600','audit.title':'プライバシー監査','audit.webrtc.label':'WebRTC リークテスト','audit.webrtc.checking':'確認中…','audit.webrtc.safe':'WebRTC リークは検出されませんでした','audit.webrtc.leak':'WebRTC リークの可能性 — 実際の IP が露出','audit.webrtc.failed':'WebRTC チェック失敗または未対応','audit.dnt.label':'Do Not Track (DNT)','audit.dnt.checking':'確認中…','audit.dnt.enabled':'DNT 有効 — 追跡拒否を要求中','audit.dnt.disabled':'DNT 無効 — 追跡拒否信号が送信されていません','audit.dnt.howtofix':'ブラウザ設定で DNT を有効化: Chrome → 設定 → プライバシー →「追跡拒否」リクエスト','audit.howtofix':'修正方法は？','audit.proxy.label':'接続タイプ','audit.proxy.checking':'分析中…','audit.proxy.datacenter':'データセンター／プロキシを検出','audit.proxy.residential':'住宅 ISP','audit.proxy.unknown':'不明 — データ不足','audit.tz.label':'タイムゾーン','audit.tz.checking':'比較中…','audit.tz.match':'タイムゾーンが IP の位置と一致','audit.tz.mismatch':'タイムゾーン不一致 — VPN/プロキシの可能性','audit.tz.unknown':'タイムゾーンを確認できません','audit.lang.label':'言語一致','audit.lang.checking':'確認中…','audit.lang.match':'ブラウザ言語が IP の位置と一致','audit.lang.mismatch':'言語不一致 — VPN/プロキシの可能性','audit.lang.unknown':'言語一致を確認できません','audit.score.label':'スコア','audit.score.pending':'データ収集中…','audit.score.excellent':'優れた保護','audit.score.good':'良好な保護','audit.score.moderate':'中程度の保護','audit.score.weak':'弱い保護','audit.score.poor':'最小限の保護','detail.country':'国','detail.region':'地域','detail.city':'市区町村','detail.postal':'郵便番号','detail.hostname':'ホスト名','detail.ip_range':'IP 範囲','detail.isp':'ISP','detail.asn':'ASN','detail.company':'会社','common.na':'なし','time.title':'時間分析','time.local_time':'現地時間','time.system_time':'システム時間','time.timezone':'タイムゾーン','time.warn_title':'タイムゾーン不一致','deep.title':'ディープ監査','deep.hostname':'ホスト名','deep.company_type':'会社種別','deep.blacklist':'ブラックリスト','deep.abuse_score':'悪用スコア','deep.dns_leak':'DNS リーク','deep.run':'監査を実行','deep.loading':'分析中…','deep.cached':'(キャッシュ)','deep.hosting_yes':'ホスティング','deep.hosting_no':'非ホスティング','deep.blacklist_yes':'掲載済','deep.blacklist_no':'クリーン','deep.dns_ok':'リークなし','deep.dns_leak_detected':'リーク検出','footer.powered':'提供','footer.privacy':'ログなし・追跡なし・IP アドレスは保存されません',
+      },
+      ko: {
+        'app.title':'IP 조회','app.subtitle':'듀얼 스택 IP 감지 및 개인정보 감사','common.copy':'복사','common.copied':'복사 완료!','error.fetch':'IP 데이터를 가져올 수 없음','error.fallback':'제한된 데이터 — v4/v6 DNS 구성 확인','error.ipv6_unavailable':'IPv6 사용 불가','map.title':'지리적 위치','ad.zoneA':'광고 · 728×90','ad.zoneB':'광고<br/>160×600','audit.title':'개인정보 감사','audit.webrtc.label':'WebRTC 유출 테스트','audit.webrtc.checking':'확인 중…','audit.webrtc.safe':'WebRTC 유출 감지되지 않음','audit.webrtc.leak':'WebRTC 유출 가능성 — 실제 IP 노출','audit.webrtc.failed':'WebRTC 확인 실패 또는 미지원','audit.dnt.label':'Do Not Track (DNT)','audit.dnt.checking':'확인 중…','audit.dnt.enabled':'DNT 활성화 — 추적 거부 요청 중','audit.dnt.disabled':'DNT 비활성화 — 추적 거부 신호 미전송','audit.dnt.howtofix':'브라우저 설정에서 DNT 활성화: Chrome → 설정 → 개인정보 → "추적 금지" 요청','audit.howtofix':'해결 방법','audit.proxy.label':'연결 유형','audit.proxy.checking':'분석 중…','audit.proxy.datacenter':'데이터센터/프록시 감지됨','audit.proxy.residential':'주거용 ISP','audit.proxy.unknown':'알 수 없음 — 데이터 부족','audit.tz.label':'시간대 확인','audit.tz.checking':'비교 중…','audit.tz.match':'시간대가 IP 위치와 일치','audit.tz.mismatch':'시간대 불일치 — VPN/프록시 가능성','audit.tz.unknown':'시간대 확인 불가','audit.lang.label':'언어 일치','audit.lang.checking':'확인 중…','audit.lang.match':'브라우저 언어가 IP 위치와 일치','audit.lang.mismatch':'언어 불일치 — VPN/프록시 가능성','audit.lang.unknown':'언어 일치 확인 불가','audit.score.label':'점수','audit.score.pending':'데이터 수집 중…','audit.score.excellent':'우수한 보호','audit.score.good':'양호한 보호','audit.score.moderate':'보통 보호','audit.score.weak':'취약한 보호','audit.score.poor':'최소한의 보호','detail.country':'국가','detail.region':'지역','detail.city':'도시','detail.postal':'우편번호','detail.hostname':'호스트명','detail.ip_range':'IP 범위','detail.isp':'ISP','detail.asn':'ASN','detail.company':'회사','common.na':'없음','time.title':'시간 분석','time.local_time':'현지 시간','time.system_time':'시스템 시간','time.timezone':'시간대','time.warn_title':'시간대 불일치','deep.title':'심층 감사','deep.hostname':'호스트명','deep.company_type':'회사 유형','deep.blacklist':'블랙리스트','deep.abuse_score':'악용 점수','deep.dns_leak':'DNS 유출','deep.run':'감사 실행','deep.loading':'분석 중…','deep.cached':'(캐시됨)','deep.hosting_yes':'호스팅','deep.hosting_no':'비호스팅','deep.blacklist_yes':'등록됨','deep.blacklist_no':'깨끗함','deep.dns_ok':'유출 없음','deep.dns_leak_detected':'유출 감지','footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · IP 주소 저장 안 함',
+      },
+      fr: {
+        'app.title':'Recherche IP','app.subtitle':'Détection IP double pile et audit de confidentialité','common.copy':'Copier','common.copied':'Copié !','error.fetch':'Impossible de récupérer IP','error.fallback':'Données limitées — vérifier DNS v4/v6','error.ipv6_unavailable':'IPv6 indisponible','map.title':'Géolocalisation','ad.zoneA':'Publicité · 728×90','ad.zoneB':'Publicité<br/>160×600','audit.title':'Audit de confidentialité','audit.webrtc.label':'Test fuite WebRTC','audit.webrtc.checking':'Vérification…','audit.webrtc.safe':'Aucune fuite WebRTC détectée','audit.webrtc.leak':'Fuite WebRTC potentielle — IP réelle exposée','audit.webrtc.failed':'Échec vérification WebRTC','audit.dnt.label':'Do Not Track (DNT)','audit.dnt.checking':'Vérification…','audit.dnt.enabled':'DNT activé — demande de non-pistage','audit.dnt.disabled':'DNT désactivé — signal non envoyé','audit.dnt.howtofix':'Activer DNT: Chrome → Paramètres → Confidentialité → "Do Not Track"','audit.howtofix':'Comment corriger ?','audit.proxy.label':'Type de connexion','audit.proxy.checking':'Analyse…','audit.proxy.datacenter':'Proxy/Datacenter détecté','audit.proxy.residential':'FAI résidentiel','audit.proxy.unknown':'Inconnu — données insuffisantes','audit.tz.label':'Fuseau horaire','audit.tz.checking':'Comparaison…','audit.tz.match':'Fuseau horaire correspond','audit.tz.mismatch':'Décalage horaire — VPN/proxy possible','audit.tz.unknown':'Vérification impossible','audit.lang.label':'Correspondance langue','audit.lang.checking':'Vérification…','audit.lang.match':'Langue navigateur correspond','audit.lang.mismatch':'Langue différente — VPN/proxy possible','audit.lang.unknown':'Vérification impossible','audit.score.label':'SCORE','audit.score.pending':'Collecte…','audit.score.excellent':'Protection excellente','audit.score.good':'Bonne protection','audit.score.moderate':'Protection modérée','audit.score.weak':'Protection faible','audit.score.poor':'Protection minimale','detail.country':'Pays','detail.region':'Région','detail.city':'Ville','detail.postal':'Code postal','detail.hostname':'Nom d\'hôte','detail.ip_range':'Plage IP','detail.isp':'FAI','detail.asn':'ASN','detail.company':'Entreprise','common.na':'N/D','time.title':'Analyse horaire','time.local_time':'Heure locale','time.system_time':'Heure système','time.timezone':'Fuseau horaire','time.warn_title':'Décalage horaire','deep.title':'Audit approfondi','deep.hostname':'Nom d\'hôte','deep.company_type':'Type société','deep.blacklist':'Liste noire','deep.abuse_score':'Score d\'abus','deep.dns_leak':'Fuite DNS','deep.run':'Lancer l\'audit','deep.loading':'Analyse…','deep.cached':'(cache)','deep.hosting_yes':'Hébergement','deep.hosting_no':'Non-hébergement','deep.blacklist_yes':'Listé','deep.blacklist_no':'Propre','deep.dns_ok':'Aucune fuite','deep.dns_leak_detected':'Fuite détectée','footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de pistage. IP jamais stockée.',
+      },
+      de: {
+        'app.title':'IP-Abfrage','app.subtitle':'Dual-Stack-Erkennung & Datenschutzprüfung','common.copy':'Kopieren','common.copied':'Kopiert!','error.fetch':'IP-Daten nicht abrufbar','error.fallback':'Eingeschränkte Daten — v4/v6 DNS prüfen','error.ipv6_unavailable':'IPv6 nicht verfügbar','map.title':'Geolokalisierung','ad.zoneA':'Werbung · 728×90','ad.zoneB':'Werbung<br/>160×600','audit.title':'Datenschutzprüfung','audit.webrtc.label':'WebRTC-Lecktest','audit.webrtc.checking':'Prüfung…','audit.webrtc.safe':'Kein WebRTC-Leck erkannt','audit.webrtc.leak':'Mögliches WebRTC-Leck — echte IP sichtbar','audit.webrtc.failed':'WebRTC-Prüfung fehlgeschlagen','audit.dnt.label':'Do Not Track (DNT)','audit.dnt.checking':'Prüfung…','audit.dnt.enabled':'DNT aktiviert — kein Tracking angefordert','audit.dnt.disabled':'DNT deaktiviert — kein Signal gesendet','audit.dnt.howtofix':'DNT aktivieren: Chrome → Einstellungen → Datenschutz → "Do Not Track"','audit.howtofix':'Wie beheben?','audit.proxy.label':'Verbindungstyp','audit.proxy.checking':'Analyse…','audit.proxy.datacenter':'Rechenzentrum/Proxy erkannt','audit.proxy.residential':'Privater ISP','audit.proxy.unknown':'Unbekannt — unzureichende Daten','audit.tz.label':'Zeitzone','audit.tz.checking':'Vergleich…','audit.tz.match':'Zeitzone stimmt überein','audit.tz.mismatch':'Zeitzonenabweichung — VPN/Proxy möglich','audit.tz.unknown':'Überprüfung nicht möglich','audit.lang.label':'Sprachübereinstimmung','audit.lang.checking':'Prüfung…','audit.lang.match':'Browsersprache stimmt überein','audit.lang.mismatch':'Sprachabweichung — VPN/Proxy möglich','audit.lang.unknown':'Überprüfung nicht möglich','audit.score.label':'WERTUNG','audit.score.pending':'Daten werden gesammelt…','audit.score.excellent':'Hervorragender Schutz','audit.score.good':'Guter Schutz','audit.score.moderate':'Mäßiger Schutz','audit.score.weak':'Schwacher Schutz','audit.score.poor':'Minimaler Schutz','detail.country':'Land','detail.region':'Region','detail.city':'Stadt','detail.postal':'Postleitzahl','detail.hostname':'Hostname','detail.ip_range':'IP-Bereich','detail.isp':'ISP','detail.asn':'ASN','detail.company':'Unternehmen','common.na':'k.A.','time.title':'Zeitanalyse','time.local_time':'Ortszeit','time.system_time':'Systemzeit','time.timezone':'Zeitzone','time.warn_title':'Zeitzonenabweichung','deep.title':'Tiefenprüfung','deep.hostname':'Hostname','deep.company_type':'Unternehmenstyp','deep.blacklist':'Blacklist','deep.abuse_score':'Missbrauchswert','deep.dns_leak':'DNS-Leck','deep.run':'Prüfung starten','deep.loading':'Analyse…','deep.cached':'(Cache)','deep.hosting_yes':'Hosting','deep.hosting_no':'Kein Hosting','deep.blacklist_yes':'Gelistet','deep.blacklist_no':'Sauber','deep.dns_ok':'Kein Leck','deep.dns_leak_detected':'Leck erkannt','footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. IP wird nie gespeichert.',
+      },
+      it: {
+        'app.title':'Ricerca IP','app.subtitle':'Rilevamento IP Dual-Stack e Audit Privacy','common.copy':'Copia','common.copied':'Copiato!','error.fetch':'Impossibile recuperare IP','error.fallback':'Dati limitati — controlla DNS v4/v6','error.ipv6_unavailable':'IPv6 non disponibile','map.title':'Geolocalizzazione','ad.zoneA':'Pubblicità · 728×90','ad.zoneB':'Pubblicità<br/>160×600','audit.title':'Audit Privacy','audit.webrtc.label':'Test Perdita WebRTC','audit.webrtc.checking':'Verifica…','audit.webrtc.safe':'Nessuna perdita WebRTC','audit.webrtc.leak':'Possibile perdita WebRTC — IP reale esposto','audit.webrtc.failed':'Test WebRTC fallito','audit.dnt.label':'Do Not Track (DNT)','audit.dnt.checking':'Verifica…','audit.dnt.enabled':'DNT attivo — richiesta di non tracciamento','audit.dnt.disabled':'DNT disattivato — segnale non inviato','audit.dnt.howtofix':'Attiva DNT: Chrome → Impostazioni → Privacy → "Do Not Track"','audit.howtofix':'Come risolvere?','audit.proxy.label':'Tipo connessione','audit.proxy.checking':'Analisi…','audit.proxy.datacenter':'Datacenter/Proxy rilevato','audit.proxy.residential':'ISP residenziale','audit.proxy.unknown':'Sconosciuto — dati insufficienti','audit.tz.label':'Fuso orario','audit.tz.checking':'Confronto…','audit.tz.match':'Fuso orario corrisponde','audit.tz.mismatch':'Discrepanza fuso — possibile VPN/proxy','audit.tz.unknown':'Verifica impossibile','audit.lang.label':'Corrispondenza lingua','audit.lang.checking':'Verifica…','audit.lang.match':'Lingua browser corrisponde','audit.lang.mismatch':'Lingua diversa — possibile VPN/proxy','audit.lang.unknown':'Verifica impossibile','audit.score.label':'PUNTEGGIO','audit.score.pending':'Raccolta dati…','audit.score.excellent':'Protezione eccellente','audit.score.good':'Buona protezione','audit.score.moderate':'Protezione moderata','audit.score.weak':'Protezione debole','audit.score.poor':'Protezione minima','detail.country':'Paese','detail.region':'Regione','detail.city':'Città','detail.postal':'CAP','detail.hostname':'Hostname','detail.ip_range':'Intervallo IP','detail.isp':'ISP','detail.asn':'ASN','detail.company':'Azienda','common.na':'N/D','time.title':'Analisi oraria','time.local_time':'Ora locale','time.system_time':'Ora sistema','time.timezone':'Fuso orario','time.warn_title':'Discrepanza fuso','deep.title':'Audit approfondito','deep.hostname':'Hostname','deep.company_type':'Tipo azienda','deep.blacklist':'Blacklist','deep.abuse_score':'Punteggio abusi','deep.dns_leak':'Perdita DNS','deep.run':'Avvia audit','deep.loading':'Analisi…','deep.cached':'(cache)','deep.hosting_yes':'Hosting','deep.hosting_no':'Non-hosting','deep.blacklist_yes':'Segnalato','deep.blacklist_no':'Pulito','deep.dns_ok':'Nessuna perdita','deep.dns_leak_detected':'Perdita rilevata','footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. IP mai memorizzato.',
+      },
+      pt: {
+        'app.title':'Busca IP','app.subtitle':'Detecção IP Dual-Stack e Auditoria de Privacidade','common.copy':'Copiar','common.copied':'Copiado!','error.fetch':'Não foi possível obter IP','error.fallback':'Dados limitados — verifique DNS v4/v6','error.ipv6_unavailable':'IPv6 indisponível','map.title':'Geolocalização','ad.zoneA':'Publicidade · 728×90','ad.zoneB':'Publicidade<br/>160×600','audit.title':'Auditoria de Privacidade','audit.webrtc.label':'Teste Vazamento WebRTC','audit.webrtc.checking':'Verificando…','audit.webrtc.safe':'Nenhum vazamento WebRTC','audit.webrtc.leak':'Possível vazamento WebRTC — IP real exposto','audit.webrtc.failed':'Falha no teste WebRTC','audit.dnt.label':'Do Not Track (DNT)','audit.dnt.checking':'Verificando…','audit.dnt.enabled':'DNT ativado — solicitando não rastreamento','audit.dnt.disabled':'DNT desativado — sinal não enviado','audit.dnt.howtofix':'Ative DNT: Chrome → Configurações → Privacidade → "Do Not Track"','audit.howtofix':'Como corrigir?','audit.proxy.label':'Tipo de conexão','audit.proxy.checking':'Analisando…','audit.proxy.datacenter':'Datacenter/Proxy detectado','audit.proxy.residential':'ISP residencial','audit.proxy.unknown':'Desconhecido — dados insuficientes','audit.tz.label':'Fuso horário','audit.tz.checking':'Comparando…','audit.tz.match':'Fuso horário corresponde','audit.tz.mismatch':'Divergência de fuso — possível VPN/proxy','audit.tz.unknown':'Verificação impossível','audit.lang.label':'Idioma','audit.lang.checking':'Verificando…','audit.lang.match':'Idioma do navegador corresponde','audit.lang.mismatch':'Idioma divergente — possível VPN/proxy','audit.lang.unknown':'Verificação impossível','audit.score.label':'PONTUAÇÃO','audit.score.pending':'Coletando dados…','audit.score.excellent':'Proteção excelente','audit.score.good':'Boa proteção','audit.score.moderate':'Proteção moderada','audit.score.weak':'Proteção fraca','audit.score.poor':'Proteção mínima','detail.country':'País','detail.region':'Região','detail.city':'Cidade','detail.postal':'CEP','detail.hostname':'Hostname','detail.ip_range':'Faixa IP','detail.isp':'ISP','detail.asn':'ASN','detail.company':'Empresa','common.na':'N/D','time.title':'Análise de horário','time.local_time':'Hora local','time.system_time':'Hora do sistema','time.timezone':'Fuso horário','time.warn_title':'Divergência de fuso','deep.title':'Auditoria profunda','deep.hostname':'Hostname','deep.company_type':'Tipo empresa','deep.blacklist':'Lista negra','deep.abuse_score':'Pontuação abuso','deep.dns_leak':'Vazamento DNS','deep.run':'Executar auditoria','deep.loading':'Analisando…','deep.cached':'(cache)','deep.hosting_yes':'Hospedagem','deep.hosting_no':'Sem hospedagem','deep.blacklist_yes':'Listado','deep.blacklist_no':'Limpo','deep.dns_ok':'Sem vazamento','deep.dns_leak_detected':'Vazamento detectado','footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. IP nunca armazenado.',
+      },
+      ru: {
+        'app.title':'Поиск IP','app.subtitle':'Двойной стек IP и аудит конфиденциальности','common.copy':'Копировать','common.copied':'Скопировано!','error.fetch':'Не удалось получить IP','error.fallback':'Ограниченные данные — проверьте DNS v4/v6','error.ipv6_unavailable':'IPv6 недоступен','map.title':'Геолокация','ad.zoneA':'Реклама · 728×90','ad.zoneB':'Реклама<br/>160×600','audit.title':'Аудит конфиденциальности','audit.webrtc.label':'Тест утечки WebRTC','audit.webrtc.checking':'Проверка…','audit.webrtc.safe':'Утечка WebRTC не обнаружена','audit.webrtc.leak':'Возможна утечка WebRTC — реальный IP раскрыт','audit.webrtc.failed':'Проверка WebRTC не удалась','audit.dnt.label':'Do Not Track (DNT)','audit.dnt.checking':'Проверка…','audit.dnt.enabled':'DNT включён — запрос на отказ от отслеживания','audit.dnt.disabled':'DNT отключён — сигнал не отправляется','audit.dnt.howtofix':'Включить DNT: Chrome → Настройки → Конфиденциальность → "Do Not Track"','audit.howtofix':'Как исправить?','audit.proxy.label':'Тип подключения','audit.proxy.checking':'Анализ…','audit.proxy.datacenter':'Обнаружен дата-центр/прокси','audit.proxy.residential':'Домашний ISP','audit.proxy.unknown':'Неизвестно — недостаточно данных','audit.tz.label':'Часовой пояс','audit.tz.checking':'Сравнение…','audit.tz.match':'Часовой пояс совпадает','audit.tz.mismatch':'Несовпадение поясов — возможен VPN/прокси','audit.tz.unknown':'Проверка невозможна','audit.lang.label':'Язык','audit.lang.checking':'Проверка…','audit.lang.match':'Язык браузера совпадает','audit.lang.mismatch':'Несовпадение языка — возможен VPN/прокси','audit.lang.unknown':'Проверка невозможна','audit.score.label':'ОЦЕНКА','audit.score.pending':'Сбор данных…','audit.score.excellent':'Отличная защита','audit.score.good':'Хорошая защита','audit.score.moderate':'Средняя защита','audit.score.weak':'Слабая защита','audit.score.poor':'Минимальная защита','detail.country':'Страна','detail.region':'Регион','detail.city':'Город','detail.postal':'Индекс','detail.hostname':'Хост','detail.ip_range':'Диапазон IP','detail.isp':'Провайдер','detail.asn':'ASN','detail.company':'Компания','common.na':'Н/Д','time.title':'Анализ времени','time.local_time':'Местное время','time.system_time':'Системное время','time.timezone':'Часовой пояс','time.warn_title':'Несовпадение поясов','deep.title':'Глубокий аудит','deep.hostname':'Хост','deep.company_type':'Тип компании','deep.blacklist':'Черный список','deep.abuse_score':'Индекс жалоб','deep.dns_leak':'Утечка DNS','deep.run':'Запустить аудит','deep.loading':'Анализ…','deep.cached':'(кэш)','deep.hosting_yes':'Хостинг','deep.hosting_no':'Не хостинг','deep.blacklist_yes':'В списке','deep.blacklist_no':'Чисто','deep.dns_ok':'Нет утечки','deep.dns_leak_detected':'Утечка обнаружена','footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. IP не сохраняется.',
+      },
+      tr: {
+        'app.title':'IP Sorgulama','app.subtitle':'Çift Yığın IP Tespiti ve Gizlilik Denetimi','common.copy':'Kopyala','common.copied':'Kopyalandı!','error.fetch':'IP verisi alınamadı','error.fallback':'Sınırlı veri — v4/v6 DNS yapılandırmasını kontrol edin','error.ipv6_unavailable':'IPv6 kullanılamıyor','map.title':'Konum Haritası','ad.zoneA':'Reklam · 728×90','ad.zoneB':'Reklam<br/>160×600','audit.title':'Gizlilik Denetimi','audit.webrtc.label':'WebRTC Sızıntı Testi','audit.webrtc.checking':'Kontrol ediliyor…','audit.webrtc.safe':'WebRTC sızıntısı tespit edilmedi','audit.webrtc.leak':'Olası WebRTC sızıntısı — gerçek IP açığa çıktı','audit.webrtc.failed':'WebRTC kontrolü başarısız','audit.dnt.label':'Do Not Track (DNT)','audit.dnt.checking':'Kontrol ediliyor…','audit.dnt.enabled':'DNT etkin — izleme reddi talep ediliyor','audit.dnt.disabled':'DNT devre dışı — sinyal gönderilmiyor','audit.dnt.howtofix':'DNT\'yi etkinleştirin: Chrome → Ayarlar → Gizlilik → "Do Not Track"','audit.howtofix':'Nasıl düzeltilir?','audit.proxy.label':'Bağlantı Türü','audit.proxy.checking':'Analiz ediliyor…','audit.proxy.datacenter':'Veri Merkezi/Proxy tespit edildi','audit.proxy.residential':'Ev ISP\'si','audit.proxy.unknown':'Bilinmiyor — yetersiz veri','audit.tz.label':'Saat Dilimi','audit.tz.checking':'Karşılaştırılıyor…','audit.tz.match':'Saat dilimi IP konumuyla eşleşiyor','audit.tz.mismatch':'Saat dilimi uyuşmazlığı — VPN/proxy olabilir','audit.tz.unknown':'Doğrulama yapılamıyor','audit.lang.label':'Dil Eşleşmesi','audit.lang.checking':'Kontrol ediliyor…','audit.lang.match':'Tarayıcı dili IP konumuyla eşleşiyor','audit.lang.mismatch':'Dil uyuşmazlığı — VPN/proxy olabilir','audit.lang.unknown':'Doğrulama yapılamıyor','audit.score.label':'PUAN','audit.score.pending':'Veri toplanıyor…','audit.score.excellent':'Mükemmel koruma','audit.score.good':'İyi koruma','audit.score.moderate':'Orta düzey koruma','audit.score.weak':'Zayıf koruma','audit.score.poor':'Asgari koruma','detail.country':'Ülke','detail.region':'Bölge','detail.city':'Şehir','detail.postal':'Posta Kodu','detail.hostname':'Ana Bilgisayar Adı','detail.ip_range':'IP Aralığı','detail.isp':'ISS','detail.asn':'ASN','detail.company':'Şirket','common.na':'Yok','time.title':'Zaman Analizi','time.local_time':'Yerel Saat','time.system_time':'Sistem Saati','time.timezone':'Saat Dilimi','time.warn_title':'Saat Dilimi Uyuşmazlığı','deep.title':'Derin Denetim','deep.hostname':'Ana Bilgisayar','deep.company_type':'Şirket Türü','deep.blacklist':'Kara Liste','deep.abuse_score':'Kötüye Kullanım','deep.dns_leak':'DNS Sızıntısı','deep.run':'Denetimi Başlat','deep.loading':'Analiz…','deep.cached':'(önbellek)','deep.hosting_yes':'Hosting','deep.hosting_no':'Hosting Değil','deep.blacklist_yes':'Listelendi','deep.blacklist_no':'Temiz','deep.dns_ok':'Sızıntı Yok','deep.dns_leak_detected':'Sızıntı Tespit Edildi','footer.powered':'Tarafından','footer.privacy':'Günlük yok. İzleme yok. IP asla saklanmaz.',
+      },
+      'zh-TW': {
+        'app.title':'IP 查詢','app.subtitle':'雙棧 IP 檢測與隱私審計','common.copy':'複製','common.copied':'已複製！','error.fetch':'無法獲取 IP 資料','error.fallback':'資料受限 — 請檢查 v4/v6 DNS 設定','error.ipv6_unavailable':'IPv6 不可用','map.title':'地理位置','ad.zoneA':'廣告 · 728×90','ad.zoneB':'廣告<br/>160×600','audit.title':'隱私審計','audit.webrtc.label':'WebRTC 洩漏檢測','audit.webrtc.checking':'檢測中…','audit.webrtc.safe':'未檢測到 WebRTC 洩漏','audit.webrtc.leak':'⚠️ 檢測到 WebRTC 洩漏 — 真實 IP 已暴露','audit.webrtc.failed':'WebRTC 檢測失敗或不支援','audit.dnt.label':'請勿追蹤 (DNT)','audit.dnt.checking':'檢測中…','audit.dnt.enabled':'DNT 已啟用 — 瀏覽器正在請求不追蹤','audit.dnt.disabled':'DNT 未啟用 — 瀏覽器未傳送「請勿追蹤」訊號','audit.dnt.howtofix':'在瀏覽器中開啟 DNT：Chrome → 設定 → 隱私權 →「請勿追蹤」要求','audit.howtofix':'如何修正？','audit.proxy.label':'連線類型','audit.proxy.checking':'分析中…','audit.proxy.datacenter':'🖥️ 偵測到資料中心 / 代理 IP','audit.proxy.residential':'🏠 住宅 ISP','audit.proxy.unknown':'未知 — 資料不足','audit.tz.label':'時區一致性','audit.tz.checking':'比對中…','audit.tz.match':'✅ 時區與 IP 歸屬地一致','audit.tz.mismatch':'⚠️ 時區不符 — 可能存在 VPN/代理','audit.tz.unknown':'無法驗證時區','audit.lang.label':'語言匹配度','audit.lang.checking':'檢測中…','audit.lang.match':'✅ 瀏覽器語言與 IP 歸屬地匹配','audit.lang.mismatch':'⚠️ 語言不符 — 可能存在 VPN/代理','audit.lang.unknown':'無法驗證語言匹配','audit.score.label':'偽裝度','audit.score.pending':'正在收集資料…','audit.score.excellent':'極佳防護','audit.score.good':'良好防護','audit.score.moderate':'一般防護','audit.score.weak':'防護較弱','audit.score.poor':'防護不足','detail.country':'國家','detail.region':'省份','detail.city':'城市','detail.postal':'郵遞區號','detail.hostname':'主機','detail.ip_range':'IP 範圍','detail.isp':'提供商','detail.asn':'AS 號碼','detail.company':'公司','common.na':'無','time.title':'時間分析','time.local_time':'當地時間','time.system_time':'系統時間','time.timezone':'時區','time.warn_title':'時區不符','deep.title':'深度審計','deep.hostname':'主機名稱','deep.company_type':'公司類型','deep.blacklist':'黑名單','deep.abuse_score':'濫用分數','deep.dns_leak':'DNS 洩漏','deep.run':'執行審計','deep.loading':'分析中…','deep.cached':'(已快取)','deep.hosting_yes':'託管商','deep.hosting_no':'非託管','deep.blacklist_yes':'已列入','deep.blacklist_no':'清白','deep.dns_ok':'無洩漏','deep.dns_leak_detected':'偵測到洩漏','footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 絕不儲存您的 IP 位址',
+      },
+    };
+
+    let currentLang = 'en';
+
+    // ── Theme toggle (light default matching linkozen.com) ────────
+    var IS_DARK = localStorage.getItem('ip-dark') === '1';
+    function applyTheme() {
+      if (IS_DARK) {
+        document.documentElement.classList.add('dark');
+      }
+    }
+    window.toggleDark = function () {
+      IS_DARK = !IS_DARK;
+      localStorage.setItem('ip-dark', IS_DARK ? '1' : '0');
+      location.reload();
+    };
+    applyTheme();
+
+    // ── Language dropdown ──────────────────────────────────────────
+    function buildLangMenu() {
+      var menu = document.getElementById('lang-menu');
+      if (!menu) return;
+      var html = '';
+      for (var i = 0; i < LANGS.length; i++) {
+        var L = LANGS[i];
+        var active = L.code === currentLang ? ' bg-cyan-50' : '';
+        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+          '<span class="text-[11px] font-bold text-gray-400 w-7">' + L.region + '</span>' +
+          '<span class="text-slate-700">' + L.native + '</span>' +
+          '</button>';
+      }
+      menu.innerHTML = html;
+    }
+
+    window.toggleLangMenu = function () {
+      var menu = document.getElementById('lang-menu');
+      if (!menu) return;
+      buildLangMenu();
+      menu.classList.toggle('hidden');
+    };
+    window.closeLangMenu = function () {
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.add('hidden');
+    };
+    // Close on outside click
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('lang-dropdown');
+      if (dd && !dd.contains(e.target)) {
+        var menu = document.getElementById('lang-menu');
+        if (menu) menu.classList.add('hidden');
+      }
+    });
+
+    // ── Update label on the toggle button ──────────────────────────
+    function updateLangButton() {
+      var found = LANGS.find(function (L) { return L.code === currentLang; });
+      var label = document.getElementById('btn-lang-label');
+      if (label && found) label.textContent = found.label;
+      var htmlEl = document.documentElement;
+      if (currentLang === 'zh') htmlEl.lang = 'zh-CN';
+      else if (currentLang === 'zh-TW') htmlEl.lang = 'zh-TW';
+      else htmlEl.lang = currentLang;
+    }
+
+    /** Resolve a translation key. */
+    function t(key) {
+      return (DICT[currentLang] && DICT[currentLang][key]) || (DICT.en[key]) || key;
+    }
+
+    /** Walk all [data-i18n] elements and patch their innerHTML. */
+    function updateLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('ip-linkozen-lang', lang);
+      updateLangButton();
+      buildLangMenu();
+
+      // Patch all i18n-tagged elements
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var k = els[i].getAttribute('data-i18n');
+        if (k) els[i].innerHTML = t(k);
+      }
+    }
+
+    /** Expose globally for onclick handlers. */
+    window.switchLanguage = function (lang) {
+      updateLanguage(lang);
+      // Re-render dynamic content that might have language-specific text
+      renderAllAuditResults();
+    };
+
+    /* ================================================================
+     *  UTILITY HELPERS
+     * ================================================================ */
+
+    /** Check if an IPv4 address is private / loopback. */
+    function isPrivateIPv4(ip) {
+      var octets = ip.split('.').map(Number);
+      if (octets.length !== 4 || octets.some(function (o) { return isNaN(o) || o < 0 || o > 255; })) return true;
+      if (octets[0] === 10) return true;
+      if (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) return true;
+      if (octets[0] === 192 && octets[1] === 168) return true;
+      if (octets[0] === 127) return true;
+      return false;
+    }
+
+    /** Extract an IP address from a WebRTC candidate string. */
+    function extractIP(candidateStr) {
+      // IPv4
+      var m4 = candidateStr.match(/\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/);
+      if (m4) return m4[1];
+      // IPv6
+      var m6 = candidateStr.match(/\b([0-9a-fA-F]{1,4}(?::[0-9a-fA-F]{1,4}){2,7})\b/);
+      if (m6) return m6[1];
+      return null;
+    }
+
+    /** Compute the current UTC offset (minutes) for a given IANA timezone. */
+    function getTZOffsetMinutes(tzName) {
+      try {
+        var now = new Date();
+        var utcStr = now.toLocaleString('en-US', { timeZone: 'UTC', hour12: false });
+        var tzStr  = now.toLocaleString('en-US', { timeZone: tzName, hour12: false });
+        var utcDate = new Date(utcStr);
+        var tzDate  = new Date(tzStr);
+        return (tzDate - utcDate) / 60000;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    /** Map country codes to expected language prefixes. */
+    var COUNTRY_LANGS = {
+      JP: ['ja'],  CN: ['zh'],  HK: ['zh'],  TW: ['zh'],
+      KR: ['ko'],  KP: ['ko'],
+      DE: ['de'],  AT: ['de'],  CH: ['de', 'fr', 'it'],
+      FR: ['fr'],  BE: ['fr', 'nl'],
+      ES: ['es'],  MX: ['es'],  AR: ['es'],  CO: ['es'],
+      IT: ['it'],
+      RU: ['ru'],  BY: ['ru'],  KZ: ['ru'],
+      BR: ['pt'],  PT: ['pt'],
+      NL: ['nl'],
+      SE: ['sv'],  NO: ['no'],  DK: ['da'],  FI: ['fi'],
+      PL: ['pl'],  CZ: ['cs'],  SK: ['sk'],  HU: ['hu'],
+      TR: ['tr'],
+      SA: ['ar'],  AE: ['ar'],  EG: ['ar'],
+      IL: ['he'],
+      TH: ['th'],
+      VN: ['vi'],
+      IN: ['hi', 'en'],
+      ID: ['id'],
+      GR: ['el'],
+      RO: ['ro'],
+      UA: ['uk'],
+    };
+
+    /* ================================================================
+     *  APPLICATION STATE
+     * ================================================================ */
+
+    var state = {
+      ipv4:        null,   // parsed API response or null
+      ipv4Error:   null,
+      ipv6:        null,
+      ipv6Error:   null,
+      webrtcIPs:   [],     // public IPs found via WebRTC
+      webrtcError: null,
+      webrtcDone:  false,  // true once WebRTC probe finishes (even if empty)
+      map:         null,   // Leaflet map instance
+      marker:      null,
+    };
+
+    /* ================================================================
+     *  API LAYER
+     * ================================================================ */
+
+    /**
+     * fetch() wrapper with a configurable timeout (manual AbortController
+     * for broad browser compatibility — avoids AbortSignal.timeout()).
+     */
+    function fetchWithTimeout(url, timeoutMs) {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function () { ctrl.abort(); }, timeoutMs);
+      return fetch(url, { signal: ctrl.signal, mode: 'cors' }).finally(function () {
+        clearTimeout(timer);
+      });
+    }
+
+    /**
+     * Detect whether an error is a low-level network/DNS failure
+     * (as opposed to an HTTP error). On such failures the fallback is
+     * unlikely to help — skip it to save time.
+     */
+    function isNetworkError(e) {
+      var msg = (e.message || '').toLowerCase();
+      return msg.indexOf('failed to fetch') !== -1
+          || msg.indexOf('networkerror') !== -1
+          || msg.indexOf('timeout') !== -1
+          || msg.indexOf('abort') !== -1
+          || msg.indexOf('dns') !== -1;
+    }
+
+    /**
+     * Fetch from the primary endpoint; on failure, try each fallback in order.
+     * `fallbacks` can be a string URL or an array of URLs.
+     * Returns { ip, ...geo } or throws.
+     */
+    async function fetchWithFallback(primary, fallbacks, label, timeoutMs) {
+      timeoutMs = timeoutMs || 8000;
+      // Normalise to array
+      var fbList = fallbacks
+        ? (Array.isArray(fallbacks) ? fallbacks : [fallbacks])
+        : [];
+
+      try {
+        var res = await fetchWithTimeout(primary, timeoutMs);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (e1) {
+        // Network errors (DNS, no-route) → skip fallbacks, fail fast
+        if (isNetworkError(e1)) { throw e1; }
+        console.warn('[ip.linkozen] Primary endpoint failed for ' + label + ': ' + e1.message);
+
+        // Try each fallback in order
+        for (var i = 0; i < fbList.length; i++) {
+          try {
+            var fbTimeout = Math.min(timeoutMs, 4000);
+            var res2 = await fetchWithTimeout(fbList[i], fbTimeout);
+            if (!res2.ok) continue;
+            // ipv6.icanhazip.com returns plain text — wrap it
+            var ct = res2.headers.get('Content-Type') || '';
+            var data;
+            if (ct.indexOf('text/plain') !== -1) {
+              data = { ip: (await res2.text()).trim() };
+            } else {
+              data = await res2.json();
+            }
+            if (!data.country && !data.asOrganization) {
+              data._fallback = true;
+            }
+            return data;
+          } catch (e2) {
+            // try next fallback
+          }
+        }
+        throw e1; // all fallbacks exhausted
+      }
+    }
+
+    async function probeIPv4() {
+      var data = await fetchWithFallback(CFG.endpoints.v4, CFG.endpoints.v4Fallback, 'IPv4');
+
+      // Validate: IPv4 must NOT contain colon (IPv6 separator)
+      if (data && data.ip && data.ip.indexOf(':') !== -1) {
+        throw new Error('Received IPv6 on IPv4 endpoint — check DNS A record');
+      }
+
+      return data;
+    }
+
+    async function probeIPv6() {
+      // IPv6 is often unavailable — shorter timeout
+      var data = await fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallbacks, 'IPv6', 4000);
+
+      // Backend signals IPv6 unsupported
+      if (data && data.ipv6_unsupported) {
+        throw new Error('IPv6 not supported on this network');
+      }
+
+      // Validate the returned IP is actually IPv6 format
+      if (data && data.ip && data.ip.indexOf(':') === -1) {
+        throw new Error('Received IPv4 on IPv6 endpoint — network lacks IPv6');
+      }
+
+      return data;
+    }
+
+    /* ================================================================
+     *  WebRTC  LEAK  DETECTION
+     * ================================================================ */
+
+    function detectWebRTCLeak() {
+      return new Promise(function (resolve) {
+        var candidates = [];
+
+        // Check API availability
+        if (!window.RTCPeerConnection && !window.webkitRTCPeerConnection && !window.mozRTCPeerConnection) {
+          resolve({ ips: [], error: 'RTCPeerConnection not supported' });
+          return;
+        }
+
+        var PC = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+        var pc;
+
+        try {
+          pc = new PC({ iceServers: [] });
+        } catch (e) {
+          resolve({ ips: [], error: 'Failed to create RTCPeerConnection: ' + e.message });
+          return;
+        }
+
+        var settled = false;
+        function done() {
+          if (settled) return;
+          settled = true;
+          try { pc.close(); } catch (_) { /* ignore */ }
+          // Deduplicate and filter: only public IPs matter for leak detection
+          var unique = [];
+          for (var i = 0; i < candidates.length; i++) {
+            var ip = candidates[i];
+            if (unique.indexOf(ip) === -1 && !isPrivateIPv4(ip) && ip !== '0.0.0.0') {
+              unique.push(ip);
+            }
+          }
+          resolve({ ips: unique, error: null });
+        }
+
+        pc.onicecandidate = function (e) {
+          if (!e.candidate) return; // end-of-candidates marker
+          var candidateStr = e.candidate.candidate;
+          // Skip mDNS candidates
+          if (candidateStr.indexOf('.local') !== -1) return;
+          var ip = extractIP(candidateStr);
+          if (ip) candidates.push(ip);
+        };
+
+        // Create a data channel to trigger candidate gathering
+        try {
+          pc.createDataChannel('');
+          pc.createOffer()
+            .then(function (offer) { return pc.setLocalDescription(offer); })
+            .catch(function (err) {
+              console.warn('[ip.linkozen] WebRTC offer failed: ' + err.message);
+              done();
+            });
+        } catch (e) {
+          done();
+        }
+
+        // Safety timeout
+        setTimeout(done, CFG.webrtcTimeout);
+      });
+    }
+
+    /* ================================================================
+     *  PRIVACY  AUDIT  LOGIC
+     * ================================================================ */
+
+    var auditCache = {
+      webrtc:   null,
+      proxy:    null,
+      timezone: null,
+      language: null,
+    };
+
+    function auditWebRTC() {
+      // Only cache definitive results — not pending/checking
+      if (auditCache.webrtc && auditCache.webrtc._final) return auditCache.webrtc;
+
+      // No data yet
+      if (state.webrtcError) {
+        auditCache.webrtc = { status: 'failed', detail: state.webrtcError, _final: true };
+        return auditCache.webrtc;
+      }
+
+      // Need at least one public IP from fetch to compare
+      var publicIP = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip) || null;
+      if (!publicIP) {
+        return { status: 'pending' }; // don't cache — data may arrive later
+      }
+
+      var leaked = state.webrtcIPs.some(function (ip) {
+        return ip !== publicIP;
+      });
+
+      auditCache.webrtc = leaked
+        ? { status: 'leak', detail: 'WebRTC exposes: ' + state.webrtcIPs.join(', '), _final: true }
+        : { status: 'safe', detail: null, _final: true };
+      return auditCache.webrtc;
+    }
+
+    function auditProxy() {
+      if (auditCache.proxy && auditCache.proxy._final) return auditCache.proxy;
+
+      // Prefer IPv4 data for AS info; fall back to IPv6
+      var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+
+      if (!data || !data.asOrganization) {
+        return { status: 'unknown' }; // don't cache — AS data may arrive later
+      }
+
+      var org = data.asOrganization || '';
+      var orgLower = org.toLowerCase();
+      var matched = CFG.proxyKeywords.some(function (kw) {
+        return orgLower.indexOf(kw.toLowerCase()) !== -1;
+      });
+
+      // IPinfo deep audit: if company.type is 'hosting', force datacenter
+      if (deepAuditData && deepAuditData.companyType === 'hosting') {
+        auditCache.proxy = { status: 'datacenter', detail: 'Hosting (' + org + ')', _final: true };
+      } else {
+        auditCache.proxy = matched
+          ? { status: 'datacenter', detail: org, _final: true }
+          : { status: 'residential', detail: org, _final: true };
+      }
+      return auditCache.proxy;
+    }
+
+    function auditTimezone() {
+      if (auditCache.timezone && auditCache.timezone._final) return auditCache.timezone;
+
+      var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+
+      if (!data || !data.timezone) {
+        return { status: 'unknown' }; // don't cache — TZ data may arrive later
+      }
+
+      var remoteOffset = getTZOffsetMinutes(data.timezone);
+      if (remoteOffset === null) {
+        return { status: 'unknown' };
+      }
+
+      var localOffset = -new Date().getTimezoneOffset(); // convert "minutes west of UTC" → "minutes east of UTC"
+
+      // Allow ±60 min tolerance for DST edge cases
+      var diff = Math.abs(remoteOffset - localOffset);
+      if (diff > 60) {
+        auditCache.timezone = {
+          status: 'mismatch', _final: true,
+          detail: 'Local: UTC' + (localOffset >= 0 ? '+' : '') + (localOffset / 60).toFixed(1) +
+                  'h, IP location (' + data.timezone + '): UTC' +
+                  (remoteOffset >= 0 ? '+' : '') + (remoteOffset / 60).toFixed(1) + 'h',
+        };
+      } else {
+        auditCache.timezone = { status: 'match', detail: data.timezone, _final: true };
+      }
+      return auditCache.timezone;
+    }
+
+    function auditLanguage() {
+      if (auditCache.language && auditCache.language._final) return auditCache.language;
+
+      var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+
+      if (!data || !data.country) {
+        return { status: 'unknown' }; // don't cache — country data may arrive later
+      }
+
+      var expectedLangs = COUNTRY_LANGS[data.country.toUpperCase()];
+      if (!expectedLangs) {
+        // Country not in our lookup table — can't verify
+        return { status: 'unknown', detail: 'No language map for ' + data.country };
+      }
+
+      var browserLangs = (navigator.languages && navigator.languages.length)
+        ? navigator.languages
+        : (navigator.language ? [navigator.language] : []);
+
+      var matched = expectedLangs.some(function (lang) {
+        return browserLangs.some(function (bl) {
+          return bl.toLowerCase().indexOf(lang.toLowerCase()) === 0;
+        });
+      });
+
+      auditCache.language = matched
+        ? { status: 'match', detail: null, _final: true }
+        : { status: 'mismatch', detail: 'Expected: ' + expectedLangs.join(', ') + ' — Browser: ' + browserLangs.join(', '), _final: true };
+      return auditCache.language;
+    }
+
+    /* ================================================================
+     *  UI  RENDERING
+     * ================================================================ */
+
+    function showCardData(type) {
+      var skel = document.getElementById('skel-' + type);
+      var data = document.getElementById('data-' + type);
+      var err  = document.getElementById('err-' + type);
+      if (skel) skel.classList.add('hidden');
+      if (data) data.classList.remove('hidden');
+      if (err)  err.classList.add('hidden');
+    }
+
+    function showCardError(type) {
+      var skel = document.getElementById('skel-' + type);
+      var data = document.getElementById('data-' + type);
+      var err  = document.getElementById('err-' + type);
+      if (skel) skel.classList.add('hidden');
+      if (data) data.classList.add('hidden');
+      if (err)  err.classList.remove('hidden');
+    }
+
+    /* ── HTML escape ────────────────────────────────────────────── */
+    function escHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
+          } else {
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+          }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
+          iframe.setAttribute('srcdoc',
+            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
+            '</head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
+
+    /* ── Country flag emoji ─────────────────────────────────────── */
+    function countryFlagEmoji(code) {
+      if (!code || code.length !== 2) return '';
+      var a = code.toUpperCase();
+      return String.fromCodePoint(0x1F1E6 + a.charCodeAt(0) - 65)
+           + String.fromCodePoint(0x1F1E6 + a.charCodeAt(1) - 65);
+    }
+
+    /* ── Country code → full name (Intl.DisplayNames, zero-dep) ─── */
+    function getCountryName(code) {
+      try {
+        var localeMap = { en:'en-US', zh:'zh-CN', ja:'ja-JP', ko:'ko-KR', fr:'fr-FR', de:'de-DE', it:'it-IT', pt:'pt-BR', ru:'ru-RU', tr:'tr-TR', 'zh-TW':'zh-TW' };
+      var locale = localeMap[currentLang] || 'en-US';
+        return new Intl.DisplayNames([locale], { type: 'region' }).of(code.toUpperCase()) || code;
+      } catch (_) { return code; }
+    }
+
+    /* ── IPv4 /24 range ─────────────────────────────────────────── */
+    function getIPv4Range(ip) {
+      var parts = ip.split('.');
+      if (parts.length !== 4) return null;
+      var p = parts.slice(0, 3).join('.');
+      return p + '.0 - ' + p + '.255';
+    }
+
+    /* ── Build a two-column key-value detail table ──────────────── */
+    function buildDetailTable(d, type) {
+      if (!d) return '';
+      var na = '<span class="text-slate-300">' + t('common.na') + '</span>';
+      var leftRows = [], rightRows = [];
+
+      // Left column
+      var country = d.country ? (countryFlagEmoji(d.country) + ' ' + getCountryName(d.country) + ' (' + escHtml(d.country) + ')') : na;
+      leftRows.push(row('detail.country', country));
+      leftRows.push(row('detail.region',  d.region        ? escHtml(d.region) : na));
+      leftRows.push(row('detail.city',    d.city          ? escHtml(d.city)   : na));
+      leftRows.push(row('detail.postal',  d.postal_code   ? escHtml(String(d.postal_code)) : na));
+      leftRows.push(row('detail.hostname', d._hostname ? escHtml(d._hostname) : na));
+
+      // Right column
+      var ipRange = getIPv4Range(d.ip);
+      rightRows.push(row('detail.ip_range', ipRange ? escHtml(ipRange) : na));
+      rightRows.push(row('detail.isp',    d.asOrganization ? escHtml(d.asOrganization) : na));
+      rightRows.push(row('detail.asn',    d.asn            ? 'AS' + escHtml(String(d.asn)) + ' ' + (d.asOrganization ? escHtml(d.asOrganization) : '') : na));
+      rightRows.push(row('EU',            d.is_eu === true ? 'Yes' : 'No'));
+
+      // Fallback warning — primary API failed, showing limited data
+      if (d._fallback) {
+        rightRows.push('<div class="mt-2 text-[11px] text-amber-500">⚠ ' + t('error.fallback') + '</div>');
+      }
+
+      return '<div class="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">'
+        + '<div class="space-y-2.5">' + leftRows.join('') + '</div>'
+        + '<div class="space-y-2.5 border-l border-slate-100 pl-4">' + rightRows.join('') + '</div>'
+        + '</div>';
+
+      function row(labelKey, value) {
+        return '<div><span class="text-slate-400 block text-[11px] leading-tight">' + t(labelKey) + '</span><span class="text-slate-700 font-medium leading-tight break-all">' + value + '</span></div>';
+      }
+    }
+
+    /* ── Render a single IP card ────────────────────────────────── */
+    function renderIPCard(type, data, error) {
+      if (error || !data || !data.ip) {
+        showCardError(type);
+        return;
+      }
+
+      showCardData(type);
+
+      var addrEl = document.getElementById(type + '-address');
+      var detEl  = document.getElementById(type + '-details');
+
+      // Guard: IPv4 card must show IPv4 address, IPv6 must show IPv6
+      var isV6 = data.ip.indexOf(':') !== -1;
+      if ((type === 'ipv4' && isV6) || (type === 'ipv6' && !isV6)) {
+        showCardError(type);
+        return;
+      }
+
+      if (addrEl) addrEl.textContent = data.ip;
+      if (detEl)  detEl.innerHTML = buildDetailTable(data, type);
+    }
+
+    /* ── Render all IP cards ────────────────────────────────────── */
+    function renderAllIPCards() {
+      renderIPCard('ipv4', state.ipv4, state.ipv4Error);
+      renderIPCard('ipv6', state.ipv6, state.ipv6Error);
+      renderTimeCard();
+    }
+
+    /* ── Format time for a given IANA timezone → {time,date,gmt,abbr} */
+    function formatTimeForZone(tz) {
+      try {
+        var now = new Date();
+
+        // Time: HH:mm:ss
+        var timeFmt = new Intl.DateTimeFormat('en-US', {
+          timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, hourCycle: 'h23'
+        });
+        var tp = timeFmt.formatToParts(now);
+        var time = tp.map(function(p){return p.value;}).join('');
+
+        // Date: YYYY-MM-DD
+        var dateFmt = new Intl.DateTimeFormat('en-CA', {
+          timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit'
+        });
+        var date = dateFmt.format(now); // en-CA gives YYYY-MM-DD natively
+
+        // GMT offset
+        var utcD = new Date(now.toLocaleString('en-US', { timeZone: 'UTC', hour12: false }));
+        var tzD  = new Date(now.toLocaleString('en-US', { timeZone: tz, hour12: false }));
+        var off  = Math.round((tzD - utcD) / 60000);
+        var sign = off >= 0 ? '+' : '-';
+        var a    = Math.abs(off);
+        var gmt  = 'GMT' + sign + String(Math.floor(a / 60)).padStart(2, '0') + String(a % 60).padStart(2, '0');
+
+        // Abbreviation
+        var abbr = tz; // fallback to full IANA name
+        try {
+          var abbrParts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' }).formatToParts(now);
+          var found = abbrParts.find(function (p) { return p.type === 'timeZoneName'; });
+          if (found && found.value.indexOf('GMT') === -1 && found.value.indexOf('UTC') === -1) abbr = found.value;
+        } catch (_) {}
+
+        return { time: time, date: date, gmt: gmt, abbr: abbr };
+      } catch (_) { return null; }
+    }
+
+    /* ── System (browser) time → {time,date,gmt,abbr} ──────────── */
+    function formatSystemTime() {
+      var now = new Date();
+
+      // Time: HH:mm:ss
+      var timeFmt = new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, hourCycle: 'h23'
+      });
+      var tp = timeFmt.formatToParts(now);
+      var time = tp.map(function(p){return p.value;}).join('');
+
+      // Date: YYYY-MM-DD
+      var dateFmt = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      });
+      var date = dateFmt.format(now);
+
+      // GMT offset
+      var off = -now.getTimezoneOffset();
+      var sign = off >= 0 ? '+' : '-';
+      var a = Math.abs(off);
+      var gmt = 'GMT' + sign + String(Math.floor(a / 60)).padStart(2, '0') + String(a % 60).padStart(2, '0');
+
+      // Abbreviation
+      var abbrParts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'long' }).formatToParts(now);
+      var abbr = '';
+      for (var i = 0; i < abbrParts.length; i++) {
+        if (abbrParts[i].type === 'timeZoneName') { abbr = abbrParts[i].value; break; }
+      }
+      if (!abbr) abbr = gmt;
+
+      return { time: time, date: date, gmt: gmt, abbr: abbr };
+    }
+
+    /* ── Timezone mismatch detector ─────────────────────────────── */
+    function doTimezonesDiffer(ipTimezone) {
+      if (!ipTimezone) return false;
+      var remote = getTZOffsetMinutes(ipTimezone);
+      var local  = -new Date().getTimezoneOffset();
+      if (remote === null) return false;
+      return Math.abs(remote - local) > 30;
+    }
+
+    /* ── Render the Time Comparison card ────────────────────────── */
+    function renderTimeCard() {
+      var container = document.getElementById('time-card-container');
+      var card      = document.getElementById('time-card');
+      if (!container || !card) return;
+
+      // System time is always live
+      var sys = formatSystemTime();
+      if (sys) {
+        document.getElementById('time-system-clock').textContent = sys.time;
+        document.getElementById('time-system-date').textContent  = sys.date;
+        document.getElementById('time-system-zone').textContent  = sys.gmt + ' (' + sys.abbr + ')';
+      }
+
+      // Prefer non-fallback IP data
+      var data = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+
+      if (!data || !data.timezone) {
+        document.getElementById('time-tz-value').textContent      = '—';
+        document.getElementById('time-local-clock').textContent    = '--:--:--';
+        document.getElementById('time-local-date').textContent     = '----.--.--';
+        document.getElementById('time-local-zone').textContent     = 'GMT+X (TZ)';
+        return;
+      }
+
+      var tzName  = data.timezone;
+      var local   = formatTimeForZone(tzName);
+      var mismatch = doTimezonesDiffer(tzName);
+
+      document.getElementById('time-tz-value').textContent = tzName;
+      if (local) {
+        document.getElementById('time-local-clock').textContent = local.time;
+        document.getElementById('time-local-date').textContent  = local.date;
+        document.getElementById('time-local-zone').textContent  = local.gmt + ' (' + local.abbr + ')';
+      }
+
+      // ── Mismatch alert ──────────────────────────────────────────
+      var localRow = document.getElementById('time-local-row');
+      var sysRow   = document.getElementById('time-system-row');
+      var warnEl   = document.getElementById('time-warn');
+      var warnText = document.getElementById('time-warn-text');
+
+      if (mismatch && data.timezone) {
+        // Red border on rows
+        if (localRow) localRow.className = 'flex items-center justify-between py-3 transition-colors duration-300 rounded-lg px-2 -mx-2 border-l-4 border-amber-500/70';
+        if (sysRow)   sysRow.className   = 'flex items-center justify-between py-3 border-t border-slate-700 transition-colors duration-300 rounded-lg px-2 -mx-2 border-l-4 border-amber-500/70';
+
+        // Compute absolute hour difference
+        var remoteOff = getTZOffsetMinutes(data.timezone);
+        var localOff  = -new Date().getTimezoneOffset();
+        var diffH = remoteOff !== null ? Math.abs(Math.round((localOff - remoteOff) / 60 * 10) / 10) : null;
+
+        if (diffH !== null && diffH > 0.5) {
+          if (warnEl) warnEl.classList.remove('hidden');
+          if (warnText) {
+            warnText.textContent = (currentLang === 'zh'
+              ? '您的系统时间与 IP 归属地时间存在 ' + diffH.toFixed(1) + ' 小时的偏差，这可能会降低您的匿名度。'
+              : 'Your system time differs from the IP location by ' + diffH.toFixed(1) + ' hours. This may reduce your anonymity score.');
+          }
+        }
+      } else {
+        // Clean state — no red borders
+        if (localRow) localRow.className = 'flex items-center justify-between py-3 transition-colors duration-300 rounded-lg px-2 -mx-2';
+        if (sysRow)   sysRow.className   = 'flex items-center justify-between py-3 border-t border-slate-700 transition-colors duration-300 rounded-lg px-2 -mx-2';
+        if (warnEl)   warnEl.classList.add('hidden');
+      }
+    }
+
+    function setAuditItem(id, status) {
+      var iconEl = document.getElementById('audit-' + id + '-icon');
+      var textEl = document.getElementById('audit-' + id + '-text');
+
+      var iconHTML, textKey;
+
+      switch (status) {
+        case 'safe': case 'match': case 'residential': case 'enabled':
+          iconHTML = '<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          break;
+        case 'leak': case 'mismatch': case 'datacenter': case 'disabled':
+          iconHTML = '<svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+          break;
+        default:
+          iconHTML = '<div class="w-2.5 h-2.5 rounded-full bg-white/40"></div>';
+          break;
+      }
+
+      if (id === 'webrtc') {
+        textKey = status === 'safe' ? 'audit.webrtc.safe' : status === 'leak' ? 'audit.webrtc.leak' : status === 'failed' ? 'audit.webrtc.failed' : 'audit.webrtc.checking';
+      } else if (id === 'proxy') {
+        textKey = status === 'datacenter' ? 'audit.proxy.datacenter' : status === 'residential' ? 'audit.proxy.residential' : status === 'unknown' ? 'audit.proxy.unknown' : 'audit.proxy.checking';
+      } else if (id === 'tz') {
+        textKey = status === 'match' ? 'audit.tz.match' : status === 'mismatch' ? 'audit.tz.mismatch' : status === 'unknown' ? 'audit.tz.unknown' : 'audit.tz.checking';
+      } else if (id === 'lang') {
+        textKey = status === 'match' ? 'audit.lang.match' : status === 'mismatch' ? 'audit.lang.mismatch' : status === 'unknown' ? 'audit.lang.unknown' : 'audit.lang.checking';
+      } else if (id === 'dnt') {
+        textKey = status === 'enabled' ? 'audit.dnt.enabled' : status === 'disabled' ? 'audit.dnt.disabled' : 'audit.dnt.checking';
+      } else {
+        textKey = '';
+      }
+
+      if (iconEl) iconEl.innerHTML = iconHTML;
+      if (textEl) textEl.textContent = t(textKey);
+    }
+
+    /* ================================================================
+     *  ANONYMITY  SCORE  (Whoer-style)
+     * ================================================================ */
+
+    /* ── Deductive anonymity score (Whoer-style) ────────────────── */
+    function calculateAnonymityScore() {
+      var score = 100;
+
+      // Timezone mismatch → -10%
+      var tz = auditTimezone();
+      if (tz.status === 'mismatch') score -= 10;
+
+      // Language mismatch → -15%
+      var lg = auditLanguage();
+      if (lg.status === 'mismatch') score -= 15;
+
+      // Proxy / Datacenter detected → -25%
+      var px = auditProxy();
+      if (px.status === 'datacenter') score -= 25;
+
+      // DNT disabled → -5%
+      var dntEnabled = (navigator.doNotTrack === '1' || navigator.doNotTrack === 1 || window.doNotTrack === '1');
+      if (!dntEnabled) score -= 5;
+
+      // Blacklisted (AbuseIPDB > 10) → -15%
+      if (deepAuditData && deepAuditData.blacklisted === true) score -= 15;
+
+      // Hosting/Proxy from IPinfo → -10% extra (on top of existing -25% for datacenter)
+      if (deepAuditData && deepAuditData.companyType === 'hosting') score -= 10;
+
+      // Clamp
+      if (score < 0) score = 0;
+      return score;
+    }
+
+    /* ── Deep Audit state ───────────────────────────────────────── */
+    var deepAuditData = null; // { hostname, companyType, blacklisted, abuseScore, dnsLeak, cached }
+
+    /* ── DNS Leak detection (Bash.ws) ────────────────────────────── */
+    async function detectDNSLeak() {
+      try {
+        var id = 'ip-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+        var res = await fetchWithTimeout('https://bash.ws/dnsleak/test/' + id + '?json', 8000);
+        if (!res.ok) return null;
+        var data = await res.json();
+        // Count unique DNS servers
+        var servers = data || [];
+        return servers.length > 0 ? servers.length + ' servers' : null;
+      } catch (_) { return null; }
+    }
+
+    /* ── IPinfo.io lookup (via proxy — token from Cloudflare env) ── */
+    async function fetchIPinfo(ip) {
+      try {
+        var res = await fetchWithTimeout('/api/ipinfo?ip=' + encodeURIComponent(ip), 15000);
+        if (!res.ok) { console.warn('[ip.linkozen] IPinfo proxy ' + res.status); return null; }
+        return await res.json();
+      } catch (e) { console.warn('[ip.linkozen] IPinfo failed: ' + (e.message||'')); return null; }
+    }
+
+    /* ── AbuseIPDB lookup (via proxy — token from Cloudflare env) ── */
+    async function fetchAbuseIPDB(ip) {
+      try {
+        var res = await fetchWithTimeout('/api/abuseipdb?ip=' + encodeURIComponent(ip), 15000);
+        if (!res.ok) { console.warn('[ip.linkozen] AbuseIPDB proxy ' + res.status); return null; }
+        var data = await res.json();
+        return data.data;
+      } catch (e) { console.warn('[ip.linkozen] AbuseIPDB failed: ' + (e.message||'')); return null; }
+    }
+
+    /* ── Session cache ───────────────────────────────────────────── */
+    function getCacheKey() {
+      var ip = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip) || 'unknown';
+      return 'deep-audit-' + ip;
+    }
+    function loadCache() {
+      try {
+        var raw = sessionStorage.getItem(getCacheKey());
+        return raw ? JSON.parse(raw) : null;
+      } catch (_) { return null; }
+    }
+    function saveCache(data) {
+      try { sessionStorage.setItem(getCacheKey(), JSON.stringify(data)); } catch (_) {}
+    }
+
+    /* ── Run Deep Audit (on button click) ────────────────────────── */
+    window.runDeepAudit = async function () {
+      var ip = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip);
+      if (!ip) return;
+
+      // Check cache
+      var cached = loadCache();
+      if (cached && cached.ip === ip) {
+        renderDeepAudit(cached, true);
+        return;
+      }
+
+      // Show loading mask
+      var mask = document.getElementById('deep-mask');
+      var btn  = document.getElementById('btn-deep-audit');
+      if (mask) mask.classList.remove('hidden');
+      if (btn)  btn.disabled = true;
+
+      var result = { ip: ip, hostname: null, companyType: null, blacklisted: null, abuseScore: null, dnsLeak: null };
+
+      // Run IPinfo + AbuseIPDB + DNS leak in parallel
+      var tasks = [
+        fetchIPinfo(ip).then(function (d) {
+          if (d) {
+            result.hostname = d.hostname || null;
+            result.companyType = (d.company && d.company.type) || null;
+            // Update the detail table hostname field
+            updateHostnameField(d.hostname || null);
+          }
+        }).catch(function () {}),
+        fetchAbuseIPDB(ip).then(function (d) {
+          if (d) {
+            result.abuseScore = d.abuseConfidenceScore;
+            result.blacklisted = d.abuseConfidenceScore > 10;
+          }
+        }).catch(function () {}),
+        detectDNSLeak().then(function (d) {
+          result.dnsLeak = d;
+        }).catch(function () {}),
+      ];
+
+      await Promise.allSettled(tasks);
+
+      // Detect if ALL proxy calls failed
+      var allFailed = result.hostname === null && result.abuseScore === null && result.dnsLeak === null;
+
+      // Save to cache only if we got at least some data
+      if (!allFailed) {
+        saveCache(result);
+      }
+      deepAuditData = result;
+
+      // Hide mask
+      if (mask) mask.classList.add('hidden');
+      if (btn)  btn.disabled = false;
+
+      // Render
+      if (allFailed) {
+        document.getElementById('deep-hostname').textContent = 'Error';
+        document.getElementById('deep-company-type').textContent = 'Proxy unreachable';
+        document.getElementById('deep-blacklist').textContent = '—';
+        document.getElementById('deep-abuse-score').textContent = '—';
+        document.getElementById('deep-dns-leak').textContent = '—';
+      } else {
+        renderDeepAudit(result, false);
+      }
+      renderAllAuditResults();
+    };
+
+    /* ── Render Deep Audit results ───────────────────────────────── */
+    function renderDeepAudit(data, fromCache) {
+      deepAuditData = data;
+      var suffix = fromCache ? ' ' + t('deep.cached') : '';
+
+      document.getElementById('deep-hostname').textContent     = (data.hostname || 'N/A') + (fromCache && data.hostname ? ' ' + t('deep.cached') : '');
+      document.getElementById('deep-company-type').textContent = data.companyType
+        ? (data.companyType === 'hosting' ? t('deep.hosting_yes') : data.companyType) + suffix
+        : '—';
+      document.getElementById('deep-blacklist').textContent    = data.blacklisted === true
+        ? t('deep.blacklist_yes') : data.blacklisted === false ? t('deep.blacklist_no') : '—';
+      document.getElementById('deep-abuse-score').textContent  = data.abuseScore != null ? data.abuseScore + '%' + suffix : '—';
+      document.getElementById('deep-dns-leak').textContent     = data.dnsLeak || '—';
+
+      // Color coding
+      var blEl = document.getElementById('deep-blacklist');
+      if (blEl) blEl.className = 'font-mono text-slate-700' + (data.blacklisted === true ? ' text-red-500 font-semibold' : data.blacklisted === false ? ' text-emerald-500' : '');
+
+      // On load: try cache
+      checkDeepCache();
+    }
+
+    function updateHostnameField(hostname) {
+      if (!hostname) return;
+      // Store hostname in state and re-render IP cards with it
+      if (state.ipv4 && !state.ipv4._hostname) state.ipv4._hostname = hostname;
+      if (state.ipv6 && !state.ipv6._hostname) state.ipv6._hostname = hostname;
+      renderAllIPCards();
+    }
+
+    function checkDeepCache() {
+      var cached = loadCache();
+      if (cached && deepAuditData === null) {
+        var ip = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip);
+        if (cached.ip === ip) {
+          renderDeepAudit(cached, true);
+        }
+      }
+    }
+
+    /* ── Updated scoring with Blacklist ──────────────────────────── */
+    function updateScoreRing() {
+      var ring    = document.getElementById('score-ring');
+      var textEl  = document.getElementById('score-text');
+      var labelEl = document.getElementById('score-label');
+      var subEl   = document.getElementById('score-subtitle');
+
+      if (!ring || !textEl || !subEl) return;
+
+      var ipReady = state.ipv4 || state.ipv6 || state.ipv4Error || state.ipv6Error;
+      if (!ipReady) return;
+
+      var score       = calculateAnonymityScore();
+      var circum      = 326.73;
+      var offset      = circum * (1 - score / 100);
+      var color, labelKey;
+
+      if (score >= 75)      { color = '#10b981'; labelKey = score >= 90 ? 'audit.score.excellent' : 'audit.score.good'; }
+      else if (score >= 50) { color = '#f59e0b'; labelKey = 'audit.score.moderate'; }
+      else if (score >= 25) { color = '#f97316'; labelKey = 'audit.score.weak'; }
+      else                  { color = '#ef4444'; labelKey = 'audit.score.poor'; }
+
+      ring.setAttribute('stroke-dashoffset', offset);
+      ring.setAttribute('stroke', color);
+
+      // Build Tailwind color class string (dynamic, so set via className)
+      var colorClass = 'text-slate-300';
+      if (score >= 75)      colorClass = 'text-emerald-500';
+      else if (score >= 50) colorClass = 'text-amber-500';
+      else if (score >= 25) colorClass = 'text-orange-500';
+      else                  colorClass = 'text-red-500';
+
+      textEl.textContent = score + '%';
+      textEl.className = 'text-[28px] font-bold font-mono leading-none ' + colorClass;
+      if (labelEl) labelEl.className = 'text-[10px] font-semibold tracking-wider mt-0.5 ' + colorClass;
+      subEl.textContent  = t(labelKey);
+    }
+
+    function renderAllAuditResults() {
+      // WebRTC
+      if (!state.webrtcDone && (!state.ipv4 || !state.ipv4.ip) && (!state.ipv6 || !state.ipv6.ip)) {
+        setAuditItem('webrtc', 'checking');
+      } else if (state.webrtcError) {
+        setAuditItem('webrtc', 'failed');
+      } else {
+        var wr = auditWebRTC();
+        setAuditItem('webrtc', wr.status);
+      }
+
+      // Proxy
+      var px = auditProxy();
+      setAuditItem('proxy', px.status);
+
+      // Timezone
+      var tz = auditTimezone();
+      setAuditItem('tz', tz.status);
+
+      // Language
+      var lg = auditLanguage();
+      setAuditItem('lang', lg.status);
+
+      // Do Not Track
+      var dnt = (navigator.doNotTrack === '1' || navigator.doNotTrack === 1 || window.doNotTrack === '1')
+        ? 'enabled' : 'disabled';
+      setAuditItem('dnt', dnt);
+
+      // Wire DNT "How to fix?" link
+      var dntFix = document.getElementById('audit-dnt-fix');
+      if (dntFix) {
+        dntFix.onclick = function (e) {
+          e.preventDefault();
+          alert(t('audit.dnt.howtofix'));
+        };
+        // Update link text via i18n
+        dntFix.textContent = t('audit.howtofix');
+      }
+
+      // Anonymity score gauge
+      updateScoreRing();
+    }
+
+    /* ================================================================
+     *  MAP
+     * ================================================================ */
+
+    function initMap() {
+      if (state.map) return;
+      var mapEl = document.getElementById('map');
+      if (!mapEl) return;
+
+      state.map = L.map('map', {
+        center: CFG.mapDefaultCenter,
+        zoom: CFG.mapDefaultZoom,
+        zoomControl: true,
+        scrollWheelZoom: true,
+        attributionControl: false,
+      });
+
+      // Light theme tiles (CartoDB light_all — matches linkozen.com)
+      var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        maxZoom: 19,
+        subdomains: 'abcd',
+      }).addTo(state.map);
+
+      // Fallback: OSM
+      tileLayer.on('tileerror', function () {
+        if (!state._tileFallback) {
+          state._tileFallback = true;
+          state.map.removeLayer(tileLayer);
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+          }).addTo(state.map);
+        }
+      });
+    }
+
+    function updateMap(lat, lng, label) {
+      lat = Number(lat);
+      lng = Number(lng);
+      if (isNaN(lat) || isNaN(lng)) return;
+      if (lat === 0 && lng === 0) return; // Cloudflare sometimes returns 0,0 for unknown
+      if (!state.map) initMap();
+      if (!state.map) return;
+
+      if (state.marker) {
+        state.map.removeLayer(state.marker);
+      }
+
+      state.marker = L.circleMarker([lat, lng], {
+        radius: 8,
+        fillColor: '#3b82f6',
+        color: '#ffffff',
+        weight: 2.5,
+        opacity: 1,
+        fillOpacity: 0.85,
+      }).addTo(state.map);
+
+      if (label) {
+        state.marker.bindTooltip(label, {
+          direction: 'top',
+          offset: [0, -10],
+          className: 'text-xs font-medium',
+        });
+      }
+
+      state.map.flyTo([lat, lng], CFG.mapFlyZoom, {
+        duration: 1.5,
+        easeLinearity: 0.25,
+      });
+
+      var coordsEl = document.getElementById('map-coords');
+      if (coordsEl) {
+        coordsEl.textContent = lat.toFixed(4) + ', ' + lng.toFixed(4);
+      }
+    }
+
+    /* ================================================================
+     *  COPY  BUTTONS
+     * ================================================================ */
+
+    function setupCopyButtons() {
+      var btns = document.querySelectorAll('.copy-btn');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener('click', function (e) {
+          var target = this.getAttribute('data-copy-target');
+          var ip = null;
+          if (target === 'ipv4' && state.ipv4) ip = state.ipv4.ip;
+          if (target === 'ipv6' && state.ipv6) ip = state.ipv6.ip;
+          if (!ip) return;
+
+          navigator.clipboard.writeText(ip).then(function () {
+            var span = this.querySelector('span');
+            var originalText = span ? span.textContent : 'Copy';
+            if (span) span.textContent = t('common.copied');
+            this.classList.add('animate-scale-tap');
+            var self = this;
+            setTimeout(function () {
+              self.classList.remove('animate-scale-tap');
+              if (span) span.textContent = originalText;
+            }, 1200);
+          }.bind(this)).catch(function () {
+            // Clipboard API failed — silently ignore
+          });
+        });
+      }
+    }
+
+    /* ================================================================
+     *  INITIALIZATION
+     * ================================================================ */
+
+    async function init() {
+      // 0. Set footer domain
+      var footerLink = document.getElementById('footer-domain');
+      if (footerLink) footerLink.textContent = window.location.hostname;
+
+      // 1. Apply theme
+      applyTheme();
+
+      // 2. Detect language: URL param > localStorage > navigator > default
+      var urlParams = new URLSearchParams(window.location.search);
+      var urlLang = urlParams.get('lang');
+      var detected = null;
+      if (urlLang) {
+        // Try exact match
+        var found = LANGS.find(function(L){ return L.code === urlLang; });
+        if (found) detected = found.code;
+      }
+      if (!detected) {
+        var stored = localStorage.getItem('ip-linkozen-lang');
+        var valid  = LANGS.find(function(L){ return L.code === stored; });
+        if (valid) detected = valid.code;
+      }
+      if (!detected) {
+        var browser = (navigator.language || '').toLowerCase();
+        if (browser === 'zh-tw' || browser === 'zh-hk') detected = 'zh-TW';
+        else if (browser.startsWith('zh')) detected = 'zh';
+        else if (browser.startsWith('ja')) detected = 'ja';
+        else if (browser.startsWith('ko')) detected = 'ko';
+        else if (browser.startsWith('fr')) detected = 'fr';
+        else if (browser.startsWith('de')) detected = 'de';
+        else if (browser.startsWith('it')) detected = 'it';
+        else if (browser.startsWith('pt')) detected = 'pt';
+        else if (browser.startsWith('ru')) detected = 'ru';
+        else if (browser.startsWith('tr')) detected = 'tr';
+        else detected = 'en';
+      }
+      updateLanguage(detected);
+      buildLangMenu();
+
+      // 3. Init map + ads
+      initMap();
+      renderAds();
+
+      // 3. Launch all probes in parallel
+      var tasks = [
+        // IPv4
+        probeIPv4().then(function (d) {
+          state.ipv4 = d;
+        }).catch(function (e) {
+          state.ipv4Error = e.message || 'Unknown error';
+        }),
+
+        // IPv6
+        probeIPv6().then(function (d) {
+          state.ipv6 = d;
+        }).catch(function (e) {
+          state.ipv6Error = e.message || 'Unknown error';
+        }),
+
+        // WebRTC
+        detectWebRTCLeak().then(function (r) {
+          state.webrtcIPs = r.ips;
+          state.webrtcError = r.error;
+          state.webrtcDone = true;
+        }),
+      ];
+
+      // 4. Render cards as each probe completes (poll-style for simplicity)
+      //    We use a setInterval to update UI as data comes in, then clear when done
+      var renderInterval = setInterval(function () {
+        renderAllIPCards();
+        renderAllAuditResults();
+
+        // Update map from whichever data source is available and non-fallback
+        var geoData = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+                    : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+                    : state.ipv4 || state.ipv6;
+        if (geoData && geoData.latitude != null && geoData.longitude != null) {
+          updateMap(geoData.latitude, geoData.longitude, geoData.city || geoData.country || '');
+        }
+      }, 200);
+
+      // 5. Wait for all probes
+      await Promise.allSettled(tasks);
+
+      // 6. Final render — ensure everything is updated
+      clearInterval(renderInterval);
+      renderAllIPCards();
+      renderAllAuditResults();
+
+      // Map — final update (with free geolocation fallback)
+      var geoData = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+                  : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+                  : state.ipv4 || state.ipv6;
+
+      if (!geoData || geoData.latitude == null || geoData.longitude == null || (geoData.latitude === 0 && geoData.longitude === 0)) {
+        // Fallback: use a free IP geolocation service
+        var ip = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip);
+        if (ip) {
+          try {
+            var geoRes = await fetchWithTimeout('https://ipapi.co/' + encodeURIComponent(ip) + '/json/', 5000);
+            if (geoRes.ok) {
+              var geoJson = await geoRes.json();
+              if (geoJson && geoJson.latitude && geoJson.longitude) {
+                updateMap(geoJson.latitude, geoJson.longitude, geoJson.city || geoJson.country_name || '');
+              }
+            }
+          } catch (_) { /* geolocation fallback failed — map stays at default view */ }
+        }
+      } else {
+        updateMap(geoData.latitude, geoData.longitude, geoData.city || geoData.country || '');
+      }
+
+      // 7. Check deep audit cache
+      checkDeepCache();
+
+      // 8. Setup copy buttons
+      setupCopyButtons();
+    }
+
+    // ── Kick off once DOM is ready ──────────────────────────────────
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+
+</body>
+</html>

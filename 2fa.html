@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="2FA Tools — free client-side TOTP token verifier, 2FA secret generator, and QR code creator. All cryptography runs locally in your browser." />
+  <title>2FA Tools — TOTP Verifier &amp; Secret Generator</title>
+
+  <!-- Google Fonts — matching linkozen.com family -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'fade-in':  'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+            'pulse-bar': 'pulseBar 0.45s ease-out',
+          },
+          keyframes: {
+            fadeIn:  { '0%':{opacity:'0'}, '100%':{opacity:'1'} },
+            slideUp: { '0%':{opacity:'0',transform:'translateY(12px)'}, '100%':{opacity:'1',transform:'translateY(0)'} },
+            pulseBar:{ '0%':{transform:'scaleY(1)'}, '50%':{transform:'scaleY(1.15)'}, '100%':{transform:'scaleY(1)'} },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- QRCode.js — client-side QR generation -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    #countdown-bar { transition: width 0.95s linear; }
+    .token-display { letter-spacing: 0.16em; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================================================================== -->
+  <!--  HEADER  —  matching linkozen.com style                             -->
+  <!-- ================================================================== -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">
+          2FA
+        </div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">2FA Tools</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">TOTP Verifier &amp; Secret Generator</p>
+        </div>
+      </div>
+
+      <!-- Right: Dark Mode + Language Switcher -->
+      <div class="flex items-center gap-2">
+        <!-- Dark mode toggle -->
+        <button id="btn-dark" onclick="toggleDark()"
+                class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Language dropdown -->
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle"
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm"
+                  onclick="toggleLangMenu()" aria-label="Switch language">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <!-- Dropdown menu -->
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================== -->
+  <!--  TOP AD  —  728×90  Leaderboard                                     -->
+  <!-- ================================================================== -->
+  <div class="max-w-[728px] mx-auto mt-5 px-2">
+    <div id="ad-top-container" class="ad-placeholder w-full h-[50px] md:h-[90px] rounded-xl" data-i18n="ad.728x90">
+      <!-- GOOGLE ADSENSE / AD NETWORK CODE — 728×90 Leaderboard -->
+      ADVERTISEMENT · 728×90
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!--  MAIN CONTENT  —  12-col grid                                       -->
+  <!-- ================================================================== -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- LEFT AD — 160×600 Skyscraper (lg only) -->
+      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div id="ad-left-container" class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">
+          <!-- GOOGLE ADSENSE / AD NETWORK CODE — 160×600 Skyscraper (Left) -->
+          AD<br>160×600
+        </div>
+      </aside>
+
+      <!-- CENTER COLUMN (8/12) -->
+      <div class="lg:col-span-8 space-y-5">
+
+        <!-- ========================================================== -->
+        <!--  SECTION 1 — VERIFY 2FA TOKENS                              -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3">
+            <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span data-i18n="verify.title">Verify 2FA Token</span>
+          </h2>
+          <p class="text-xs text-slate-500 mb-4" data-i18n="verify.desc">
+            Paste a 2FA secret (or otpauth:// URI) below. The current 6‑digit TOTP code will be computed instantly in your browser.
+          </p>
+
+          <textarea id="secrets-input" rows="3"
+                    class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-shadow resize-y"
+                    aria-label="2FA secret input"></textarea>
+
+          <div class="mt-3 flex flex-wrap items-center gap-3">
+            <button id="submit-btn"
+                    class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:from-cyan-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-cyan-400 active:scale-[0.98] transition-all shadow-sm">
+              <svg id="submit-icon" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span data-i18n="verify.button">Compute Token</span>
+            </button>
+            <span id="input-status" class="text-xs text-slate-400 hidden"></span>
+          </div>
+
+          <!-- Countdown bar -->
+          <div id="countdown-wrapper" class="mt-5 hidden">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider" data-i18n="verify.countdown">Token refreshes in</span>
+              <span id="countdown-text" class="text-xs font-bold font-mono text-slate-500">30s</span>
+            </div>
+            <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+              <div id="countdown-bar" class="h-full rounded-full bg-emerald-500" style="width:100%;"></div>
+            </div>
+          </div>
+
+          <div id="results-container" class="mt-5 flex flex-col gap-3"></div>
+
+          <div id="empty-state" class="mt-5 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-10 text-slate-400">
+            <svg class="h-8 w-8 mb-2 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <p class="text-xs font-medium" data-i18n="verify.empty">Paste a secret above and click <strong>Compute Token</strong></p>
+          </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!--  SECTION 2 — ABOUT 2FA                                      -->
+        <!-- ========================================================== -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3">
+            <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <span data-i18n="about.title">What is Two-Factor Authentication (2FA)?</span>
+          </h2>
+          <p class="text-sm text-slate-600 leading-relaxed mb-3" data-i18n="about.desc1">
+            Two-Factor Authentication (2FA) adds a critical second layer of security beyond your password. After entering your password, you also provide a <strong>Time-based One-Time Password (TOTP)</strong> — a 6‑digit code that refreshes every 30&nbsp;seconds and is generated from a secret key stored only on your device. Even if an attacker steals your password, they cannot log in without physical access to your authenticator app or security key.
+          </p>
+          <p class="text-sm text-slate-600 leading-relaxed" data-i18n="about.desc2">
+            <span class="font-semibold text-slate-700">This tool lets you:</span>
+          </p>
+          <ul class="mt-2 space-y-1.5 text-sm text-slate-600">
+            <li class="flex items-start gap-2"><span class="text-cyan-500 mt-0.5 flex-shrink-0">▸</span><span data-i18n="about.verify"><strong>Verify</strong> — paste a 2FA secret or otpauth:// URI to instantly see the current 6‑digit token</span></li>
+            <li class="flex items-start gap-2"><span class="text-cyan-500 mt-0.5 flex-shrink-0">▸</span><span data-i18n="about.generate"><strong>Generate</strong> — create a brand-new cryptographically-random 2FA secret with a QR code ready for any authenticator app</span></li>
+            <li class="flex items-start gap-2"><span class="text-cyan-500 mt-0.5 flex-shrink-0">▸</span><span data-i18n="about.local"><strong>100% Local</strong> — all cryptography runs in your browser via the Web Crypto API; no secrets are ever transmitted, stored, or logged</span></li>
+          </ul>
+        </div>
+
+        <!-- ========================================================== -->
+        <!--  SECTION 3 — 2FA SECRET & QR GENERATOR                      -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3">
+            <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span data-i18n="generate.title">2FA Secret &amp; QR Code Generator</span>
+          </h2>
+          <p class="text-xs text-slate-500 mb-4" data-i18n="generate.desc">
+            Generate a cryptographically-random Base32 secret with a QR code. Scan it with Google Authenticator, Authy, or any TOTP-compatible app — then test the live token right here.
+          </p>
+          <button id="generate-btn"
+                  class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:from-cyan-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-cyan-400 active:scale-[0.98] transition-all shadow-sm">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span data-i18n="generate.button">Generate New 2FA</span>
+          </button>
+
+          <div id="generator-result" class="mt-5 hidden"></div>
+
+          <div id="generator-empty" class="mt-5 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-8 text-slate-400">
+            <svg class="h-6 w-6 mb-2 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
+            </svg>
+            <p class="text-xs font-medium" data-i18n="generate.empty">Click <strong>Generate New 2FA</strong> to create a secret</p>
+          </div>
+        </section>
+
+      </div><!-- /center column -->
+
+      <!-- RIGHT AD — 160×600 Skyscraper (lg only) -->
+      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div id="ad-right-container" class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">
+          <!-- GOOGLE ADSENSE / AD NETWORK CODE — 160×600 Skyscraper (Right) -->
+          AD<br>160×600
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ================================================================== -->
+  <!--  FOOTER                                                             -->
+  <!-- ================================================================== -->
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a href="/" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 ml-1 font-medium">2FA Tools</a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No logs. No tracking. Your secrets never leave your browser.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ====================================================================== -->
+  <!--  APPLICATION LOGIC                                                      -->
+  <!-- ====================================================================== -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+     *  CONSTANTS
+     * ================================================================ */
+    var BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    var TOTP_TIME_STEP  = 30;
+    var TOTP_DIGITS     = 6;
+
+    /* ================================================================
+     *  i18n — LANGUAGE DEFINITIONS & DICTIONARIES
+     * ================================================================ */
+    var LANGS = [
+      { code:'en', label:'English',    native:'English',    region:'US' },
+      { code:'zh', label:'简体中文',    native:'简体中文',    region:'CN' },
+      { code:'ja', label:'日本語',      native:'日本語',      region:'JP' },
+      { code:'ko', label:'한국어',      native:'한국어',      region:'KR' },
+      { code:'fr', label:'Français',   native:'Français',   region:'FR' },
+      { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
+      { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+      { code:'pt', label:'Português',  native:'Português',  region:'BR' },
+      { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
+      { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
+      { code:'zh-TW', label:'繁體中文',  native:'繁體中文',    region:'TW' },
+    ];
+
+    var DICT = {
+      en: {
+        'app.title':'2FA Tools','app.subtitle':'TOTP Verifier & Secret Generator',
+        'common.copy':'Copy','common.copied':'Copied!','common.copy_token':'Copy Token',
+        'about.title':'What is Two-Factor Authentication (2FA)?',
+        'about.desc1':'Two-Factor Authentication (2FA) adds a critical second layer of security beyond your password. After entering your password, you also provide a <strong>Time-based One-Time Password (TOTP)</strong> — a 6‑digit code that refreshes every 30&nbsp;seconds and is generated from a secret key stored only on your device. Even if an attacker steals your password, they cannot log in without physical access to your authenticator app or security key.',
+        'about.desc2':'<span class="font-semibold text-slate-700">This tool lets you:</span>',
+        'about.verify':'<strong>Verify</strong> — paste a 2FA secret or otpauth:// URI to instantly see the current 6‑digit token',
+        'about.generate':'<strong>Generate</strong> — create a brand-new cryptographically-random 2FA secret with a QR code ready for any authenticator app',
+        'about.local':'<strong>100% Local</strong> — all cryptography runs in your browser via the Web Crypto API; no secrets are ever transmitted, stored, or logged',
+        'verify.title':'Verify 2FA Token',
+        'verify.desc':'Paste a 2FA secret (or otpauth:// URI) below. The current 6‑digit TOTP code will be computed instantly in your browser.',
+        'verify.placeholder':'Paste a secret or otpauth:// URI here…\ne.g. JBSWY3DPEHPK3PXP\nor   otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'Compute Token','verify.countdown':'Token refreshes in',
+        'verify.empty':'Paste a secret above and click <strong>Compute Token</strong>',
+        'verify.current_code':'Current code',
+        'generate.title':'2FA Secret & QR Code Generator',
+        'generate.desc':'Generate a cryptographically-random Base32 secret with a QR code. Scan it with Google Authenticator, Authy, or any TOTP-compatible app — then test the live token right here.',
+        'generate.button':'Generate New 2FA',
+        'generate.empty':'Click <strong>Generate New 2FA</strong> to create a secret',
+        'generate.scan_hint':'Scan with any authenticator app',
+        'generate.live_token':'Live Token','generate.copy_token':'Copy Token',
+        'generate.show_uri':'Show raw <code class="font-mono">otpauth://</code> URI',
+        'generate.issuer':'2FA Tools','generate.account':'user@2fa.tools',
+        'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. Your secrets never leave your browser.',
+        'ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
+        'status.paste_first':'Please paste a secret or otpauth:// URI first.',
+        'status.no_valid':'No valid secrets found. Check your input and try again.',
+        'status.token_loaded':'1 token loaded',
+        'status.tokens_loaded':'{n} tokens loaded',
+        'status.lines_skipped':'{n} line(s) skipped',
+        'status.generated':'New 2FA secret generated! Scan the QR code with your authenticator app.',
+        'status.line_error':'Line {n} could not be parsed',
+        'error.qr_failed':'QR generation failed','error.qr_no_lib':'QR library not loaded',
+        'result.label_secret':'Secret ({prefix}…{suffix})',
+      },
+      zh: {
+        'app.title':'2FA 工具','app.subtitle':'TOTP 验证器与密钥生成器',
+        'common.copy':'复制','common.copied':'已复制！','common.copy_token':'复制验证码',
+        'about.title':'什么是双因素认证 (2FA)？',
+        'about.desc1':'双因素认证（2FA）在密码之外增加了第二层关键安全防护。输入密码后，您还需要提供一个<strong>基于时间的一次性密码（TOTP）</strong>——一个每 30 秒刷新一次的 6 位数字验证码，由仅存储在您设备上的密钥生成。即使攻击者窃取了您的密码，也无法在没有物理访问您的验证器应用或安全密钥的情况下登录。',
+        'about.desc2':'<span class="font-semibold text-slate-700">本工具可帮助您：</span>',
+        'about.verify':'<strong>验证</strong> — 粘贴 2FA 密钥或 otpauth:// 链接，即时查看当前 6 位验证码',
+        'about.generate':'<strong>生成</strong> — 创建全新的加密随机 2FA 密钥及二维码，可直接用于任何验证器应用',
+        'about.local':'<strong>100% 本地</strong> — 所有加密运算均在浏览器内通过 Web Crypto API 完成，密钥绝不会被传输、存储或记录',
+        'verify.title':'验证 2FA 验证码',
+        'verify.desc':'在下方粘贴 2FA 密钥（或 otpauth:// 链接），当前 6 位 TOTP 验证码将即时在您的浏览器中计算。',
+        'verify.placeholder':'在此粘贴密钥或 otpauth:// 链接…\n例如 JBSWY3DPEHPK3PXP\n或   otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'计算验证码','verify.countdown':'验证码刷新倒计时',
+        'verify.empty':'在上方粘贴密钥，然后点击<strong>计算验证码</strong>',
+        'verify.current_code':'当前验证码',
+        'generate.title':'2FA 密钥与二维码生成器',
+        'generate.desc':'生成加密随机的 Base32 密钥及对应二维码。使用 Google Authenticator、Authy 或任何兼容 TOTP 的应用扫描——然后在此处实时测试验证码。',
+        'generate.button':'生成新的 2FA',
+        'generate.empty':'点击<strong>生成新的 2FA</strong> 创建密钥',
+        'generate.scan_hint':'使用任何验证器应用扫描',
+        'generate.live_token':'实时验证码','generate.copy_token':'复制验证码',
+        'generate.show_uri':'显示原始 <code class="font-mono">otpauth://</code> 链接',
+        'generate.issuer':'2FA 工具','generate.account':'user@2fa.tools',
+        'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 您的密钥绝不会离开浏览器。',
+        'ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
+        'status.paste_first':'请先粘贴密钥或 otpauth:// 链接。',
+        'status.no_valid':'未找到有效密钥，请检查输入后重试。',
+        'status.token_loaded':'已加载 1 个验证码',
+        'status.tokens_loaded':'已加载 {n} 个验证码',
+        'status.lines_skipped':'跳过了 {n} 行',
+        'status.generated':'新的 2FA 密钥已生成！请使用验证器应用扫描二维码。',
+        'status.line_error':'第 {n} 行无法解析',
+        'error.qr_failed':'二维码生成失败','error.qr_no_lib':'二维码库未加载',
+        'result.label_secret':'密钥（{prefix}…{suffix}）',
+      },
+      ja: {
+        'app.title':'2FA ツール','app.subtitle':'TOTP 検証 & シークレット生成',
+        'common.copy':'コピー','common.copied':'コピー完了！','common.copy_token':'トークンをコピー',
+        'about.title':'二要素認証（2FA）とは？',
+        'about.desc1':'二要素認証（2FA）はパスワードに加えて第二のセキュリティ層を提供します。パスワード入力後、<strong>時間ベースのワンタイムパスワード（TOTP）</strong>（30秒ごとに更新される6桁のコード）を入力します。このコードはお使いのデバイスにのみ保存された秘密鍵から生成されます。攻撃者がパスワードを盗んでも、認証アプリやセキュリティキーへの物理的アクセスなしではログインできません。',
+        'about.desc2':'<span class="font-semibold text-slate-700">このツールでできること：</span>',
+        'about.verify':'<strong>検証</strong> — 2FAシークレットまたはotpauth:// URIを貼り付けて現在の6桁コードを即座に表示',
+        'about.generate':'<strong>生成</strong> — 暗号論的乱数による新しい2FAシークレットとQRコードを作成',
+        'about.local':'<strong>100% ローカル</strong> — すべての暗号処理はブラウザ内のWeb Crypto APIで実行。秘密鍵は一切送信・保存されません',
+        'verify.title':'2FAトークン検証',
+        'verify.desc':'2FAシークレット（またはotpauth:// URI）を以下に貼り付けてください。現在の6桁TOTPコードがブラウザ内で即座に計算されます。',
+        'verify.placeholder':'シークレットまたはotpauth:// URIを貼り付け…\n例 JBSWY3DPEHPK3PXP\nまたは otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'トークンを計算','verify.countdown':'トークン更新まで',
+        'verify.empty':'上にシークレットを貼り付けて<strong>トークンを計算</strong>をクリック',
+        'verify.current_code':'現在のコード',
+        'generate.title':'2FAシークレット & QRコード生成',
+        'generate.desc':'暗号論的乱数によるBase32シークレットとQRコードを生成します。Google Authenticator、Authy、またはTOTP対応アプリでスキャンしてください。',
+        'generate.button':'新しい2FAを生成',
+        'generate.empty':'<strong>新しい2FAを生成</strong>をクリックして作成',
+        'generate.scan_hint':'任意の認証アプリでスキャン',
+        'generate.live_token':'ライブトークン','generate.copy_token':'トークンをコピー',
+        'generate.show_uri':'生の <code class="font-mono">otpauth://</code> URIを表示',
+        'generate.issuer':'2FAツール','generate.account':'user@2fa.tools',
+        'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・秘密鍵がブラウザから出ることはありません。',
+        'ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
+        'status.paste_first':'最初にシークレットまたはotpauth:// URIを貼り付けてください。',
+        'status.no_valid':'有効なシークレットが見つかりません。入力を確認してください。',
+        'status.token_loaded':'1個のトークンを読み込みました',
+        'status.tokens_loaded':'{n}個のトークンを読み込みました',
+        'status.lines_skipped':'{n}行をスキップしました',
+        'status.generated':'新しい2FAシークレットが生成されました！認証アプリでQRコードをスキャンしてください。',
+        'status.line_error':'{n}行目を解析できませんでした',
+        'error.qr_failed':'QR生成失敗','error.qr_no_lib':'QRライブラリ未読込',
+        'result.label_secret':'シークレット（{prefix}…{suffix}）',
+      },
+      ko: {
+        'app.title':'2FA 도구','app.subtitle':'TOTP 검증기 및 비밀키 생성기',
+        'common.copy':'복사','common.copied':'복사 완료!','common.copy_token':'토큰 복사',
+        'about.title':'이중 인증(2FA)이란?',
+        'about.desc1':'이중 인증(2FA)은 비밀번호 외에 두 번째 보안 계층을 추가합니다. 비밀번호 입력 후 <strong>시간 기반 일회용 비밀번호(TOTP)</strong>(30초마다 갱신되는 6자리 코드)를 제공해야 합니다. 이 코드는 기기에만 저장된 비밀키로 생성됩니다. 공격자가 비밀번호를 훔쳐도 인증 앱이나 보안 키에 물리적으로 접근하지 않으면 로그인할 수 없습니다.',
+        'about.desc2':'<span class="font-semibold text-slate-700">이 도구로 할 수 있는 일:</span>',
+        'about.verify':'<strong>검증</strong> — 2FA 비밀키 또는 otpauth:// URI를 붙여넣어 현재 6자리 코드를 즉시 확인',
+        'about.generate':'<strong>생성</strong> — 암호학적 난수로 새로운 2FA 비밀키와 QR 코드 생성',
+        'about.local':'<strong>100% 로컬</strong> — 모든 암호화 연산은 브라우저 내 Web Crypto API로 실행, 비밀키는 전송·저장·기록되지 않음',
+        'verify.title':'2FA 토큰 검증',
+        'verify.desc':'아래에 2FA 비밀키(또는 otpauth:// URI)를 붙여넣으세요. 현재 6자리 TOTP 코드가 브라우저에서 즉시 계산됩니다.',
+        'verify.placeholder':'비밀키 또는 otpauth:// URI를 여기에 붙여넣기…\n예: JBSWY3DPEHPK3PXP\n또는 otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'토큰 계산','verify.countdown':'토큰 갱신까지',
+        'verify.empty':'위에 비밀키를 붙여넣고 <strong>토큰 계산</strong> 클릭',
+        'verify.current_code':'현재 코드',
+        'generate.title':'2FA 비밀키 및 QR 코드 생성기',
+        'generate.desc':'암호학적 난수로 Base32 비밀키와 QR 코드를 생성합니다. Google Authenticator, Authy 등 TOTP 호환 앱으로 스캔하세요.',
+        'generate.button':'새 2FA 생성',
+        'generate.empty':'<strong>새 2FA 생성</strong>을 클릭하여 비밀키 생성',
+        'generate.scan_hint':'인증 앱으로 스캔하세요',
+        'generate.live_token':'실시간 토큰','generate.copy_token':'토큰 복사',
+        'generate.show_uri':'원본 <code class="font-mono">otpauth://</code> URI 표시',
+        'generate.issuer':'2FA 도구','generate.account':'user@2fa.tools',
+        'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 비밀키는 브라우저를 떠나지 않습니다.',
+        'ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
+        'status.paste_first':'먼저 비밀키 또는 otpauth:// URI를 붙여넣으세요.',
+        'status.no_valid':'유효한 비밀키를 찾을 수 없습니다. 입력을 확인하세요.',
+        'status.token_loaded':'토큰 1개 로드됨',
+        'status.tokens_loaded':'토큰 {n}개 로드됨',
+        'status.lines_skipped':'{n}개 줄 건너뜀',
+        'status.generated':'새 2FA 비밀키가 생성되었습니다! 인증 앱으로 QR 코드를 스캔하세요.',
+        'status.line_error':'{n}번째 줄을 해석할 수 없습니다',
+        'error.qr_failed':'QR 생성 실패','error.qr_no_lib':'QR 라이브러리 없음',
+        'result.label_secret':'비밀키 ({prefix}…{suffix})',
+      },
+      fr: {
+        'app.title':'Outils 2FA','app.subtitle':'Vérificateur TOTP & Générateur de secret',
+        'common.copy':'Copier','common.copied':'Copié !','common.copy_token':'Copier jeton',
+        'about.title':'Qu\'est-ce que l\'authentification à deux facteurs (2FA) ?',
+        'about.desc1':'L\'authentification à deux facteurs (2FA) ajoute une deuxième couche de sécurité au-delà de votre mot de passe. Après avoir saisi votre mot de passe, vous fournissez un <strong>mot de passe à usage unique basé sur le temps (TOTP)</strong> — un code à 6 chiffres actualisé toutes les 30 secondes, généré à partir d\'une clé secrète stockée uniquement sur votre appareil. Même si un attaquant vole votre mot de passe, il ne peut pas se connecter sans accès physique à votre application d\'authentification.',
+        'about.desc2':'<span class="font-semibold text-slate-700">Cet outil vous permet de :</span>',
+        'about.verify':'<strong>Vérifier</strong> — collez un secret 2FA ou une URI otpauth:// pour voir instantanément le code à 6 chiffres',
+        'about.generate':'<strong>Générer</strong> — créez un nouveau secret 2FA aléatoire avec un QR code prêt pour toute application d\'authentification',
+        'about.local':'<strong>100% Local</strong> — toute la cryptographie s\'exécute dans votre navigateur via l\'API Web Crypto ; aucun secret n\'est transmis, stocké ou journalisé',
+        'verify.title':'Vérifier un jeton 2FA',
+        'verify.desc':'Collez un secret 2FA (ou une URI otpauth://) ci-dessous. Le code TOTP à 6 chiffres sera calculé instantanément dans votre navigateur.',
+        'verify.placeholder':'Collez un secret ou une URI otpauth:// ici…\nex. JBSWY3DPEHPK3PXP\nou  otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'Calculer','verify.countdown':'Actualisation dans',
+        'verify.empty':'Collez un secret ci-dessus et cliquez sur <strong>Calculer</strong>',
+        'verify.current_code':'Code actuel',
+        'generate.title':'Générateur de secret 2FA & QR Code',
+        'generate.desc':'Générez un secret Base32 aléatoire avec un QR code. Scannez-le avec Google Authenticator, Authy ou toute application compatible TOTP.',
+        'generate.button':'Générer un nouveau 2FA',
+        'generate.empty':'Cliquez sur <strong>Générer un nouveau 2FA</strong> pour créer un secret',
+        'generate.scan_hint':'Scannez avec n\'importe quelle application d\'authentification',
+        'generate.live_token':'Jeton en direct','generate.copy_token':'Copier jeton',
+        'generate.show_uri':'Afficher l\'URI <code class="font-mono">otpauth://</code> brute',
+        'generate.issuer':'Outils 2FA','generate.account':'utilisateur@2fa.tools',
+        'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Vos secrets ne quittent jamais votre navigateur.',
+        'ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
+        'status.paste_first':'Veuillez d\'abord coller un secret ou une URI otpauth://.',
+        'status.no_valid':'Aucun secret valide trouvé. Vérifiez votre saisie.',
+        'status.token_loaded':'1 jeton chargé',
+        'status.tokens_loaded':'{n} jetons chargés',
+        'status.lines_skipped':'{n} ligne(s) ignorée(s)',
+        'status.generated':'Nouveau secret 2FA généré ! Scannez le QR code avec votre application.',
+        'status.line_error':'Ligne {n} non analysable',
+        'error.qr_failed':'Échec génération QR','error.qr_no_lib':'Bibliothèque QR manquante',
+        'result.label_secret':'Secret ({prefix}…{suffix})',
+      },
+      de: {
+        'app.title':'2FA Tools','app.subtitle':'TOTP-Prüfer & Secret-Generator',
+        'common.copy':'Kopieren','common.copied':'Kopiert!','common.copy_token':'Token kopieren',
+        'about.title':'Was ist Zwei-Faktor-Authentifizierung (2FA)?',
+        'about.desc1':'Zwei-Faktor-Authentifizierung (2FA) fügt eine zweite Sicherheitsebene jenseits Ihres Passworts hinzu. Nach der Passworteingabe geben Sie ein <strong>zeitbasiertes Einmalpasswort (TOTP)</strong> ein — einen 6-stelligen Code, der alle 30 Sekunden aktualisiert und aus einem nur auf Ihrem Gerät gespeicherten Schlüssel generiert wird. Selbst wenn ein Angreifer Ihr Passwort stiehlt, kann er sich ohne physischen Zugriff auf Ihre Authenticator-App nicht anmelden.',
+        'about.desc2':'<span class="font-semibold text-slate-700">Dieses Tool ermöglicht:</span>',
+        'about.verify':'<strong>Prüfen</strong> — 2FA-Secret oder otpauth://-URI einfügen, um den aktuellen 6-stelligen Code sofort zu sehen',
+        'about.generate':'<strong>Generieren</strong> — neues kryptografisch zufälliges 2FA-Secret mit QR-Code erstellen',
+        'about.local':'<strong>100% Lokal</strong> — gesamte Kryptografie läuft im Browser via Web Crypto API; Secrets werden niemals übertragen, gespeichert oder protokolliert',
+        'verify.title':'2FA-Token prüfen',
+        'verify.desc':'Fügen Sie unten ein 2FA-Secret (oder eine otpauth://-URI) ein. Der aktuelle 6-stellige TOTP-Code wird sofort in Ihrem Browser berechnet.',
+        'verify.placeholder':'Secret oder otpauth://-URI hier einfügen…\nz.B. JBSWY3DPEHPK3PXP\noder otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'Token berechnen','verify.countdown':'Aktualisierung in',
+        'verify.empty':'Secret oben einfügen und <strong>Token berechnen</strong> klicken',
+        'verify.current_code':'Aktueller Code',
+        'generate.title':'2FA-Secret & QR-Code-Generator',
+        'generate.desc':'Generieren Sie ein kryptografisch zufälliges Base32-Secret mit QR-Code. Scannen Sie es mit Google Authenticator, Authy oder einer beliebigen TOTP-kompatiblen App.',
+        'generate.button':'Neue 2FA generieren',
+        'generate.empty':'Klicken Sie auf <strong>Neue 2FA generieren</strong>, um ein Secret zu erstellen',
+        'generate.scan_hint':'Mit beliebiger Authenticator-App scannen',
+        'generate.live_token':'Live-Token','generate.copy_token':'Token kopieren',
+        'generate.show_uri':'Rohe <code class="font-mono">otpauth://</code>-URI anzeigen',
+        'generate.issuer':'2FA Tools','generate.account':'benutzer@2fa.tools',
+        'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Ihre Secrets verlassen nie Ihren Browser.',
+        'ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
+        'status.paste_first':'Bitte zuerst ein Secret oder eine otpauth://-URI einfügen.',
+        'status.no_valid':'Keine gültigen Secrets gefunden. Eingabe überprüfen.',
+        'status.token_loaded':'1 Token geladen',
+        'status.tokens_loaded':'{n} Token geladen',
+        'status.lines_skipped':'{n} Zeile(n) übersprungen',
+        'status.generated':'Neues 2FA-Secret generiert! QR-Code mit Ihrer App scannen.',
+        'status.line_error':'Zeile {n} konnte nicht analysiert werden',
+        'error.qr_failed':'QR-Generierung fehlgeschlagen','error.qr_no_lib':'QR-Bibliothek nicht geladen',
+        'result.label_secret':'Secret ({prefix}…{suffix})',
+      },
+      it: {
+        'app.title':'Strumenti 2FA','app.subtitle':'Verifica TOTP & Generatore Secret',
+        'common.copy':'Copia','common.copied':'Copiato!','common.copy_token':'Copia token',
+        'about.title':'Cos\'è l\'autenticazione a due fattori (2FA)?',
+        'about.desc1':'L\'autenticazione a due fattori (2FA) aggiunge un secondo livello di sicurezza oltre alla password. Dopo aver inserito la password, fornisci una <strong>password monouso basata sul tempo (TOTP)</strong> — un codice a 6 cifre che si aggiorna ogni 30 secondi, generato da una chiave segreta memorizzata solo sul tuo dispositivo. Anche se un utente malintenzionato ruba la tua password, non può accedere senza l\'accesso fisico alla tua app di autenticazione.',
+        'about.desc2':'<span class="font-semibold text-slate-700">Questo strumento ti permette di:</span>',
+        'about.verify':'<strong>Verificare</strong> — incolla un secret 2FA o un URI otpauth:// per vedere subito il codice a 6 cifre',
+        'about.generate':'<strong>Generare</strong> — crea un nuovo secret 2FA casuale con QR code pronto per qualsiasi app di autenticazione',
+        'about.local':'<strong>100% Locale</strong> — tutta la crittografia viene eseguita nel browser tramite Web Crypto API; nessun secret viene trasmesso, memorizzato o registrato',
+        'verify.title':'Verifica token 2FA',
+        'verify.desc':'Incolla un secret 2FA (o un URI otpauth://) qui sotto. Il codice TOTP a 6 cifre verrà calcolato immediatamente nel tuo browser.',
+        'verify.placeholder':'Incolla un secret o URI otpauth:// qui…\nes. JBSWY3DPEHPK3PXP\noppure otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'Calcola token','verify.countdown':'Aggiornamento tra',
+        'verify.empty':'Incolla un secret qui sopra e clicca <strong>Calcola token</strong>',
+        'verify.current_code':'Codice attuale',
+        'generate.title':'Generatore Secret 2FA & QR Code',
+        'generate.desc':'Genera un secret Base32 casuale con QR code. Scansionalo con Google Authenticator, Authy o qualsiasi app compatibile TOTP.',
+        'generate.button':'Genera nuovo 2FA',
+        'generate.empty':'Clicca <strong>Genera nuovo 2FA</strong> per creare un secret',
+        'generate.scan_hint':'Scansiona con qualsiasi app di autenticazione',
+        'generate.live_token':'Token in tempo reale','generate.copy_token':'Copia token',
+        'generate.show_uri':'Mostra URI <code class="font-mono">otpauth://</code> grezzo',
+        'generate.issuer':'Strumenti 2FA','generate.account':'utente@2fa.tools',
+        'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. I tuoi secret non lasciano mai il browser.',
+        'ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
+        'status.paste_first':'Incolla prima un secret o un URI otpauth://.',
+        'status.no_valid':'Nessun secret valido trovato. Controlla l\'input.',
+        'status.token_loaded':'1 token caricato',
+        'status.tokens_loaded':'{n} token caricati',
+        'status.lines_skipped':'{n} riga/e saltata/e',
+        'status.generated':'Nuovo secret 2FA generato! Scansiona il QR code con la tua app.',
+        'status.line_error':'Riga {n} non analizzabile',
+        'error.qr_failed':'Generazione QR fallita','error.qr_no_lib':'Libreria QR non caricata',
+        'result.label_secret':'Secret ({prefix}…{suffix})',
+      },
+      pt: {
+        'app.title':'Ferramentas 2FA','app.subtitle':'Verificador TOTP & Gerador de Segredo',
+        'common.copy':'Copiar','common.copied':'Copiado!','common.copy_token':'Copiar token',
+        'about.title':'O que é Autenticação de Dois Fatores (2FA)?',
+        'about.desc1':'A Autenticação de Dois Fatores (2FA) adiciona uma segunda camada de segurança além da sua senha. Após digitar sua senha, você fornece uma <strong>Senha de Uso Único Baseada em Tempo (TOTP)</strong> — um código de 6 dígitos que se atualiza a cada 30 segundos, gerado a partir de uma chave secreta armazenada apenas no seu dispositivo. Mesmo que um invasor roube sua senha, ele não pode fazer login sem acesso físico ao seu aplicativo autenticador.',
+        'about.desc2':'<span class="font-semibold text-slate-700">Esta ferramenta permite:</span>',
+        'about.verify':'<strong>Verificar</strong> — cole um segredo 2FA ou URI otpauth:// para ver instantaneamente o código de 6 dígitos',
+        'about.generate':'<strong>Gerar</strong> — crie um novo segredo 2FA aleatório com QR code pronto para qualquer app autenticador',
+        'about.local':'<strong>100% Local</strong> — toda criptografia roda no navegador via Web Crypto API; segredos nunca são transmitidos, armazenados ou registrados',
+        'verify.title':'Verificar Token 2FA',
+        'verify.desc':'Cole um segredo 2FA (ou URI otpauth://) abaixo. O código TOTP de 6 dígitos será calculado instantaneamente no seu navegador.',
+        'verify.placeholder':'Cole um segredo ou URI otpauth:// aqui…\nex. JBSWY3DPEHPK3PXP\nou  otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'Calcular Token','verify.countdown':'Atualiza em',
+        'verify.empty':'Cole um segredo acima e clique em <strong>Calcular Token</strong>',
+        'verify.current_code':'Código atual',
+        'generate.title':'Gerador de Segredo 2FA & QR Code',
+        'generate.desc':'Gere um segredo Base32 aleatório com QR code. Escaneie com Google Authenticator, Authy ou qualquer app compatível com TOTP.',
+        'generate.button':'Gerar Novo 2FA',
+        'generate.empty':'Clique em <strong>Gerar Novo 2FA</strong> para criar um segredo',
+        'generate.scan_hint':'Escaneie com qualquer app autenticador',
+        'generate.live_token':'Token ao vivo','generate.copy_token':'Copiar token',
+        'generate.show_uri':'Mostrar URI <code class="font-mono">otpauth://</code> bruta',
+        'generate.issuer':'Ferramentas 2FA','generate.account':'usuario@2fa.tools',
+        'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Seus segredos nunca saem do navegador.',
+        'ad.728x90':'PUBLICIDADE · 728×90','ad.160x600':'PUB<br>160×600',
+        'status.paste_first':'Cole primeiro um segredo ou URI otpauth://.',
+        'status.no_valid':'Nenhum segredo válido encontrado. Verifique sua entrada.',
+        'status.token_loaded':'1 token carregado',
+        'status.tokens_loaded':'{n} tokens carregados',
+        'status.lines_skipped':'{n} linha(s) ignorada(s)',
+        'status.generated':'Novo segredo 2FA gerado! Escaneie o QR code com seu app.',
+        'status.line_error':'Linha {n} não pôde ser analisada',
+        'error.qr_failed':'Falha na geração QR','error.qr_no_lib':'Biblioteca QR não carregada',
+        'result.label_secret':'Segredo ({prefix}…{suffix})',
+      },
+      ru: {
+        'app.title':'2FA Инструменты','app.subtitle':'TOTP-верификатор и генератор секретов',
+        'common.copy':'Копировать','common.copied':'Скопировано!','common.copy_token':'Копировать токен',
+        'about.title':'Что такое двухфакторная аутентификация (2FA)?',
+        'about.desc1':'Двухфакторная аутентификация (2FA) добавляет второй уровень безопасности помимо пароля. После ввода пароля вы предоставляете <strong>одноразовый пароль на основе времени (TOTP)</strong> — 6-значный код, обновляющийся каждые 30 секунд и генерируемый из секретного ключа, хранящегося только на вашем устройстве. Даже если злоумышленник украдёт ваш пароль, он не сможет войти без физического доступа к вашему приложению-аутентификатору.',
+        'about.desc2':'<span class="font-semibold text-slate-700">Этот инструмент позволяет:</span>',
+        'about.verify':'<strong>Проверить</strong> — вставьте секрет 2FA или otpauth:// URI, чтобы мгновенно увидеть текущий 6-значный код',
+        'about.generate':'<strong>Создать</strong> — сгенерируйте новый криптографически случайный секрет 2FA с QR-кодом',
+        'about.local':'<strong>100% Локально</strong> — вся криптография выполняется в браузере через Web Crypto API; секреты никогда не передаются, не хранятся и не логируются',
+        'verify.title':'Проверка 2FA-токена',
+        'verify.desc':'Вставьте секрет 2FA (или otpauth:// URI) ниже. Текущий 6-значный TOTP-код будет мгновенно вычислен в вашем браузере.',
+        'verify.placeholder':'Вставьте секрет или otpauth:// URI сюда…\nнапр. JBSWY3DPEHPK3PXP\nили  otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'Вычислить токен','verify.countdown':'Обновление через',
+        'verify.empty':'Вставьте секрет выше и нажмите <strong>Вычислить токен</strong>',
+        'verify.current_code':'Текущий код',
+        'generate.title':'Генератор секретов 2FA и QR-кодов',
+        'generate.desc':'Сгенерируйте криптографически случайный секрет Base32 с QR-кодом. Отсканируйте его с помощью Google Authenticator, Authy или любого TOTP-совместимого приложения.',
+        'generate.button':'Создать новый 2FA',
+        'generate.empty':'Нажмите <strong>Создать новый 2FA</strong> для генерации секрета',
+        'generate.scan_hint':'Отсканируйте любым приложением-аутентификатором',
+        'generate.live_token':'Текущий токен','generate.copy_token':'Копировать токен',
+        'generate.show_uri':'Показать исходный <code class="font-mono">otpauth://</code> URI',
+        'generate.issuer':'2FA Инструменты','generate.account':'user@2fa.tools',
+        'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Ваши секреты никогда не покидают браузер.',
+        'ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
+        'status.paste_first':'Сначала вставьте секрет или otpauth:// URI.',
+        'status.no_valid':'Действительные секреты не найдены. Проверьте ввод.',
+        'status.token_loaded':'1 токен загружен',
+        'status.tokens_loaded':'{n} токенов загружено',
+        'status.lines_skipped':'Пропущено строк: {n}',
+        'status.generated':'Новый секрет 2FA создан! Отсканируйте QR-код вашим приложением.',
+        'status.line_error':'Строка {n} не поддаётся разбору',
+        'error.qr_failed':'Ошибка генерации QR','error.qr_no_lib':'QR-библиотека не загружена',
+        'result.label_secret':'Секрет ({prefix}…{suffix})',
+      },
+      tr: {
+        'app.title':'2FA Araçları','app.subtitle':'TOTP Doğrulayıcı ve Gizli Anahtar Oluşturucu',
+        'common.copy':'Kopyala','common.copied':'Kopyalandı!','common.copy_token':'Token Kopyala',
+        'about.title':'İki Faktörlü Kimlik Doğrulama (2FA) Nedir?',
+        'about.desc1':'İki Faktörlü Kimlik Doğrulama (2FA), parolanızın ötesinde ikinci bir güvenlik katmanı ekler. Parolanızı girdikten sonra, yalnızca cihazınızda saklanan bir anahtardan oluşturulan, her 30 saniyede bir yenilenen 6 haneli <strong>Zaman Tabanlı Tek Kullanımlık Parola (TOTP)</strong> sağlarsınız. Bir saldırgan parolanızı çalsa bile, kimlik doğrulama uygulamanıza fiziksel erişim olmadan giriş yapamaz.',
+        'about.desc2':'<span class="font-semibold text-slate-700">Bu araç ile şunları yapabilirsiniz:</span>',
+        'about.verify':'<strong>Doğrula</strong> — bir 2FA anahtarı veya otpauth:// URI\'si yapıştırarak mevcut 6 haneli kodu anında görün',
+        'about.generate':'<strong>Oluştur</strong> — herhangi bir kimlik doğrulama uygulaması için hazır QR kodlu yeni bir 2FA anahtarı oluşturun',
+        'about.local':'<strong>%100 Yerel</strong> — tüm kriptografi tarayıcınızda Web Crypto API ile çalışır; anahtarlar asla iletilmez, depolanmaz veya günlüğe kaydedilmez',
+        'verify.title':'2FA Token Doğrula',
+        'verify.desc':'Aşağıya bir 2FA anahtarı (veya otpauth:// URI\'si) yapıştırın. Mevcut 6 haneli TOTP kodu tarayıcınızda anında hesaplanacaktır.',
+        'verify.placeholder':'Buraya bir anahtar veya otpauth:// URI\'si yapıştırın…\nörn. JBSWY3DPEHPK3PXP\nveya otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'Token Hesapla','verify.countdown':'Yenilenme süresi',
+        'verify.empty':'Yukarıya bir anahtar yapıştırın ve <strong>Token Hesapla</strong>\'ya tıklayın',
+        'verify.current_code':'Mevcut kod',
+        'generate.title':'2FA Anahtar ve QR Kod Oluşturucu',
+        'generate.desc':'QR kodlu kriptografik olarak rastgele bir Base32 anahtar oluşturun. Google Authenticator, Authy veya herhangi bir TOTP uyumlu uygulama ile tarayın.',
+        'generate.button':'Yeni 2FA Oluştur',
+        'generate.empty':'Bir anahtar oluşturmak için <strong>Yeni 2FA Oluştur</strong>\'a tıklayın',
+        'generate.scan_hint':'Herhangi bir kimlik doğrulama uygulamasıyla tarayın',
+        'generate.live_token':'Canlı Token','generate.copy_token':'Token Kopyala',
+        'generate.show_uri':'Ham <code class="font-mono">otpauth://</code> URI\'sini göster',
+        'generate.issuer':'2FA Araçları','generate.account':'kullanici@2fa.tools',
+        'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Anahtarlarınız asla tarayıcıdan çıkmaz.',
+        'ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
+        'status.paste_first':'Lütfen önce bir anahtar veya otpauth:// URI\'si yapıştırın.',
+        'status.no_valid':'Geçerli anahtar bulunamadı. Girdinizi kontrol edin.',
+        'status.token_loaded':'1 token yüklendi',
+        'status.tokens_loaded':'{n} token yüklendi',
+        'status.lines_skipped':'{n} satır atlandı',
+        'status.generated':'Yeni 2FA anahtarı oluşturuldu! QR kodu uygulamanızla tarayın.',
+        'status.line_error':'Satır {n} ayrıştırılamadı',
+        'error.qr_failed':'QR oluşturma başarısız','error.qr_no_lib':'QR kütüphanesi yüklenmedi',
+        'result.label_secret':'Anahtar ({prefix}…{suffix})',
+      },
+      'zh-TW': {
+        'app.title':'2FA 工具','app.subtitle':'TOTP 驗證器與金鑰產生器',
+        'common.copy':'複製','common.copied':'已複製！','common.copy_token':'複製驗證碼',
+        'about.title':'什麼是雙因素認證 (2FA)？',
+        'about.desc1':'雙因素認證（2FA）在密碼之外增加了第二層關鍵安全防護。輸入密碼後，您還需要提供一個<strong>基於時間的一次性密碼（TOTP）</strong>——一個每 30 秒刷新一次的 6 位數驗證碼，由僅存儲在您裝置上的金鑰產生。即使攻擊者竊取了您的密碼，也無法在沒有物理存取您的驗證器應用程式或安全金鑰的情況下登入。',
+        'about.desc2':'<span class="font-semibold text-slate-700">本工具可幫助您：</span>',
+        'about.verify':'<strong>驗證</strong> — 貼上 2FA 金鑰或 otpauth:// 連結，即時查看當前 6 位驗證碼',
+        'about.generate':'<strong>產生</strong> — 建立全新的加密隨機 2FA 金鑰及 QR 碼，可直接用於任何驗證器應用程式',
+        'about.local':'<strong>100% 本地</strong> — 所有加密運算均在瀏覽器內透過 Web Crypto API 完成，金鑰絕不會被傳輸、儲存或記錄',
+        'verify.title':'驗證 2FA 驗證碼',
+        'verify.desc':'在下方貼上 2FA 金鑰（或 otpauth:// 連結），當前 6 位 TOTP 驗證碼將即時在您的瀏覽器中計算。',
+        'verify.placeholder':'在此貼上金鑰或 otpauth:// 連結…\n例如 JBSWY3DPEHPK3PXP\n或   otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        'verify.button':'計算驗證碼','verify.countdown':'驗證碼刷新倒數',
+        'verify.empty':'在上方貼上金鑰，然後點擊<strong>計算驗證碼</strong>',
+        'verify.current_code':'當前驗證碼',
+        'generate.title':'2FA 金鑰與 QR 碼產生器',
+        'generate.desc':'產生加密隨機的 Base32 金鑰及對應 QR 碼。使用 Google Authenticator、Authy 或任何相容 TOTP 的應用程式掃描——然後在此處即時測試驗證碼。',
+        'generate.button':'產生新的 2FA',
+        'generate.empty':'點擊<strong>產生新的 2FA</strong> 建立金鑰',
+        'generate.scan_hint':'使用任何驗證器應用程式掃描',
+        'generate.live_token':'即時驗證碼','generate.copy_token':'複製驗證碼',
+        'generate.show_uri':'顯示原始 <code class="font-mono">otpauth://</code> 連結',
+        'generate.issuer':'2FA 工具','generate.account':'user@2fa.tools',
+        'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 您的金鑰絕不會離開瀏覽器。',
+        'ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
+        'status.paste_first':'請先貼上金鑰或 otpauth:// 連結。',
+        'status.no_valid':'未找到有效金鑰，請檢查輸入後重試。',
+        'status.token_loaded':'已載入 1 個驗證碼',
+        'status.tokens_loaded':'已載入 {n} 個驗證碼',
+        'status.lines_skipped':'跳過了 {n} 行',
+        'status.generated':'新的 2FA 金鑰已產生！請使用驗證器應用程式掃描 QR 碼。',
+        'status.line_error':'第 {n} 行無法解析',
+        'error.qr_failed':'QR 碼產生失敗','error.qr_no_lib':'QR 碼函式庫未載入',
+        'result.label_secret':'金鑰（{prefix}…{suffix}）',
+      },
+    };
+
+    /* ================================================================
+     *  i18n ENGINE
+     * ================================================================ */
+    var currentLang = localStorage.getItem('2fa-lang') || 'en';
+    var fallbackDict = DICT.en;
+
+    /** Resolve a translation key. */
+    function t(key) {
+      var d = DICT[currentLang];
+      return (d && d[key]) || fallbackDict[key] || key;
+    }
+
+    /** Walk all [data-i18n] elements and patch their innerHTML. */
+    function updateLanguageUI() {
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var k = els[i].getAttribute('data-i18n');
+        if (k) els[i].innerHTML = t(k);
+      }
+    }
+
+    /** Update the language toggle button label. */
+    function updateLangButton() {
+      var found = LANGS.filter(function (L) { return L.code === currentLang; })[0];
+      var label = document.getElementById('btn-lang-label');
+      if (label && found) label.textContent = found.label;
+      var htmlEl = document.documentElement;
+      htmlEl.lang = (currentLang === 'zh') ? 'zh-CN' : (currentLang === 'zh-TW') ? 'zh-TW' : currentLang;
+    }
+
+    /** Build the language dropdown menu HTML. */
+    function buildLangMenu() {
+      var menu = document.getElementById('lang-menu');
+      if (!menu) return;
+      var html = '';
+      for (var i = 0; i < LANGS.length; i++) {
+        var L = LANGS[i];
+        var active = L.code === currentLang ? ' bg-cyan-50' : '';
+        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+          '<span class="text-[11px] font-bold text-gray-400 w-7">' + L.region + '</span>' +
+          '<span class="text-slate-700">' + L.native + '</span>' +
+          '</button>';
+      }
+      menu.innerHTML = html;
+    }
+
+    /* ================================================================
+     *  LANGUAGE SWITCHING  (exposed globally for onclick handlers)
+     * ================================================================ */
+    window.switchLanguage = function (lang) {
+      currentLang = lang;
+      localStorage.setItem('2fa-lang', lang);
+      updateLangButton();
+      buildLangMenu();
+      updateLanguageUI();
+      // Re-render dynamic content in the new language
+      reRenderAll();
+    };
+
+    window.toggleLangMenu = function () {
+      var menu = document.getElementById('lang-menu');
+      if (!menu) return;
+      buildLangMenu();
+      menu.classList.toggle('hidden');
+    };
+    window.closeLangMenu = function () {
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.add('hidden');
+    };
+    // Close on outside click
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('lang-dropdown');
+      if (dd && !dd.contains(e.target)) {
+        var menu = document.getElementById('lang-menu');
+        if (menu) menu.classList.add('hidden');
+      }
+    });
+
+    // Initialize language on load
+    updateLangButton();
+    buildLangMenu();
+    updateLanguageUI();
+
+    /* ================================================================
+     *  DOM REFERENCES
+     * ================================================================ */
+    var $  = function (sel) { return document.querySelector(sel); };
+    var $$ = function (sel) { return document.querySelectorAll(sel); };
+
+    var secretsInput    = $('#secrets-input');
+    var submitBtn       = $('#submit-btn');
+    var submitIcon      = $('#submit-icon');
+    var inputStatus     = $('#input-status');
+    var countdownWrap   = $('#countdown-wrapper');
+    var countdownBar    = $('#countdown-bar');
+    var countdownText   = $('#countdown-text');
+    var resultsContainer = $('#results-container');
+    var emptyState      = $('#empty-state');
+
+    var generateBtn     = $('#generate-btn');
+    var generatorResult = $('#generator-result');
+    var generatorEmpty  = $('#generator-empty');
+
+    /* ================================================================
+     *  STATE
+     * ================================================================ */
+    var verificationEntries = [];
+    var generatedEntry      = null;
+    var lastTimeStep        = -1;
+    var timerHandle         = null;
+
+    /* ================================================================
+     *  DARK MODE
+     * ================================================================ */
+    var IS_DARK = localStorage.getItem('2fa-dark') === '1';
+    function applyTheme() {
+      if (IS_DARK) document.documentElement.classList.add('dark');
+    }
+    window.toggleDark = function () {
+      IS_DARK = !IS_DARK;
+      localStorage.setItem('2fa-dark', IS_DARK ? '1' : '0');
+      location.reload();
+    };
+    applyTheme();
+
+    // Set placeholder on textarea from i18n dict
+    secretsInput.placeholder = t('verify.placeholder');
+
+    /* ================================================================
+     *  BASE32 DECODING (RFC 4648 §6)
+     * ================================================================ */
+    function base32Decode(encoded) {
+      var s = encoded.replace(/=+$/, '').replace(/[\s-]/g, '').toUpperCase();
+      if (s.length === 0) throw new Error('Empty Base32 string');
+
+      var bits = [];
+      for (var i = 0; i < s.length; i++) {
+        var idx = BASE32_ALPHABET.indexOf(s[i]);
+        if (idx === -1) throw new Error('Invalid Base32 character: "' + s[i] + '"');
+        for (var b = 4; b >= 0; b--) bits.push((idx >> b) & 1);
+      }
+
+      var byteCount = Math.floor(bits.length / 8);
+      var bytes = new Uint8Array(byteCount);
+      for (var i = 0; i < byteCount; i++) {
+        var val = 0;
+        for (var b = 0; b < 8; b++) val = (val << 1) | bits[i * 8 + b];
+        bytes[i] = val;
+      }
+      return bytes;
+    }
+
+    /* ================================================================
+     *  BASE32 ENCODING (RFC 4648 §6)
+     * ================================================================ */
+    function base32Encode(bytes) {
+      var bits = 0, bitCount = 0, result = '';
+      for (var i = 0; i < bytes.length; i++) {
+        bits = (bits << 8) | bytes[i];
+        bitCount += 8;
+        while (bitCount >= 5) {
+          bitCount -= 5;
+          result += BASE32_ALPHABET[(bits >> bitCount) & 0x1F];
+        }
+      }
+      if (bitCount > 0) result += BASE32_ALPHABET[(bits << (5 - bitCount)) & 0x1F];
+      return result;
+    }
+
+    function randomBytes(length) {
+      var buf = new Uint8Array(length);
+      crypto.getRandomValues(buf);
+      return buf;
+    }
+
+    /* ================================================================
+     *  TOTP COMPUTATION (RFC 6238)
+     * ================================================================ */
+    async function computeTOTP(secretBase32) {
+      var keyBytes = base32Decode(secretBase32);
+      var counter  = Math.floor(Date.now() / 1000 / TOTP_TIME_STEP);
+
+      var high32 = Math.floor(counter / 0x100000000);
+      var low32  = counter >>> 0;
+      var counterBuf = new ArrayBuffer(8);
+      var counterView = new DataView(counterBuf);
+      counterView.setUint32(0, high32, false);
+      counterView.setUint32(4, low32,  false);
+
+      var hmacKey = await crypto.subtle.importKey('raw', keyBytes, { name:'HMAC', hash:'SHA-1' }, false, ['sign']);
+      var hmacSig = await crypto.subtle.sign('HMAC', hmacKey, counterBuf);
+      var hmac = new Uint8Array(hmacSig);
+
+      var offset = hmac[19] & 0x0F;
+      var binary = ((hmac[offset] & 0x7F) << 24) | ((hmac[offset+1] & 0xFF) << 16) | ((hmac[offset+2] & 0xFF) << 8) | (hmac[offset+3] & 0xFF);
+      var otp = binary % Math.pow(10, TOTP_DIGITS);
+      return otp.toString().padStart(TOTP_DIGITS, '0');
+    }
+
+    /* ================================================================
+     *  OTPAUTH URI PARSING
+     * ================================================================ */
+    function parseOTPAuthURI(uri) {
+      try {
+        var u = new URL(uri.trim());
+        if (u.protocol !== 'otpauth:' || u.hostname !== 'totp') return null;
+        var rawLabel = decodeURIComponent(u.pathname.replace(/^\/+/, ''));
+        var issuer = u.searchParams.get('issuer') || '';
+        var account = rawLabel;
+        if (rawLabel.includes(':') && !issuer) {
+          var ci = rawLabel.indexOf(':');
+          issuer = rawLabel.slice(0, ci);
+          account = rawLabel.slice(ci + 1);
+        } else if (rawLabel.includes(':') && issuer) {
+          account = rawLabel.slice(rawLabel.indexOf(':') + 1);
+        }
+        var secret = u.searchParams.get('secret');
+        if (!secret) return null;
+        return { secret: secret.replace(/[\s-]/g, ''), label: [issuer, account].filter(Boolean).join(': ') || 'Unknown', issuer: issuer || '', account: account || '' };
+      } catch (_) { return null; }
+    }
+
+    /* ================================================================
+     *  PARSE ONE LINE FROM TEXTAREA
+     * ================================================================ */
+    function parseLine(line) {
+      var trimmed = line.trim();
+      if (trimmed === '') return null;
+      if (trimmed.startsWith('otpauth://')) {
+        var parsed = parseOTPAuthURI(trimmed);
+        if (parsed) return { secret: parsed.secret, label: parsed.label };
+      }
+      var cleaned = trimmed.replace(/[\s-]/g, '').toUpperCase();
+      if (/^[A-Z2-7]+$/.test(cleaned) && cleaned.length >= 16) {
+        var labelTpl = t('result.label_secret');
+        return { secret: cleaned, label: labelTpl.replace('{prefix}', cleaned.slice(0,4)).replace('{suffix}', cleaned.slice(-4)) };
+      }
+      return null;
+    }
+
+    function escHtml(str) {
+      var map = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' };
+      return String(str).replace(/[&<>"']/g, function (c) { return map[c]; });
+    }
+
+    function formatToken(token) {
+      var mid = Math.floor(token.length / 2);
+      return token.slice(0, mid) + ' ' + token.slice(mid);
+    }
+
+    /* ================================================================
+     *  COPY TO CLIPBOARD
+     * ================================================================ */
+    function copyToClipboard(text, btnEl) {
+      var originalHTML = btnEl.innerHTML;
+      var originalClass = btnEl.className;
+      var done = function () {
+        btnEl.innerHTML = t('common.copied');
+        btnEl.classList.add('text-emerald-600');
+        setTimeout(function () { btnEl.innerHTML = originalHTML; btnEl.className = originalClass; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {
+          var ta = document.createElement('textarea'); ta.value = text;
+          ta.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(ta);
+          ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+          done();
+        });
+      } else {
+        var ta = document.createElement('textarea'); ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        done();
+      }
+    }
+
+    /* ================================================================
+     *  CREATE RESULT CARD
+     * ================================================================ */
+    function createResultCard(entry, token) {
+      var card = document.createElement('div');
+      card.className = 'bg-slate-50 border border-slate-200 rounded-xl p-4 animate-fade-in';
+
+      // Top row
+      var topRow = document.createElement('div');
+      topRow.className = 'flex items-center justify-between mb-2';
+      var labelEl = document.createElement('p');
+      labelEl.className = 'text-sm font-semibold text-slate-700 truncate';
+      labelEl.textContent = entry.label || 'Unknown';
+      topRow.appendChild(labelEl);
+
+      var secretWrap = document.createElement('div');
+      secretWrap.className = 'flex items-center gap-2';
+      var secretCode = document.createElement('code');
+      secretCode.className = 'text-xs font-mono text-slate-500 bg-white border border-slate-200 rounded px-2 py-1 select-all max-w-[200px] truncate';
+      secretCode.textContent = entry.secret;
+      secretCode.title = entry.secret;
+      secretWrap.appendChild(secretCode);
+
+      var copySec = document.createElement('button');
+      copySec.className = 'copy-btn px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 transition-all';
+      copySec.textContent = t('common.copy');
+      copySec.addEventListener('click', function () { copyToClipboard(entry.secret, copySec); });
+      secretWrap.appendChild(copySec);
+      topRow.appendChild(secretWrap);
+      card.appendChild(topRow);
+
+      // Bottom row
+      var bottomRow = document.createElement('div');
+      bottomRow.className = 'flex items-center justify-between mt-3 pt-3 border-t border-slate-200';
+      var tokenLeft = document.createElement('div');
+      tokenLeft.className = 'flex items-center gap-2';
+
+      var tokenLabel = document.createElement('span');
+      tokenLabel.className = 'text-[11px] font-medium text-slate-400 uppercase tracking-wider';
+      tokenLabel.textContent = t('verify.current_code');
+      tokenLeft.appendChild(tokenLabel);
+
+      var tokenEl = document.createElement('span');
+      tokenEl.className = 'token-display text-xl md:text-2xl font-bold font-mono text-slate-900 tabular-nums';
+      tokenEl.dataset.tokenTarget = entry.id;
+      tokenEl.textContent = formatToken(token);
+      tokenLeft.appendChild(tokenEl);
+      bottomRow.appendChild(tokenLeft);
+
+      var copyTok = document.createElement('button');
+      copyTok.className = 'copy-btn inline-flex items-center gap-1.5 rounded-lg bg-cyan-50 px-4 py-2 text-xs font-semibold text-cyan-700 hover:bg-cyan-100 active:scale-95 transition-all';
+      copyTok.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> ' + t('common.copy_token');
+      copyTok.addEventListener('click', function () { copyToClipboard(token, copyTok); });
+      bottomRow.appendChild(copyTok);
+      card.appendChild(bottomRow);
+      return card;
+    }
+
+    /* ================================================================
+     *  RE-RENDER ALL DYNAMIC CONTENT (called on language switch)
+     * ================================================================ */
+    async function reRenderAll() {
+      // Update textarea placeholder
+      secretsInput.placeholder = t('verify.placeholder');
+
+      // Re-render verification results
+      if (verificationEntries.length > 0) {
+        resultsContainer.innerHTML = '';
+        for (var i = 0; i < verificationEntries.length; i++) {
+          try {
+            var token = await computeTOTP(verificationEntries[i].secret);
+            resultsContainer.appendChild(createResultCard(verificationEntries[i], token));
+          } catch (err) {
+            var errCard = document.createElement('div');
+            errCard.className = 'bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-700 animate-fade-in';
+            errCard.textContent = '⚠ ' + verificationEntries[i].label + ': ' + err.message;
+            resultsContainer.appendChild(errCard);
+          }
+        }
+      }
+
+      // Re-render generator result
+      if (generatedEntry) {
+        await renderGeneratorResult();
+      }
+    }
+
+    /* ================================================================
+     *  RENDER GENERATOR RESULT (extracted for re-render support)
+     * ================================================================ */
+    async function renderGeneratorResult() {
+      if (!generatedEntry) return;
+      var secret = generatedEntry.secret;
+      var issuer = t('generate.issuer');
+      var label  = issuer + ': ' + t('generate.account');
+
+      var params = new URLSearchParams({ secret:secret, issuer:issuer, algorithm:'SHA1', digits:String(TOTP_DIGITS), period:String(TOTP_TIME_STEP) });
+      var otpauthURI = 'otpauth://totp/' + encodeURIComponent(label) + '?' + params.toString();
+
+      var token;
+      try { token = await computeTOTP(secret); } catch (err) { token = 'ERROR'; }
+
+      generatorResult.innerHTML =
+        '<div class="flex flex-col lg:flex-row gap-5">' +
+          '<div class="flex-shrink-0 flex flex-col items-center">' +
+            '<canvas id="qr-canvas" class="rounded-xl border border-slate-200 bg-white p-2" width="200" height="200"></canvas>' +
+            '<p class="mt-2 text-[11px] text-slate-400">' + escHtml(t('generate.scan_hint')) + '</p>' +
+          '</div>' +
+          '<div class="flex-1 min-w-0 flex flex-col justify-between gap-4">' +
+            '<div>' +
+              '<p class="text-sm font-semibold text-slate-700">' + escHtml(label) + '</p>' +
+              '<div class="flex items-center gap-2 mt-2 flex-wrap">' +
+                '<code class="text-sm font-mono text-slate-600 bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 break-all select-all">' + escHtml(secret) + '</code>' +
+                '<button id="gen-copy-secret" class="copy-btn px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 transition-all">' + escHtml(t('common.copy')) + '</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="bg-cyan-50 border border-cyan-200 rounded-xl p-4 flex items-center gap-4 flex-wrap">' +
+              '<span class="text-[11px] font-medium text-cyan-500 uppercase tracking-wider">' + escHtml(t('generate.live_token')) + '</span>' +
+              '<span id="gen-live-token" class="token-display text-2xl font-bold font-mono text-cyan-700 tabular-nums">' + formatToken(token) + '</span>' +
+              '<button id="gen-copy-token" class="copy-btn ml-auto inline-flex items-center gap-1.5 rounded-lg bg-cyan-600 px-4 py-2 text-xs font-semibold text-white hover:bg-cyan-700 active:scale-95 transition-all">' + escHtml(t('generate.copy_token')) + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<details class="mt-4 group"><summary class="text-[11px] text-slate-400 cursor-pointer hover:text-slate-600 select-none">' + t('generate.show_uri') + '</summary>' +
+          '<code class="block mt-2 text-xs font-mono text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3 break-all select-all">' + escHtml(otpauthURI) + '</code></details>';
+
+      // Render QR code
+      var qrCanvas = document.getElementById('qr-canvas');
+      if (qrCanvas && typeof QRCode !== 'undefined') {
+        try {
+          await QRCode.toCanvas(qrCanvas, otpauthURI, { width:180, margin:1, color:{dark:'#1e293b',light:'#ffffff'}, errorCorrectionLevel:'M' });
+        } catch (err) {
+          var ctx = qrCanvas.getContext('2d');
+          ctx.fillStyle = '#fef2f2'; ctx.fillRect(0,0,qrCanvas.width,qrCanvas.height);
+          ctx.fillStyle = '#dc2626'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText(t('error.qr_failed'), qrCanvas.width/2, qrCanvas.height/2);
+        }
+      } else if (qrCanvas) {
+        var ctx = qrCanvas.getContext('2d');
+        ctx.fillStyle = '#fef2f2'; ctx.fillRect(0,0,qrCanvas.width,qrCanvas.height);
+        ctx.fillStyle = '#dc2626'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(t('error.qr_no_lib'), qrCanvas.width/2, qrCanvas.height/2);
+      }
+
+      var secBtn = document.getElementById('gen-copy-secret');
+      var tokBtn = document.getElementById('gen-copy-token');
+      if (secBtn) secBtn.addEventListener('click', function () { copyToClipboard(secret, secBtn); });
+      if (tokBtn) tokBtn.addEventListener('click', function () { copyToClipboard(token, tokBtn); });
+    }
+
+    /* ================================================================
+     *  SHOW STATUS MESSAGE
+     * ================================================================ */
+    function showInputStatus(msg, type) {
+      inputStatus.textContent = msg;
+      inputStatus.className = 'text-xs';
+      inputStatus.classList.remove('hidden');
+      var colours = { success:'text-emerald-600', error:'text-red-500', warning:'text-amber-600', info:'text-slate-400' };
+      inputStatus.classList.add(colours[type] || colours.info);
+      clearTimeout(inputStatus._timeout);
+      inputStatus._timeout = setTimeout(function () { inputStatus.classList.add('hidden'); }, 8000);
+    }
+
+    /* ================================================================
+     *  REFRESH ALL TOKENS
+     * ================================================================ */
+    async function refreshAllTokens() {
+      var nowSeconds = Math.floor(Date.now() / 1000);
+      var currentStep = Math.floor(nowSeconds / TOTP_TIME_STEP);
+      if (currentStep === lastTimeStep) return;
+      lastTimeStep = currentStep;
+
+      var allEntries = verificationEntries.concat(generatedEntry ? [generatedEntry] : []);
+      var tokenSpans = document.querySelectorAll('[data-token-target]');
+      var cardMap = {};
+      tokenSpans.forEach(function (el) { cardMap[el.dataset.tokenTarget] = el; });
+
+      for (var i = 0; i < allEntries.length; i++) {
+        var entry = allEntries[i];
+        try {
+          var token = await computeTOTP(entry.secret);
+          var span = cardMap[entry.id];
+          if (span) {
+            var oldToken = span.textContent.replace(/\s/g, '');
+            span.textContent = formatToken(token);
+            if (oldToken !== token) {
+              span.classList.remove('animate-pulse-bar');
+              void span.offsetWidth;
+              span.classList.add('animate-pulse-bar');
+            }
+          }
+          var genTokenEl = document.getElementById('gen-live-token');
+          if (genTokenEl && generatedEntry && entry.id === generatedEntry.id) {
+            genTokenEl.textContent = formatToken(token);
+          }
+        } catch (err) { console.warn('TOTP error:', entry.label, err); }
+      }
+    }
+
+    /* ================================================================
+     *  UPDATE COUNTDOWN BAR
+     * ================================================================ */
+    function updateCountdown() {
+      var nowSeconds = Math.floor(Date.now() / 1000);
+      var elapsed = nowSeconds % TOTP_TIME_STEP;
+      var remaining = TOTP_TIME_STEP - elapsed;
+      var pct = (remaining / TOTP_TIME_STEP) * 100;
+      countdownBar.style.width = pct + '%';
+      countdownText.textContent = remaining + 's';
+      countdownBar.classList.remove('bg-emerald-500', 'bg-amber-500', 'bg-red-500');
+      if (remaining > 10)      countdownBar.classList.add('bg-emerald-500');
+      else if (remaining > 5)  countdownBar.classList.add('bg-amber-500');
+      else                      countdownBar.classList.add('bg-red-500');
+    }
+
+    async function tick() { updateCountdown(); await refreshAllTokens(); }
+
+    function startTimer() {
+      if (timerHandle) return;
+      tick();
+      timerHandle = setInterval(tick, 1000);
+    }
+
+    /* ================================================================
+     *  HANDLE SUBMIT
+     * ================================================================ */
+    async function handleSubmit() {
+      var raw = secretsInput.value.trim();
+      if (!raw) { showInputStatus(t('status.paste_first'), 'warning'); return; }
+
+      submitBtn.disabled = true;
+      submitIcon.classList.add('animate-spin');
+
+      var lines = raw.split(/\r?\n/);
+      var entries = [], errors = [];
+
+      lines.forEach(function (line, idx) {
+        var parsed = parseLine(line);
+        if (parsed) {
+          entries.push({ id:'vfy-'+Date.now()+'-'+idx+'-'+Math.random().toString(36).slice(2,7), secret:parsed.secret, label:parsed.label });
+        } else if (line.trim() !== '') {
+          errors.push(t('status.line_error').replace('{n}', idx+1));
+        }
+      });
+
+      verificationEntries = entries;
+      lastTimeStep = -1;
+      resultsContainer.innerHTML = '';
+
+      if (entries.length === 0) {
+        emptyState.classList.remove('hidden');
+        countdownWrap.classList.add('hidden');
+        showInputStatus(t('status.no_valid'), 'error');
+      } else {
+        emptyState.classList.add('hidden');
+        countdownWrap.classList.remove('hidden');
+        for (var i = 0; i < entries.length; i++) {
+          try {
+            var token = await computeTOTP(entries[i].secret);
+            resultsContainer.appendChild(createResultCard(entries[i], token));
+          } catch (err) {
+            var errCard = document.createElement('div');
+            errCard.className = 'bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-700 animate-fade-in';
+            errCard.textContent = '⚠ ' + entries[i].label + ': ' + err.message;
+            resultsContainer.appendChild(errCard);
+          }
+        }
+        var msg = entries.length === 1 ? t('status.token_loaded') : t('status.tokens_loaded').replace('{n}', entries.length);
+        var suffix = errors.length > 0 ? ' · ' + t('status.lines_skipped').replace('{n}', errors.length) : '';
+        showInputStatus(msg + suffix, errors.length > 0 ? 'warning' : 'success');
+        if (errors.length > 0) console.warn('Parse warnings:', errors);
+      }
+
+      submitBtn.disabled = false;
+      submitIcon.classList.remove('animate-spin');
+    }
+
+    /* ================================================================
+     *  HANDLE GENERATE
+     * ================================================================ */
+    async function handleGenerate() {
+      var bytes = randomBytes(20);
+      var secret = base32Encode(bytes);
+      generatedEntry = { id:'gen-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), secret:secret, label:t('generate.issuer')+': '+t('generate.account') };
+      lastTimeStep = -1;
+
+      generatorEmpty.classList.add('hidden');
+      generatorResult.classList.remove('hidden');
+      generatorResult.classList.add('animate-slide-up');
+
+      await renderGeneratorResult();
+      showInputStatus(t('status.generated'), 'success');
+      countdownWrap.classList.remove('hidden');
+    }
+
+    /* ================================================================
+     *  EVENT BINDINGS
+     * ================================================================ */
+    submitBtn.addEventListener('click', handleSubmit);
+    secretsInput.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); handleSubmit(); }
+    });
+    generateBtn.addEventListener('click', handleGenerate);
+
+    /* ================================================================
+     *  VISIBILITY CHANGE
+     * ================================================================ */
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) { lastTimeStep = -1; tick(); }
+    });
+
+    /* ================================================================
+     *  STARTUP
+     * ================================================================ */
+    startTimer();
+    console.log('%c🔐 2FA Tools ready %c| %cWeb Crypto %c'+(crypto.subtle?'✅':'❌')+' %c| %cQRCode %c'+(typeof QRCode!=='undefined'?'✅':'❌')+' %c| %cLang %c'+currentLang,
+      'font-weight:bold;','','color:#06b6d4;','font-weight:bold;','','color:#06b6d4;','font-weight:bold;','','color:#06b6d4;','font-weight:bold;');
+
+  })();
+  </script>
+
+</body>
+</html>

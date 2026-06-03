@@ -55,6 +55,7 @@
     };
   </script>
 
+  <link rel="stylesheet" href="common.css" />
   <style>
     /* ── Leaflet overrides ── */
     #map { height: 380px; width: 100%; border-radius: 1rem; z-index: 0; }
@@ -62,51 +63,6 @@
       border-radius: 0.5rem !important;
       box-shadow: 0 1px 3px rgba(0,0,0,.08) !important;
     }
-
-    /* ── Skeleton pulse ── */
-    .skeleton-bar {
-      background-color: #e2e8f0;
-      border-radius: 0.5rem;
-      animation: shimmer 1.6s ease-in-out infinite;
-    }
-
-    /* ── Dark mode overrides ──────────────────────────────── */
-    .dark .bg-white             { background-color: #0f172a; }
-    .dark .bg-slate-50          { background-color: #020617; }
-    .dark .border-gray-200      { border-color: #334155; }
-    .dark .border-gray-100      { border-color: #1e293b; }
-    .dark .text-slate-900       { color: #f8fafc; }
-    .dark .text-slate-800       { color: #f1f5f9; }
-    .dark .text-slate-700       { color: #cbd5e1; }
-    .dark .text-slate-500       { color: #94a3b8; }
-    .dark .text-gray-500        { color: #94a3b8; }
-    .dark .text-gray-400        { color: #64748b; }
-    .dark .bg-amber-50          { background-color: #451a03; }
-    .dark .border-amber-200     { border-color: #78350f; }
-    .dark .text-amber-800       { color: #fbbf24; }
-    .dark .text-amber-600       { color: #fbbf24; }
-    .dark .bg-amber-100         { background-color: #78350f; }
-    .dark .text-amber-500       { color: #f59e0b; }
-    .dark .bg-cyan-950          { background-color: #0f172a; }
-    .dark .bg-slate-800         { background-color: #1e293b; }
-    .dark .divide-gray-100      { border-color: #1e293b; }
-    .dark .shadow-sm            { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-    .dark #score-ring           { stroke: #475569; }
-    .dark .bg-slate-200         { background-color: #334155; }
-    .dark .text-slate-400       { color: #64748b; }
-    .dark .text-slate-300       { color: #475569; }
-    .dark .hover\:bg-gray-100:hover { background-color: #1e293b; }
-    .dark .hover\:bg-gray-50:hover  { background-color: #1e293b; }
-
-    /* ── CJK font fallbacks ────────────────────────────────── */
-    :lang(zh), :lang(ja), :lang(ko), [lang="zh-CN"], [lang="zh-TW"] {
-      font-family: "Inter", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR", "Microsoft YaHei", system-ui, sans-serif;
-    }
-
-    /* ── Custom scrollbar ── */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
   </style>
 </head>
 
@@ -944,7 +900,7 @@
      */
     function isNetworkError(e) {
       var msg = (e.message || '').toLowerCase();
-      return msg.indexOf('failed to fetch') !== -1
+      return (msg.indexOf('failed to fetch') !== -1 && msg.indexOf('ssl') === -1)
           || msg.indexOf('networkerror') !== -1
           || msg.indexOf('timeout') !== -1
           || msg.indexOf('abort') !== -1

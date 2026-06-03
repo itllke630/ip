@@ -60,7 +60,7 @@ export default {
       } catch (e) { return json({ error: e.message }, 502); }
     }
 
-    // ── Static: serve index.html for all other paths ────────────
+    // ── Static: serve index.html (hub) / ip.html & other pages ─
     return env.ASSETS.fetch(request);
   },
 };

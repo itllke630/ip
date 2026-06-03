@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Free online image converter — convert WebP, PNG, JPG images entirely in your browser. No uploads, batch processing, ZIP download support." />
+  <title>Image Converter — WebP / PNG / JPG — LinkoZen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'fade-in':  'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+          },
+          keyframes: {
+            fadeIn:  { '0%':{opacity:'0'}, '100%':{opacity:'1'} },
+            slideUp: { '0%':{opacity:'0',transform:'translateY(12px)'}, '100%':{opacity:'1',transform:'translateY(0)'} },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- JSZip for ZIP download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    #drop-zone.drag-over { border-color: #06b6d4; background-color: #ecfeff; }
+    .dark #drop-zone.drag-over { background-color: #0f172a; border-color: #22d3ee; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================================================================== -->
+  <!--  HEADER                                                             -->
+  <!-- ================================================================== -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3 no-underline">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">CV</div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">Image Converter</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">WebP · PNG · JPG — 100% Client-Side</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
+        <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm" onclick="toggleLangMenu()" aria-label="Switch language">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================== -->
+  <!--  TOP AD — 728×90 Leaderboard                                        -->
+  <!-- ================================================================== -->
+  <div class="max-w-[728px] mx-auto mt-5 px-2">
+    <div id="ad-top-container" class="ad-placeholder w-full h-[50px] md:h-[90px] rounded-xl" data-i18n="ad.728x90">
+      <!-- GOOGLE ADSENSE / AD NETWORK CODE — 728×90 Leaderboard -->
+      ADVERTISEMENT · 728×90
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!--  MAIN CONTENT — 12-col grid                                         -->
+  <!-- ================================================================== -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- LEFT AD — 160×600 Skyscraper (lg only) -->
+      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div id="ad-left-container" class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">
+          <!-- GOOGLE ADSENSE / AD NETWORK CODE — 160×600 Skyscraper (Left) -->
+          AD<br>160×600
+        </div>
+      </aside>
+
+      <!-- CENTER COLUMN (8/12) -->
+      <div class="lg:col-span-8 space-y-5">
+
+        <!-- ========================================================== -->
+        <!--  UPLOAD ZONE                                                 -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <span data-i18n="upload.title">Upload Images</span>
+          </h2>
+
+          <!-- Drop Zone -->
+          <div id="drop-zone"
+               class="relative border-2 border-dashed border-slate-300 rounded-2xl p-8 md:p-12 text-center cursor-pointer transition-all hover:border-slate-400 bg-slate-50/50"
+               onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" class="hidden" accept=".webp,.png,.jpg,.jpeg" multiple onchange="handleFiles(this.files)">
+
+            <div class="flex flex-col items-center gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white shadow-sm">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-700" data-i18n="upload.drop">Drag &amp; drop images here</p>
+                <p class="text-xs text-slate-400 mt-1" data-i18n="upload.or">or click to browse files</p>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1" data-i18n="upload.formats">Supports: WebP, PNG, JPG, JPEG</p>
+            </div>
+          </div>
+
+          <!-- Format selector + quality -->
+          <div class="mt-5 flex flex-wrap items-center gap-4">
+            <div>
+              <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-2" data-i18n="settings.format">Convert To</p>
+              <div class="flex gap-1.5">
+                <button data-format="png" onclick="setFormat('png')"
+                        class="format-btn px-4 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300">PNG</button>
+                <button data-format="jpeg" onclick="setFormat('jpeg')"
+                        class="format-btn px-4 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300">JPG</button>
+                <button data-format="webp" onclick="setFormat('webp')"
+                        class="format-btn px-4 py-2 rounded-xl text-xs font-semibold border transition-all bg-blue-50 border-blue-300 text-blue-700">WebP</button>
+              </div>
+            </div>
+
+            <!-- Quality slider (JPG only) -->
+            <div id="quality-group" class="hidden">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider" data-i18n="settings.quality">JPG Quality</span>
+                <span id="quality-display" class="text-xs font-bold font-mono text-slate-600">0.9</span>
+              </div>
+              <input type="range" id="quality-slider" min="0.1" max="1.0" step="0.05" value="0.9"
+                     class="w-40" oninput="onQualityChange(this.value)">
+            </div>
+          </div>
+
+          <!-- Convert All button -->
+          <button id="convert-all-btn" onclick="convertAll()"
+                  class="hidden mt-5 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-3 text-sm font-semibold text-white hover:from-emerald-600 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 active:scale-[0.98] transition-all shadow-md shadow-emerald-500/20">
+            <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span data-i18n="upload.convert_all">Convert All</span> (<span id="convert-count">0</span>)
+          </button>
+        </section>
+
+        <!-- ========================================================== -->
+        <!--  FILE QUEUE / RESULTS                                        -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+              <span data-i18n="queue.title">File Queue</span>
+              <span id="queue-count" class="text-[11px] font-normal text-slate-400 ml-1">(0)</span>
+            </h2>
+            <div class="flex items-center gap-2" id="queue-actions">
+              <button id="btn-download-all" onclick="downloadAllZip()"
+                      class="hidden px-3 py-1.5 text-[11px] font-medium rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                      data-i18n="queue.download_all_zip">Download All (ZIP)</button>
+              <button id="btn-clear-queue" onclick="clearQueue()"
+                      class="hidden px-3 py-1.5 text-[11px] font-medium rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                      data-i18n="queue.clear">Clear All</button>
+            </div>
+          </div>
+
+          <!-- Queue list -->
+          <div id="queue-list" class="space-y-2"></div>
+
+          <!-- Empty state -->
+          <div id="queue-empty" class="flex flex-col items-center justify-center py-10 text-slate-400">
+            <svg class="h-8 w-8 mb-2 opacity-30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <p class="text-xs" data-i18n="queue.empty">Drop images above to start converting</p>
+          </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!--  INFO — About WebP & Format Conversion                       -->
+        <!-- ========================================================== -->
+        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+          <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span data-i18n="info.title">About WebP &amp; Image Format Conversion</span>
+          </h2>
+
+          <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-slate-700 mb-1" data-i18n="info.what_is_webp_title">What is WebP?</p>
+                <p class="text-xs text-slate-500" data-i18n="info.what_is_webp_desc">WebP is a modern image format developed by Google that provides both <strong>lossy and lossless compression</strong>. Compared to JPG, WebP files are typically <strong>25–35% smaller</strong> at the same visual quality. Compared to PNG, WebP lossless images are <strong>26% smaller</strong> on average. It also supports transparency (alpha channel) and animation — making it a versatile replacement for JPG, PNG, and GIF in a single format.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-slate-700 mb-1" data-i18n="info.why_convert_title">Why Convert Between Formats?</p>
+                <p class="text-xs text-slate-500" data-i18n="info.why_convert_desc">Different use cases call for different formats. WebP is ideal for websites (faster loading, less bandwidth), but some older applications and operating systems don't support it. PNG is best for screenshots, logos, and images requiring lossless quality with transparency. JPG remains the most universally compatible format, perfect for photos and sharing across all devices and platforms.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-emerald-600 mb-1" data-i18n="info.to_png_title">WebP → PNG</p>
+                <p class="text-xs text-slate-500" data-i18n="info.to_png_desc">Convert WebP to PNG when you need <strong>lossless quality</strong> or when working with applications that don't yet support WebP (older image editors, some CMS platforms, legacy email clients). PNG preserves every pixel perfectly and supports full transparency.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-amber-600 mb-1" data-i18n="info.to_jpg_title">WebP / PNG → JPG</p>
+                <p class="text-xs text-slate-500" data-i18n="info.to_jpg_desc">Convert to JPG for <strong>maximum compatibility</strong> and smaller file sizes for photographs. Use the quality slider to balance between file size and visual fidelity. JPG is universally supported across every device, browser, and platform — ideal for sharing and uploading.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <p class="text-xs font-semibold text-blue-600 mb-1" data-i18n="info.to_webp_title">PNG / JPG → WebP</p>
+                <p class="text-xs text-slate-500" data-i18n="info.to_webp_desc">Convert to WebP to <strong>optimize for the web</strong>. Dramatically reduce image file sizes without noticeable quality loss — faster page loads, lower bandwidth consumption, and improved SEO rankings. Most modern browsers (Chrome, Firefox, Edge, Safari) fully support WebP.</p>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-400" data-i18n="info.privacy_note">
+              <strong>Privacy note:</strong> All conversions happen entirely in your browser using the HTML5 Canvas API. Your images are never uploaded to any server — they never leave your device.
+            </p>
+          </div>
+        </section>
+
+      </div><!-- /center column -->
+
+      <!-- RIGHT AD — 160×600 Skyscraper (lg only) -->
+      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div id="ad-right-container" class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">
+          <!-- GOOGLE ADSENSE / AD NETWORK CODE — 160×600 Skyscraper (Right) -->
+          AD<br>160×600
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- ================================================================== -->
+  <!--  FOOTER                                                             -->
+  <!-- ================================================================== -->
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a href="index.html" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 ml-1 font-medium">LinkoZen</a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No logs. No tracking. All conversion happens locally in your browser.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ====================================================================== -->
+  <!--  APPLICATION LOGIC                                                      -->
+  <!-- ====================================================================== -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+     *  i18n — 11 LANGUAGES
+     * ================================================================ */
+    var LANGS = [
+      { code:'en', label:'English',    native:'English',    region:'US' },
+      { code:'zh', label:'简体中文',    native:'简体中文',    region:'CN' },
+      { code:'ja', label:'日本語',      native:'日本語',      region:'JP' },
+      { code:'ko', label:'한국어',      native:'한국어',      region:'KR' },
+      { code:'fr', label:'Français',   native:'Français',   region:'FR' },
+      { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
+      { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+      { code:'pt', label:'Português',  native:'Português',  region:'BR' },
+      { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
+      { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
+      { code:'zh-TW', label:'繁體中文',  native:'繁體中文',    region:'TW' },
+    ];
+
+    var DICT = {
+      en: {
+        'app.title':'Image Converter','app.subtitle':'WebP · PNG · JPG — 100% Client-Side',
+        'nav.home':'Home','common.copy':'Copy','common.copied':'Copied!',
+        'upload.title':'Upload Images','upload.drop':'Drag & drop images here',
+        'upload.or':'or click to browse files','upload.formats':'Supports: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'Convert All',
+        'settings.format':'Convert To','settings.quality':'JPG Quality',
+        'queue.title':'File Queue','queue.empty':'Drop images above to start converting',
+        'queue.download_all_zip':'Download All (ZIP)','queue.clear':'Clear All',
+        'queue.download':'Download','queue.converting':'Converting…',
+        'queue.done':'Done','queue.error':'Error',
+        'queue.original':'Original','queue.converted':'Converted',
+        'status.no_files':'Please add at least one image first.',
+        'status.converted':'{n} file(s) converted successfully.',
+        'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. All conversion happens locally in your browser.',
+        'ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
+        'info.title':'About WebP & Image Format Conversion',
+        'info.what_is_webp_title':'What is WebP?',
+        'info.what_is_webp_desc':'WebP is a modern image format developed by Google that provides both <strong>lossy and lossless compression</strong>. Compared to JPG, WebP files are typically <strong>25–35% smaller</strong> at the same visual quality. Compared to PNG, WebP lossless images are <strong>26% smaller</strong> on average. It also supports transparency (alpha channel) and animation — making it a versatile replacement for JPG, PNG, and GIF in a single format.',
+        'info.why_convert_title':'Why Convert Between Formats?',
+        'info.why_convert_desc':'Different use cases call for different formats. WebP is ideal for websites (faster loading, less bandwidth), but some older applications and operating systems don\'t support it. PNG is best for screenshots, logos, and images requiring lossless quality with transparency. JPG remains the most universally compatible format, perfect for photos and sharing across all devices and platforms.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'Convert WebP to PNG when you need <strong>lossless quality</strong> or when working with applications that don\'t yet support WebP (older image editors, some CMS platforms, legacy email clients). PNG preserves every pixel perfectly and supports full transparency.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'Convert to JPG for <strong>maximum compatibility</strong> and smaller file sizes for photographs. Use the quality slider to balance between file size and visual fidelity. JPG is universally supported across every device, browser, and platform — ideal for sharing and uploading.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'Convert to WebP to <strong>optimize for the web</strong>. Dramatically reduce image file sizes without noticeable quality loss — faster page loads, lower bandwidth consumption, and improved SEO rankings. Most modern browsers (Chrome, Firefox, Edge, Safari) fully support WebP.',
+        'info.privacy_note':'<strong>Privacy note:</strong> All conversions happen entirely in your browser using the HTML5 Canvas API. Your images are never uploaded to any server — they never leave your device.',
+      },
+      zh: {
+        'app.title':'图片转换器','app.subtitle':'WebP · PNG · JPG — 100% 客户端处理',
+        'nav.home':'首页','common.copy':'复制','common.copied':'已复制！',
+        'upload.title':'上传图片','upload.drop':'拖放图片到此处',
+        'upload.or':'或点击浏览文件','upload.formats':'支持格式：WebP、PNG、JPG、JPEG',
+        'upload.convert_all':'全部转换',
+        'settings.format':'转换为','settings.quality':'JPG 质量',
+        'queue.title':'文件队列','queue.empty':'将图片拖放到上方以开始转换',
+        'queue.download_all_zip':'下载全部 (ZIP)','queue.clear':'清空全部',
+        'queue.download':'下载','queue.converting':'转换中…',
+        'queue.done':'完成','queue.error':'错误',
+        'queue.original':'原始','queue.converted':'转换后',
+        'status.no_files':'请先添加至少一张图片。',
+        'status.converted':'已成功转换 {n} 个文件。',
+        'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 所有转换均在浏览器本地完成。',
+        'ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
+        'info.title':'关于 WebP 与图片格式转换',
+        'info.what_is_webp_title':'什么是 WebP？',
+        'info.what_is_webp_desc':'WebP 是 Google 开发的现代图片格式，提供<strong>有损和无损压缩</strong>。与 JPG 相比，在相同视觉质量下，WebP 文件通常<strong>小 25–35%</strong>。与 PNG 相比，WebP 无损图片平均<strong>小 26%</strong>。它还支持透明度（Alpha 通道）和动画——使其成为 JPG、PNG 和 GIF 的多功能替代方案。',
+        'info.why_convert_title':'为什么需要在格式之间转换？',
+        'info.why_convert_desc':'不同的使用场景需要不同的格式。WebP 非常适合网站（加载更快、带宽更少），但一些旧版应用程序和操作系统不支持它。PNG 最适合截图、Logo 和需要无损质量与透明度的图片。JPG 仍然是最通用的格式，非常适合照片，可在所有设备和平台上分享。',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'当您需要<strong>无损质量</strong>或使用尚不支持 WebP 的应用程序（旧版图片编辑器、某些 CMS 平台、旧邮件客户端）时，将 WebP 转换为 PNG。PNG 完美保留每个像素并支持完整透明度。',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'转换为 JPG 以获得<strong>最大兼容性</strong>和更小的照片文件大小。使用质量滑块在文件大小和视觉保真度之间取得平衡。JPG 在所有设备、浏览器和平台上通用支持——非常适合分享和上传。',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'转换为 WebP 以<strong>优化网页性能</strong>。大幅减少图片文件大小而不会明显损失质量——更快的页面加载速度、更低的带宽消耗和更好的 SEO 排名。大多数现代浏览器（Chrome、Firefox、Edge、Safari）完全支持 WebP。',
+        'info.privacy_note':'<strong>隐私说明：</strong>所有转换完全在您的浏览器中使用 HTML5 Canvas API 完成。您的图片永远不会上传到任何服务器——它们永远不会离开您的设备。',
+      },
+      ja: {
+        'app.title':'画像変換','app.subtitle':'WebP · PNG · JPG — 100% クライアントサイド',
+        'nav.home':'ホーム','common.copy':'コピー','common.copied':'コピー完了！',
+        'upload.title':'画像をアップロード','upload.drop':'ここに画像をドロップ',
+        'upload.or':'またはクリックして参照','upload.formats':'対応形式: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'すべて変換',
+        'settings.format':'変換先','settings.quality':'JPG 品質',
+        'queue.title':'ファイルキュー','queue.empty':'上のエリアに画像をドロップして変換開始',
+        'queue.download_all_zip':'すべてZIPでダウンロード','queue.clear':'すべてクリア',
+        'queue.download':'ダウンロード','queue.converting':'変換中…',
+        'queue.done':'完了','queue.error':'エラー',
+        'queue.original':'元のサイズ','queue.converted':'変換後',
+        'status.no_files':'最初に画像を追加してください。',
+        'status.converted':'{n} ファイルを変換しました。',
+        'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・すべての変換はブラウザ内で行われます。',
+        'ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
+        'info.title':'WebPと画像フォーマット変換について',
+        'info.what_is_webp_title':'WebPとは？',
+        'info.what_is_webp_desc':'WebPはGoogleが開発した最新の画像フォーマットで、<strong>非可逆圧縮と可逆圧縮の両方</strong>を提供します。JPGと比較すると、同じ画質でファイルサイズが<strong>25–35%小さく</strong>なります。PNGと比較すると、可逆WebP画像は平均<strong>26%小さく</strong>なります。透過（アルファチャンネル）とアニメーションにも対応し、JPG、PNG、GIFを1つのフォーマットで置き換えられます。',
+        'info.why_convert_title':'フォーマット間の変換が必要な理由',
+        'info.why_convert_desc':'異なるユースケースには異なるフォーマットが適しています。WebPはウェブサイトに最適（高速読み込み、低帯域幅）ですが、一部の古いアプリケーションやOSではサポートされていません。PNGはスクリーンショットやロゴ、透過が必要な画像に最適です。JPGは最も互換性が高く、写真の共有に最適です。',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'<strong>可逆品質</strong>が必要な場合や、WebPをまだサポートしていないアプリケーションで作業する場合に変換します。PNGはすべてのピクセルを完全に保存し、完全な透過をサポートします。',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'<strong>最大の互換性</strong>と写真のファイルサイズ削減のためにJPGに変換します。品質スライダーでファイルサイズと画質のバランスを調整できます。JPGはすべてのデバイス、ブラウザ、プラットフォームでサポートされています。',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'<strong>ウェブ最適化</strong>のためにWebPに変換します。画質の低下を抑えながらファイルサイズを大幅に削減し、ページ読み込み速度の向上、帯域幅の節約、SEOランキングの改善につながります。',
+        'info.privacy_note':'<strong>プライバシーについて：</strong>すべての変換はブラウザ内でHTML5 Canvas APIを使用して行われます。画像がサーバーにアップロードされることはなく、デバイスから出ることもありません。',
+      },
+      ko: {
+        'app.title':'이미지 변환기','app.subtitle':'WebP · PNG · JPG — 100% 클라이언트 측',
+        'nav.home':'홈','common.copy':'복사','common.copied':'복사 완료!',
+        'upload.title':'이미지 업로드','upload.drop':'이미지를 여기에 드롭하세요',
+        'upload.or':'또는 클릭하여 파일 찾기','upload.formats':'지원 형식: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'모두 변환',
+        'settings.format':'변환 대상','settings.quality':'JPG 품질',
+        'queue.title':'파일 대기열','queue.empty':'이미지를 위에 드롭하여 변환 시작',
+        'queue.download_all_zip':'전체 다운로드 (ZIP)','queue.clear':'모두 지우기',
+        'queue.download':'다운로드','queue.converting':'변환 중…',
+        'queue.done':'완료','queue.error':'오류',
+        'queue.original':'원본','queue.converted':'변환됨',
+        'status.no_files':'먼저 이미지를 추가하세요.',
+        'status.converted':'{n}개 파일이 변환되었습니다.',
+        'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 모든 변환은 브라우저에서 로컬로 수행됩니다.',
+        'ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
+        'info.title':'WebP 및 이미지 형식 변환 정보',
+        'info.what_is_webp_title':'WebP란?',
+        'info.what_is_webp_desc':'WebP는 Google이 개발한 최신 이미지 형식으로 <strong>손실 및 무손실 압축</strong>을 모두 제공합니다. JPG와 비교하면 동일한 화질에서 파일 크기가 <strong>25–35% 더 작습니다</strong>. PNG와 비교하면 WebP 무손실 이미지는 평균 <strong>26% 더 작습니다</strong>. 투명도(알파 채널)와 애니메이션도 지원하여 JPG, PNG, GIF를 단일 형식으로 대체할 수 있습니다.',
+        'info.why_convert_title':'형식 간 변환이 필요한 이유',
+        'info.why_convert_desc':'다양한 용도에 따라 다른 형식이 필요합니다. WebP는 웹사이트에 이상적이지만 일부 구형 애플리케이션과 OS에서는 지원되지 않습니다. PNG는 스크린샷, 로고 및 투명도가 필요한 이미지에 가장 적합합니다. JPG는 가장 범용적으로 호환되는 형식으로 사진 공유에 완벽합니다.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'<strong>무손실 품질</strong>이 필요하거나 WebP를 아직 지원하지 않는 애플리케이션에서 작업할 때 PNG로 변환하세요. PNG는 모든 픽셀을 완벽하게 보존하고 전체 투명도를 지원합니다.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'<strong>최대 호환성</strong>과 사진의 파일 크기 감소를 위해 JPG로 변환하세요. 품질 슬라이더로 파일 크기와 화질 간의 균형을 조정할 수 있습니다. JPG는 모든 기기, 브라우저, 플랫폼에서 보편적으로 지원됩니다.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'<strong>웹 최적화</strong>를 위해 WebP로 변환하세요. 눈에 띄는 품질 손실 없이 파일 크기를 획기적으로 줄여 페이지 로딩 속도 향상, 대역폭 절약, SEO 순위 개선 효과를 얻을 수 있습니다.',
+        'info.privacy_note':'<strong>개인정보 보호 참고:</strong> 모든 변환은 HTML5 Canvas API를 사용하여 브라우저 내에서 완전히 처리됩니다. 이미지가 서버에 업로드되거나 기기를 떠나지 않습니다.',
+      },
+      fr: {
+        'app.title':'Convertisseur d\'images','app.subtitle':'WebP · PNG · JPG — 100% Côté Client',
+        'nav.home':'Accueil','common.copy':'Copier','common.copied':'Copié !',
+        'upload.title':'Télécharger des images','upload.drop':'Glissez-déposez des images ici',
+        'upload.or':'ou cliquez pour parcourir','upload.formats':'Formats acceptés : WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'Tout convertir',
+        'settings.format':'Convertir en','settings.quality':'Qualité JPG',
+        'queue.title':'File d\'attente','queue.empty':'Déposez des images ci-dessus pour commencer',
+        'queue.download_all_zip':'Tout télécharger (ZIP)','queue.clear':'Tout effacer',
+        'queue.download':'Télécharger','queue.converting':'Conversion…',
+        'queue.done':'Terminé','queue.error':'Erreur',
+        'queue.original':'Original','queue.converted':'Converti',
+        'status.no_files':'Veuillez d\'abord ajouter au moins une image.',
+        'status.converted':'{n} fichier(s) converti(s) avec succès.',
+        'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Toute la conversion a lieu localement dans votre navigateur.',
+        'ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'À propos de WebP et de la conversion de formats',
+        'info.what_is_webp_title':'Qu\'est-ce que WebP ?',
+        'info.what_is_webp_desc':'WebP est un format d\'image moderne développé par Google offrant une <strong>compression avec et sans perte</strong>. Comparé au JPG, les fichiers WebP sont <strong>25–35 % plus petits</strong> à qualité visuelle égale. Comparé au PNG, les images WebP sans perte sont <strong>26 % plus petites</strong> en moyenne. Il prend également en charge la transparence et l\'animation.',
+        'info.why_convert_title':'Pourquoi convertir entre les formats ?',
+        'info.why_convert_desc':'Différents usages nécessitent différents formats. WebP est idéal pour les sites web, mais certaines applications plus anciennes ne le prennent pas en charge. Le PNG est parfait pour les captures d\'écran et les logos. Le JPG reste le format le plus universellement compatible, idéal pour les photos.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'Convertissez en PNG pour une <strong>qualité sans perte</strong> ou pour les applications qui ne prennent pas encore en charge WebP. Le PNG préserve chaque pixel parfaitement et prend en charge la transparence complète.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'Convertissez en JPG pour une <strong>compatibilité maximale</strong>. Utilisez le curseur de qualité pour équilibrer taille de fichier et fidélité visuelle. Le JPG est universellement pris en charge.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'Convertissez en WebP pour <strong>optimiser pour le web</strong>. Réduisez considérablement la taille des fichiers sans perte de qualité notable — chargement plus rapide et meilleur référencement.',
+        'info.privacy_note':'<strong>Confidentialité :</strong> Toutes les conversions ont lieu dans votre navigateur via l\'API Canvas HTML5. Vos images ne sont jamais téléchargées sur un serveur.',
+      },
+      de: {
+        'app.title':'Bildkonverter','app.subtitle':'WebP · PNG · JPG — 100% Client-seitig',
+        'nav.home':'Startseite','common.copy':'Kopieren','common.copied':'Kopiert!',
+        'upload.title':'Bilder hochladen','upload.drop':'Ziehen Sie Bilder hierher',
+        'upload.or':'oder klicken Sie zum Durchsuchen','upload.formats':'Unterstützt: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'Alle konvertieren',
+        'settings.format':'Konvertieren nach','settings.quality':'JPG-Qualität',
+        'queue.title':'Dateiwarteschlange','queue.empty':'Ziehen Sie Bilder nach oben, um zu starten',
+        'queue.download_all_zip':'Alle als ZIP','queue.clear':'Alle löschen',
+        'queue.download':'Herunterladen','queue.converting':'Konvertiere…',
+        'queue.done':'Fertig','queue.error':'Fehler',
+        'queue.original':'Original','queue.converted':'Konvertiert',
+        'status.no_files':'Bitte fügen Sie zuerst mindestens ein Bild hinzu.',
+        'status.converted':'{n} Datei(en) erfolgreich konvertiert.',
+        'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Alle Konvertierungen finden lokal in Ihrem Browser statt.',
+        'ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
+        'info.title':'Über WebP & Bildformatkonvertierung',
+        'info.what_is_webp_title':'Was ist WebP?',
+        'info.what_is_webp_desc':'WebP ist ein modernes Bildformat von Google mit <strong>verlustbehafteter und verlustfreier Komprimierung</strong>. Im Vergleich zu JPG sind WebP-Dateien bei gleicher Qualität <strong>25–35 % kleiner</strong>. Im Vergleich zu PNG sind verlustfreie WebP-Bilder durchschnittlich <strong>26 % kleiner</strong>. Es unterstützt auch Transparenz und Animation.',
+        'info.why_convert_title':'Warum zwischen Formaten konvertieren?',
+        'info.why_convert_desc':'Verschiedene Anwendungsfälle erfordern unterschiedliche Formate. WebP ist ideal für Websites, aber einige ältere Anwendungen unterstützen es nicht. PNG eignet sich am besten für Screenshots und Logos. JPG bleibt das universell kompatibelste Format, perfekt für Fotos.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'Konvertieren Sie zu PNG für <strong>verlustfreie Qualität</strong> oder für Anwendungen ohne WebP-Unterstützung. PNG bewahrt jedes Pixel perfekt und unterstützt vollständige Transparenz.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'Konvertieren Sie zu JPG für <strong>maximale Kompatibilität</strong>. Verwenden Sie den Qualitätsregler, um Dateigröße und Bildtreue auszubalancieren. JPG wird universell unterstützt.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'Konvertieren Sie zu WebP zur <strong>Web-Optimierung</strong>. Reduzieren Sie Dateigrößen drastisch ohne sichtbaren Qualitätsverlust — schnellere Ladezeiten und besseres SEO.',
+        'info.privacy_note':'<strong>Datenschutzhinweis:</strong> Alle Konvertierungen erfolgen in Ihrem Browser über die HTML5 Canvas API. Ihre Bilder werden nie auf einen Server hochgeladen.',
+      },
+      it: {
+        'app.title':'Convertitore immagini','app.subtitle':'WebP · PNG · JPG — 100% Lato Client',
+        'nav.home':'Home','common.copy':'Copia','common.copied':'Copiato!',
+        'upload.title':'Carica immagini','upload.drop':'Trascina le immagini qui',
+        'upload.or':'o clicca per sfogliare','upload.formats':'Supporta: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'Converti tutto',
+        'settings.format':'Converti in','settings.quality':'Qualità JPG',
+        'queue.title':'Coda file','queue.empty':'Trascina le immagini sopra per iniziare',
+        'queue.download_all_zip':'Scarica tutto (ZIP)','queue.clear':'Cancella tutto',
+        'queue.download':'Scarica','queue.converting':'Conversione…',
+        'queue.done':'Completato','queue.error':'Errore',
+        'queue.original':'Originale','queue.converted':'Convertito',
+        'status.no_files':'Aggiungi prima almeno un\'immagine.',
+        'status.converted':'{n} file convertiti con successo.',
+        'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. Tutte le conversioni avvengono localmente nel browser.',
+        'ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Informazioni su WebP e conversione formati',
+        'info.what_is_webp_title':'Cos\'è WebP?',
+        'info.what_is_webp_desc':'WebP è un formato immagine moderno sviluppato da Google che offre <strong>compressione lossy e lossless</strong>. Rispetto al JPG, i file WebP sono <strong>più piccoli del 25–35%</strong> a parità di qualità. Rispetto al PNG, le immagini WebP lossless sono in media <strong>più piccole del 26%</strong>. Supporta anche trasparenza e animazione.',
+        'info.why_convert_title':'Perché convertire tra formati?',
+        'info.why_convert_desc':'Diversi utilizzi richiedono formati diversi. WebP è ideale per i siti web, ma alcune applicazioni meno recenti non lo supportano. PNG è ottimo per screenshot e loghi. JPG rimane il formato più universalmente compatibile, perfetto per le foto.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'Converti in PNG per <strong>qualità senza perdita</strong> o per applicazioni senza supporto WebP. PNG preserva ogni pixel perfettamente e supporta la piena trasparenza.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'Converti in JPG per la <strong>massima compatibilità</strong>. Usa il cursore qualità per bilanciare dimensione e fedeltà visiva. JPG è universalmente supportato.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'Converti in WebP per <strong>ottimizzare per il web</strong>. Riduci drasticamente le dimensioni dei file senza perdita di qualità visibile — caricamenti più veloci e migliore SEO.',
+        'info.privacy_note':'<strong>Nota sulla privacy:</strong> Tutte le conversioni avvengono nel browser tramite l\'API Canvas HTML5. Le tue immagini non vengono mai caricate su alcun server.',
+      },
+      pt: {
+        'app.title':'Conversor de imagens','app.subtitle':'WebP · PNG · JPG — 100% No Cliente',
+        'nav.home':'Início','common.copy':'Copiar','common.copied':'Copiado!',
+        'upload.title':'Enviar imagens','upload.drop':'Arraste imagens para cá',
+        'upload.or':'ou clique para procurar','upload.formats':'Suporta: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'Converter tudo',
+        'settings.format':'Converter para','settings.quality':'Qualidade JPG',
+        'queue.title':'Fila de arquivos','queue.empty':'Solte imagens acima para começar',
+        'queue.download_all_zip':'Baixar tudo (ZIP)','queue.clear':'Limpar tudo',
+        'queue.download':'Baixar','queue.converting':'Convertendo…',
+        'queue.done':'Concluído','queue.error':'Erro',
+        'queue.original':'Original','queue.converted':'Convertido',
+        'status.no_files':'Adicione pelo menos uma imagem primeiro.',
+        'status.converted':'{n} arquivo(s) convertido(s) com sucesso.',
+        'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Toda conversão acontece localmente no navegador.',
+        'ad.728x90':'PUBLICIDADE · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Sobre WebP e Conversão de Formatos',
+        'info.what_is_webp_title':'O que é WebP?',
+        'info.what_is_webp_desc':'WebP é um formato de imagem moderno desenvolvido pelo Google que oferece <strong>compressão com e sem perdas</strong>. Comparado ao JPG, arquivos WebP são <strong>25–35% menores</strong> com a mesma qualidade. Comparado ao PNG, imagens WebP sem perdas são em média <strong>26% menores</strong>. Também suporta transparência e animação.',
+        'info.why_convert_title':'Por que converter entre formatos?',
+        'info.why_convert_desc':'Diferentes usos exigem diferentes formatos. WebP é ideal para sites, mas alguns aplicativos mais antigos não o suportam. PNG é melhor para capturas de tela e logotipos. JPG permanece o formato mais universalmente compatível, perfeito para fotos.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'Converta para PNG quando precisar de <strong>qualidade sem perdas</strong> ou ao trabalhar com aplicativos sem suporte a WebP. PNG preserva cada pixel perfeitamente e suporta transparência total.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'Converta para JPG para <strong>máxima compatibilidade</strong>. Use o controle de qualidade para equilibrar tamanho e fidelidade visual. JPG é universalmente compatível.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'Converta para WebP para <strong>otimizar para a web</strong>. Reduza drasticamente o tamanho dos arquivos sem perda de qualidade perceptível — carregamento mais rápido e melhor SEO.',
+        'info.privacy_note':'<strong>Nota de privacidade:</strong> Todas as conversões acontecem no navegador via API Canvas HTML5. Suas imagens nunca são enviadas para nenhum servidor.',
+      },
+      ru: {
+        'app.title':'Конвертер изображений','app.subtitle':'WebP · PNG · JPG — 100% На стороне клиента',
+        'nav.home':'Главная','common.copy':'Копировать','common.copied':'Скопировано!',
+        'upload.title':'Загрузить изображения','upload.drop':'Перетащите изображения сюда',
+        'upload.or':'или нажмите для выбора','upload.formats':'Поддерживаются: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'Конвертировать всё',
+        'settings.format':'Конвертировать в','settings.quality':'Качество JPG',
+        'queue.title':'Очередь файлов','queue.empty':'Перетащите изображения выше, чтобы начать',
+        'queue.download_all_zip':'Скачать всё (ZIP)','queue.clear':'Очистить всё',
+        'queue.download':'Скачать','queue.converting':'Конвертация…',
+        'queue.done':'Готово','queue.error':'Ошибка',
+        'queue.original':'Исходный','queue.converted':'Конвертированный',
+        'status.no_files':'Сначала добавьте хотя бы одно изображение.',
+        'status.converted':'Успешно конвертировано файлов: {n}.',
+        'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Вся конвертация выполняется локально в браузере.',
+        'ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
+        'info.title':'О WebP и конвертации форматов изображений',
+        'info.what_is_webp_title':'Что такое WebP?',
+        'info.what_is_webp_desc':'WebP — современный формат изображений от Google, поддерживающий <strong>сжатие с потерями и без потерь</strong>. По сравнению с JPG, файлы WebP в среднем <strong>на 25–35% меньше</strong> при том же качестве. По сравнению с PNG, изображения WebP без потерь в среднем <strong>на 26% меньше</strong>. Также поддерживает прозрачность и анимацию.',
+        'info.why_convert_title':'Зачем конвертировать между форматами?',
+        'info.why_convert_desc':'Разные задачи требуют разных форматов. WebP идеален для веб-сайтов, но некоторые старые приложения его не поддерживают. PNG лучше всего подходит для скриншотов и логотипов. JPG остаётся самым универсальным форматом, идеальным для фотографий.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'Конвертируйте в PNG для <strong>качества без потерь</strong> или для приложений без поддержки WebP. PNG сохраняет каждый пиксель идеально и поддерживает полную прозрачность.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'Конвертируйте в JPG для <strong>максимальной совместимости</strong>. Используйте ползунок качества для баланса между размером и качеством. JPG поддерживается universally.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'Конвертируйте в WebP для <strong>оптимизации под веб</strong>. Значительно уменьшайте размер файлов без заметной потери качества — быстрая загрузка и улучшение SEO.',
+        'info.privacy_note':'<strong>Конфиденциальность:</strong> Вся конвертация происходит в браузере через HTML5 Canvas API. Изображения никогда не загружаются на сервер.',
+      },
+      tr: {
+        'app.title':'Görüntü Dönüştürücü','app.subtitle':'WebP · PNG · JPG — %100 İstemci Tarafı',
+        'nav.home':'Ana Sayfa','common.copy':'Kopyala','common.copied':'Kopyalandı!',
+        'upload.title':'Görüntü Yükle','upload.drop':'Görüntüleri buraya sürükleyin',
+        'upload.or':'veya göz atmak için tıklayın','upload.formats':'Desteklenen: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'Tümünü Dönüştür',
+        'settings.format':'Dönüştürülecek Format','settings.quality':'JPG Kalitesi',
+        'queue.title':'Dosya Kuyruğu','queue.empty':'Başlamak için görüntüleri yukarıya bırakın',
+        'queue.download_all_zip':'Tümünü İndir (ZIP)','queue.clear':'Tümünü Temizle',
+        'queue.download':'İndir','queue.converting':'Dönüştürülüyor…',
+        'queue.done':'Tamam','queue.error':'Hata',
+        'queue.original':'Orijinal','queue.converted':'Dönüştürüldü',
+        'status.no_files':'Lütfen önce en az bir görüntü ekleyin.',
+        'status.converted':'{n} dosya başarıyla dönüştürüldü.',
+        'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Tüm dönüştürme tarayıcınızda yerel olarak gerçekleşir.',
+        'ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
+        'info.title':'WebP ve Görüntü Formatı Dönüştürme Hakkında',
+        'info.what_is_webp_title':'WebP Nedir?',
+        'info.what_is_webp_desc':'WebP, Google tarafından geliştirilen, <strong>kayıplı ve kayıpsız sıkıştırma</strong> sunan modern bir görüntü formatıdır. JPG ile karşılaştırıldığında, aynı kalitede WebP dosyaları <strong>%25–35 daha küçüktür</strong>. PNG ile karşılaştırıldığında, kayıpsız WebP görüntüleri ortalama <strong>%26 daha küçüktür</strong>. Ayrıca saydamlık ve animasyonu da destekler.',
+        'info.why_convert_title':'Formatlar Arasında Neden Dönüştürme Yapılır?',
+        'info.why_convert_desc':'Farklı kullanım durumları farklı formatlar gerektirir. WebP web siteleri için idealdir, ancak bazı eski uygulamalar desteklemez. PNG ekran görüntüleri ve logolar için en iyisidir. JPG en evrensel uyumlu formattır, fotoğraflar için mükemmeldir.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'<strong>Kayıpsız kalite</strong> gerektiğinde veya WebP desteklemeyen uygulamalarla çalışırken PNG\'ye dönüştürün. PNG her pikseli mükemmel şekilde korur ve tam saydamlık sunar.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'<strong>Maksimum uyumluluk</strong> için JPG\'ye dönüştürün. Kalite kaydırıcısı ile dosya boyutu ve görüntü kalitesi arasında denge kurun. JPG tüm cihazlarda evrensel olarak desteklenir.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'<strong>Web için optimize etmek</strong> amacıyla WebP\'ye dönüştürün. Görünür kalite kaybı olmadan dosya boyutlarını önemli ölçüde azaltın — daha hızlı yükleme ve daha iyi SEO.',
+        'info.privacy_note':'<strong>Gizlilik notu:</strong> Tüm dönüştürmeler HTML5 Canvas API kullanılarak tarayıcınızda gerçekleşir. Görüntüleriniz hiçbir sunucuya yüklenmez.',
+      },
+      'zh-TW': {
+        'app.title':'圖片轉換器','app.subtitle':'WebP · PNG · JPG — 100% 用戶端處理',
+        'nav.home':'首頁','common.copy':'複製','common.copied':'已複製！',
+        'upload.title':'上傳圖片','upload.drop':'拖放圖片到此處',
+        'upload.or':'或點擊瀏覽檔案','upload.formats':'支援格式：WebP、PNG、JPG、JPEG',
+        'upload.convert_all':'全部轉換',
+        'settings.format':'轉換為','settings.quality':'JPG 品質',
+        'queue.title':'檔案佇列','queue.empty':'將圖片拖放到上方以開始轉換',
+        'queue.download_all_zip':'下載全部 (ZIP)','queue.clear':'清空全部',
+        'queue.download':'下載','queue.converting':'轉換中…',
+        'queue.done':'完成','queue.error':'錯誤',
+        'queue.original':'原始','queue.converted':'轉換後',
+        'status.no_files':'請先新增至少一張圖片。',
+        'status.converted':'已成功轉換 {n} 個檔案。',
+        'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 所有轉換均在瀏覽器本機完成。',
+        'ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
+        'info.title':'關於 WebP 與圖片格式轉換',
+        'info.what_is_webp_title':'什麼是 WebP？',
+        'info.what_is_webp_desc':'WebP 是 Google 開發的現代圖片格式，提供<strong>有損和無損壓縮</strong>。與 JPG 相比，在相同視覺品質下，WebP 檔案通常<strong>小 25–35%</strong>。與 PNG 相比，WebP 無損圖片平均<strong>小 26%</strong>。它還支援透明度（Alpha 通道）和動畫——使其成為 JPG、PNG 和 GIF 的多功能替代方案。',
+        'info.why_convert_title':'為什麼需要在格式之間轉換？',
+        'info.why_convert_desc':'不同的使用場景需要不同的格式。WebP 非常適合網站（載入更快、頻寬更少），但一些舊版應用程式和作業系統不支援它。PNG 最適合截圖、Logo 和需要無損品質與透明度的圖片。JPG 仍然是最通用的格式，非常適合照片，可在所有裝置和平台上分享。',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'當您需要<strong>無損品質</strong>或使用尚不支援 WebP 的應用程式時，將 WebP 轉換為 PNG。PNG 完美保留每個像素並支援完整透明度。',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'轉換為 JPG 以獲得<strong>最大相容性</strong>和更小的照片檔案大小。使用品質滑桿在檔案大小和視覺保真度之間取得平衡。JPG 在所有裝置、瀏覽器和平台上通用支援。',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'轉換為 WebP 以<strong>最佳化網頁效能</strong>。大幅減少圖片檔案大小而不會明顯損失品質——更快的頁面載入速度、更低的頻寬消耗和更好的 SEO 排名。',
+        'info.privacy_note':'<strong>隱私說明：</strong>所有轉換完全在您的瀏覽器中使用 HTML5 Canvas API 完成。您的圖片永遠不會上傳到任何伺服器——它們永遠不會離開您的裝置。',
+      },
+    };
+
+    /* ================================================================
+     *  i18n ENGINE
+     * ================================================================ */
+    var currentLang = localStorage.getItem('cv-lang') || 'en';
+    var fallbackDict = DICT.en;
+
+    function t(key) {
+      var d = DICT[currentLang];
+      return (d && d[key]) || fallbackDict[key] || key;
+    }
+
+    function updateLanguageUI() {
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var k = els[i].getAttribute('data-i18n');
+        if (k) els[i].innerHTML = t(k);
+      }
+      // Re-render queue to update labels
+      renderQueue();
+    }
+
+    function updateLangButton() {
+      var found = LANGS.filter(function (L) { return L.code === currentLang; })[0];
+      var label = document.getElementById('btn-lang-label');
+      if (label && found) label.textContent = found.label;
+      document.documentElement.lang = (currentLang === 'zh') ? 'zh-CN' : (currentLang === 'zh-TW') ? 'zh-TW' : currentLang;
+    }
+
+    function buildLangMenu() {
+      var menu = document.getElementById('lang-menu');
+      if (!menu) return;
+      var html = '';
+      for (var i = 0; i < LANGS.length; i++) {
+        var L = LANGS[i];
+        var active = L.code === currentLang ? ' bg-cyan-50' : '';
+        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+          '<span class="text-[11px] font-bold text-gray-400 w-7">' + L.region + '</span>' +
+          '<span class="text-slate-700">' + L.native + '</span></button>';
+      }
+      menu.innerHTML = html;
+    }
+
+    window.switchLanguage = function (lang) {
+      currentLang = lang;
+      localStorage.setItem('cv-lang', lang);
+      updateLangButton();
+      buildLangMenu();
+      updateLanguageUI();
+    };
+
+    window.toggleLangMenu = function () {
+      buildLangMenu();
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.toggle('hidden');
+    };
+    window.closeLangMenu = function () {
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.add('hidden');
+    };
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('lang-dropdown');
+      if (dd && !dd.contains(e.target)) {
+        var menu = document.getElementById('lang-menu');
+        if (menu) menu.classList.add('hidden');
+      }
+    });
+
+    /* ================================================================
+     *  DARK MODE
+     * ================================================================ */
+    var IS_DARK = localStorage.getItem('cv-dark') === '1';
+    function applyTheme() { if (IS_DARK) document.documentElement.classList.add('dark'); }
+    window.toggleDark = function () { IS_DARK = !IS_DARK; localStorage.setItem('cv-dark', IS_DARK ? '1' : '0'); location.reload(); };
+    applyTheme();
+
+    /* ================================================================
+     *  DOM REFS
+     * ================================================================ */
+    var $ = function (s) { return document.querySelector(s); };
+    var dropZone = $('#drop-zone');
+    var fileInput = $('#file-input');
+    var queueList = $('#queue-list');
+    var queueEmpty = $('#queue-empty');
+    var queueCount = $('#queue-count');
+    var convertAllBtn = $('#convert-all-btn');
+    var convertCountEl = $('#convert-count');
+    var btnDownloadAll = $('#btn-download-all');
+    var btnClearQueue = $('#btn-clear-queue');
+    var qualityGroup = $('#quality-group');
+    var qualitySlider = $('#quality-slider');
+    var qualityDisplay = $('#quality-display');
+
+    /* ================================================================
+     *  STATE
+     * ================================================================ */
+    var targetFormat = 'webp';
+    var fileQueue = []; // { id, file, status:'pending'|'converting'|'done'|'error', blob:null, errorMsg:null, origSize, convSize }
+    var MAX_DIM = 6000; // max canvas dimension
+
+    /* ================================================================
+     *  FORMAT SELECTOR
+     * ================================================================ */
+    window.setFormat = function (fmt) {
+      targetFormat = fmt;
+      var btns = document.querySelectorAll('.format-btn');
+      btns.forEach(function (b) {
+        if (b.dataset.format === fmt) {
+          b.className = 'format-btn px-4 py-2 rounded-xl text-xs font-semibold border transition-all bg-blue-50 border-blue-300 text-blue-700';
+        } else {
+          b.className = 'format-btn px-4 py-2 rounded-xl text-xs font-semibold border transition-all bg-white border-slate-200 text-slate-600 hover:border-slate-300';
+        }
+      });
+      if (fmt === 'jpeg') qualityGroup.classList.remove('hidden');
+      else qualityGroup.classList.add('hidden');
+    };
+
+    window.onQualityChange = function (val) {
+      qualityDisplay.textContent = parseFloat(val).toFixed(2);
+    };
+
+    /* ================================================================
+     *  DRAG & DROP
+     * ================================================================ */
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function (evt) {
+      document.body.addEventListener(evt, function (e) { e.preventDefault(); e.stopPropagation(); });
+    });
+
+    dropZone.addEventListener('dragenter', function () { dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragover', function () { dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
+    dropZone.addEventListener('drop', function (e) {
+      dropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
+    });
+
+    /* ================================================================
+     *  FILE HANDLING
+     * ================================================================ */
+    var ACCEPTED = ['image/webp', 'image/png', 'image/jpeg'];
+
+    window.handleFiles = function (fileList) {
+      var added = 0;
+      for (var i = 0; i < fileList.length; i++) {
+        var f = fileList[i];
+        if (ACCEPTED.indexOf(f.type) === -1) continue;
+        fileQueue.push({
+          id: 'f-' + Date.now() + '-' + i + '-' + Math.random().toString(36).slice(2, 6),
+          file: f,
+          status: 'pending',
+          blob: null,
+          errorMsg: null,
+          origSize: f.size,
+          convSize: null,
+        });
+        added++;
+      }
+      if (added > 0) {
+        fileInput.value = '';
+        renderQueue();
+      }
+    };
+
+    /* ================================================================
+     *  CONVERSION LOGIC (Canvas API — fully client-side)
+     * ================================================================ */
+    function convertImage(file, format, quality) {
+      return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var img = new Image();
+          img.onload = function () {
+            var w = img.naturalWidth;
+            var h = img.naturalHeight;
+
+            // Downscale if exceeds max dimension
+            if (w > MAX_DIM || h > MAX_DIM) {
+              var scale = MAX_DIM / Math.max(w, h);
+              w = Math.round(w * scale);
+              h = Math.round(h * scale);
+            }
+
+            var canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+
+            var mimeType = format === 'jpeg' ? 'image/jpeg' : (format === 'webp' ? 'image/webp' : 'image/png');
+            canvas.toBlob(function (blob) {
+              if (blob) resolve(blob);
+              else reject(new Error('Canvas toBlob returned null'));
+            }, mimeType, quality);
+          };
+          img.onerror = function () { reject(new Error('Failed to load image data')); };
+          img.src = e.target.result;
+        };
+        reader.onerror = function () { reject(new Error('Failed to read file')); };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /* ================================================================
+     *  CONVERT ALL
+     * ================================================================ */
+    window.convertAll = async function () {
+      var pending = fileQueue.filter(function (f) { return f.status === 'pending'; });
+      if (pending.length === 0 && fileQueue.length === 0) return;
+
+      // Reset only pending items, keep already-done items
+      fileQueue.forEach(function (f) {
+        if (f.status === 'done') return; // keep done
+        f.status = 'pending';
+        f.blob = null;
+        f.errorMsg = null;
+        f.convSize = null;
+      });
+
+      var quality = targetFormat === 'jpeg' ? parseFloat(qualitySlider.value) : undefined;
+
+      for (var i = 0; i < fileQueue.length; i++) {
+        var entry = fileQueue[i];
+        if (entry.status === 'done') continue;
+        entry.status = 'converting';
+        renderQueue();
+        try {
+          entry.blob = await convertImage(entry.file, targetFormat, quality);
+          entry.convSize = entry.blob.size;
+          entry.status = 'done';
+        } catch (err) {
+          entry.status = 'error';
+          entry.errorMsg = err.message;
+        }
+        // Small yield to keep UI responsive
+        await new Promise(function (r) { setTimeout(r, 10); });
+      }
+
+      renderQueue();
+
+      var done = fileQueue.filter(function (f) { return f.status === 'done'; });
+      if (done.length > 0) {
+        showToast(t('status.converted').replace('{n}', done.length));
+      }
+    };
+
+    /* ================================================================
+     *  RENDER QUEUE
+     * ================================================================ */
+    function renderQueue() {
+      queueList.innerHTML = '';
+
+      var hasItems = fileQueue.length > 0;
+      var pending = fileQueue.filter(function (f) { return f.status === 'pending'; });
+      var done = fileQueue.filter(function (f) { return f.status === 'done'; });
+
+      if (!hasItems) {
+        queueEmpty.classList.remove('hidden');
+        queueList.classList.add('hidden');
+        convertAllBtn.classList.add('hidden');
+        btnDownloadAll.classList.add('hidden');
+        btnClearQueue.classList.add('hidden');
+        queueCount.textContent = '(0)';
+        return;
+      }
+
+      queueEmpty.classList.add('hidden');
+      queueList.classList.remove('hidden');
+      queueCount.textContent = '(' + fileQueue.length + ')';
+
+      // Show convert-all if there are pending items
+      if (pending.length > 0) {
+        convertAllBtn.classList.remove('hidden');
+        convertCountEl.textContent = pending.length;
+      } else {
+        convertAllBtn.classList.add('hidden');
+      }
+
+      // Show download-all if there are done items
+      if (done.length > 0) {
+        btnDownloadAll.classList.remove('hidden');
+        btnDownloadAll.textContent = t('queue.download_all_zip') + ' (' + done.length + ')';
+      } else {
+        btnDownloadAll.classList.add('hidden');
+      }
+
+      btnClearQueue.classList.remove('hidden');
+
+      // Render each file row
+      for (var i = 0; i < fileQueue.length; i++) {
+        var entry = fileQueue[i];
+        var row = document.createElement('div');
+        row.className = 'flex items-center gap-3 p-3 rounded-xl border transition-colors animate-fade-in ' +
+          (entry.status === 'error' ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200');
+
+        // Thumbnail
+        var thumb = document.createElement('div');
+        thumb.className = 'w-10 h-10 rounded-lg bg-slate-200 flex-shrink-0 overflow-hidden flex items-center justify-center';
+        if (entry.file.type.indexOf('image') === 0) {
+          var img = document.createElement('img');
+          img.className = 'w-full h-full object-cover';
+          img.src = URL.createObjectURL(entry.file);
+          img.onload = function () { URL.revokeObjectURL(this.src); };
+          thumb.appendChild(img);
+        } else {
+          thumb.innerHTML = '<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>';
+        }
+        row.appendChild(thumb);
+
+        // Info
+        var info = document.createElement('div');
+        info.className = 'flex-1 min-w-0';
+
+        var nameEl = document.createElement('p');
+        nameEl.className = 'text-xs font-medium text-slate-700 truncate';
+        nameEl.textContent = entry.file.name;
+        nameEl.title = entry.file.name;
+        info.appendChild(nameEl);
+
+        var metaEl = document.createElement('p');
+        metaEl.className = 'text-[10px] text-slate-400 mt-0.5';
+        var metaText = t('queue.original') + ': ' + formatSize(entry.origSize);
+        if (entry.status === 'done' && entry.convSize !== null) {
+          metaText += ' → ' + t('queue.converted') + ': ' + formatSize(entry.convSize);
+        }
+        if (entry.status === 'error') {
+          metaText = entry.errorMsg || t('queue.error');
+          metaEl.className = 'text-[10px] text-red-500 mt-0.5';
+        }
+        metaEl.textContent = metaText;
+        info.appendChild(metaEl);
+
+        row.appendChild(info);
+
+        // Status / Action
+        var actionWrap = document.createElement('div');
+        actionWrap.className = 'flex-shrink-0';
+
+        if (entry.status === 'pending') {
+          var pendingSpan = document.createElement('span');
+          pendingSpan.className = 'text-[10px] text-slate-400';
+          pendingSpan.textContent = '—';
+          actionWrap.appendChild(pendingSpan);
+        } else if (entry.status === 'converting') {
+          var spinner = document.createElement('span');
+          spinner.className = 'inline-flex items-center gap-1 text-[10px] text-blue-500 font-medium';
+          spinner.innerHTML = '<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>' + t('queue.converting');
+          actionWrap.appendChild(spinner);
+        } else if (entry.status === 'done') {
+          var dlBtn = document.createElement('button');
+          dlBtn.className = 'px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 active:scale-95 transition-all';
+          dlBtn.innerHTML = '<svg class="w-3 h-3 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' + t('queue.download');
+          dlBtn.addEventListener('click', function () { downloadBlob(entry.blob, getOutputFilename(entry.file.name, targetFormat)); });
+          actionWrap.appendChild(dlBtn);
+        } else if (entry.status === 'error') {
+          var errSpan = document.createElement('span');
+          errSpan.className = 'text-[10px] text-red-500 font-medium';
+          errSpan.textContent = t('queue.error');
+          actionWrap.appendChild(errSpan);
+        }
+
+        row.appendChild(actionWrap);
+        queueList.appendChild(row);
+      }
+    }
+
+    /* ================================================================
+     *  DOWNLOAD HELPERS
+     * ================================================================ */
+    function getOutputFilename(origName, format) {
+      var dot = origName.lastIndexOf('.');
+      var base = dot > -1 ? origName.slice(0, dot) : origName;
+      var ext = format === 'jpeg' ? '.jpg' : (format === 'webp' ? '.webp' : '.png');
+      return base + ext;
+    }
+
+    function downloadBlob(blob, filename) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    /* ================================================================
+     *  DOWNLOAD ALL AS ZIP
+     * ================================================================ */
+    window.downloadAllZip = async function () {
+      var done = fileQueue.filter(function (f) { return f.status === 'done'; });
+      if (done.length === 0) return;
+
+      if (typeof JSZip === 'undefined') {
+        // Fallback: download individually
+        done.forEach(function (entry) {
+          downloadBlob(entry.blob, getOutputFilename(entry.file.name, targetFormat));
+        });
+        return;
+      }
+
+      var zip = new JSZip();
+      done.forEach(function (entry) {
+        var filename = getOutputFilename(entry.file.name, targetFormat);
+        zip.file(filename, entry.blob);
+      });
+
+      var content = await zip.generateAsync({ type: 'blob' });
+      downloadBlob(content, 'converted-images.zip');
+    };
+
+    /* ================================================================
+     *  CLEAR QUEUE
+     * ================================================================ */
+    window.clearQueue = function () {
+      fileQueue = [];
+      renderQueue();
+    };
+
+    /* ================================================================
+     *  UTILS
+     * ================================================================ */
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+
+    function showToast(msg) {
+      var toast = document.createElement('div');
+      toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl bg-slate-800 text-white text-xs font-medium shadow-lg z-[80] animate-slide-up';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(function () { toast.remove(); }, 3000);
+    }
+
+    /* ================================================================
+     *  INIT
+     * ================================================================ */
+    window.setFormat('webp');
+    updateLangButton();
+    buildLangMenu();
+    updateLanguageUI();
+    renderQueue();
+
+    console.log('%c🖼 Image Converter ready %c| %cLang %c' + currentLang + ' %c| %cJSZip %c' + (typeof JSZip !== 'undefined' ? '✅' : '❌'),
+      'font-weight:bold;', '', 'color:#10b981;', 'font-weight:bold;', '', 'color:#10b981;', 'font-weight:bold;');
+
+  })();
+  </script>
+
+</body>
+</html>

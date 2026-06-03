@@ -1,0 +1,129 @@
+/* ==================================================================
+ *  LinkoZen — Shared Styles
+ *  Applied across all tool pages for consistent look & dark mode.
+ * ================================================================== */
+
+/* ── Custom Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── CJK Font Fallbacks ────────────────────────────────────────── */
+:lang(zh), :lang(ja), :lang(ko), [lang="zh-CN"], [lang="zh-TW"] {
+  font-family: "Inter", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+/* ── Skeleton Loading Pulse ───────────────────────────────────── */
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+.skeleton-bar {
+  background-color: #e2e8f0;
+  border-radius: 0.5rem;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── Ad Placeholder ───────────────────────────────────────────── */
+.ad-placeholder {
+  background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 10px, #f1f5f9 10px, #f1f5f9 20px);
+  border: 2px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  overflow: hidden;
+  user-select: none;
+  transition: border-color 0.2s;
+}
+.ad-placeholder:hover { border-color: #94a3b8; }
+
+/* ── Drag & Drop Zone ─────────────────────────────────────────── */
+#drop-zone {
+  transition: all 0.2s ease;
+}
+
+/* ── Range Input ──────────────────────────────────────────────── */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+input[type=range]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+/* ── Copy Button ──────────────────────────────────────────────── */
+.copy-btn { transition: all 0.15s ease; }
+
+/* ==================================================================
+ *  DARK MODE OVERRIDES (unified — superset of all pages)
+ *  Ensures consistent dark theme regardless of Tailwind utility
+ *  classes used on any page.
+ * ================================================================== */
+
+.dark .bg-white                { background-color: #0f172a; }
+.dark .bg-slate-50             { background-color: #020617; }
+.dark .bg-slate-100            { background-color: #1e293b; }
+.dark .bg-slate-200            { background-color: #334155; }
+.dark .bg-slate-800            { background-color: #1e293b; }
+.dark .bg-amber-50             { background-color: #451a03; }
+.dark .bg-amber-100            { background-color: #78350f; }
+.dark .bg-cyan-50              { background-color: #0f172a; }
+.dark .bg-cyan-950             { background-color: #0f172a; }
+
+.dark .border-gray-200         { border-color: #334155; }
+.dark .border-gray-100         { border-color: #1e293b; }
+.dark .border-slate-200        { border-color: #334155; }
+.dark .border-slate-300        { border-color: #475569; }
+.dark .border-amber-200        { border-color: #78350f; }
+.dark .divide-gray-100         { border-color: #1e293b; }
+
+.dark .text-slate-900          { color: #f8fafc; }
+.dark .text-slate-800          { color: #f1f5f9; }
+.dark .text-slate-700          { color: #cbd5e1; }
+.dark .text-slate-600          { color: #94a3b8; }
+.dark .text-slate-500          { color: #94a3b8; }
+.dark .text-slate-400          { color: #64748b; }
+.dark .text-slate-300          { color: #475569; }
+.dark .text-gray-500           { color: #94a3b8; }
+.dark .text-gray-400           { color: #64748b; }
+.dark .text-amber-800          { color: #fbbf24; }
+.dark .text-amber-600          { color: #fbbf24; }
+.dark .text-amber-500          { color: #f59e0b; }
+.dark .text-cyan-600           { color: #22d3ee; }
+.dark .text-cyan-700           { color: #06b6d4; }
+
+.dark .shadow-sm               { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.dark #score-ring              { stroke: #475569; }
+.dark .skeleton-bar            { background-color: #334155; }
+.dark input[type=range]        { background: #334155; }
+
+.dark .hover\:bg-gray-50:hover   { background-color: #1e293b; }
+.dark .hover\:bg-gray-100:hover  { background-color: #1e293b; }
+.dark .hover\:bg-slate-100:hover { background-color: #1e293b; }

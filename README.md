@@ -11,15 +11,15 @@ v6 subdomain  ─┘    │
                      ├── /api/ip          → Geo data from request.cf
                      ├── /api/ipinfo      → Proxy to IPinfo.io
                      ├── /api/abuseipdb   → Proxy to AbuseIPDB
-                     └── /*               → Static index.html (public/)
+                     └── /*               → Static ip.html (public/)
 ```
 
 ## File Structure
 
 ```
-├── index.html                  # Main UI (also copied to public/)
+├── ip.html                     # Main UI (also copied to public/)
 ├── public/
-│   └── index.html              # Served by Worker (keep in sync with root)
+│   └── ip.html                  # Served by Worker (keep in sync with root)
 ├── worker/
 │   └── index.js                # Worker entry point (API routes + static serving)
 ├── wrangler.toml               # Worker configuration
@@ -105,17 +105,17 @@ npx wrangler dev
 # Open http://localhost:8787
 ```
 
-The root `index.html` is for local editing convenience. Before deploying, sync changes to `public/index.html`:
+The root `ip.html` is for local editing convenience. Before deploying, sync changes to `public/ip.html`:
 
 ```bash
-cp index.html public/index.html
+cp ip.html public/ip.html
 ```
 
 ## Updating the UI
 
-1. Edit `index.html` (root)
+1. Edit `ip.html` (root)
 2. Test locally with `npx wrangler dev`
-3. Copy to `public/`: `cp index.html public/index.html`
+3. Copy to `public/`: `cp ip.html public/ip.html`
 4. Commit and push
 
 All CSS is Tailwind CDN, all JS is vanilla ES6. No build step required.
