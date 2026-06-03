@@ -1,6 +1,16 @@
 /**
- * Cloudflare Worker — ip.linkozen.com
- * Serves static HTML + API routes. Vars from wrangler.toml [vars].
+ * Cloudflare Worker — linkozen.com
+ *
+ * Deployed on:
+ *   www.linkozen.com  — full site (static + all API routes)
+ *   v4.linkozen.com   — IPv4-only  endpoint (/api/ip)
+ *   v6.linkozen.com   — IPv6-only  endpoint (/api/ip)
+ *
+ * Dual-stack detection relies on separate hostnames with different DNS:
+ *   v4.linkozen.com → A record only (no AAAA)
+ *   v6.linkozen.com → AAAA record only (no A)
+ *
+ * Vars from wrangler.toml [vars].
  */
 
 export default {
