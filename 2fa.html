@@ -92,13 +92,15 @@
     </div>
   </header>
 
-  <!-- ================================================================== -->
-  <!--  TOP AD  —  728×90  Leaderboard                                     -->
-  <!-- ================================================================== -->
-  <div class="max-w-[728px] mx-auto mt-5 px-2">
-    <div id="ad-top-container" class="ad-placeholder w-full h-[50px] md:h-[90px] rounded-xl" data-i18n="ad.728x90">
-      <!-- GOOGLE ADSENSE / AD NETWORK CODE — 728×90 Leaderboard -->
-      ADVERTISEMENT · 728×90
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
     </div>
   </div>
 
@@ -108,11 +110,11 @@
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-      <!-- LEFT AD — 160×600 Skyscraper (lg only) -->
-      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div id="ad-left-container" class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">
-          <!-- GOOGLE ADSENSE / AD NETWORK CODE — 160×600 Skyscraper (Left) -->
-          AD<br>160×600
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
         </div>
       </aside>
 
@@ -225,11 +227,11 @@
 
       </div><!-- /center column -->
 
-      <!-- RIGHT AD — 160×600 Skyscraper (lg only) -->
-      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div id="ad-right-container" class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">
-          <!-- GOOGLE ADSENSE / AD NETWORK CODE — 160×600 Skyscraper (Right) -->
-          AD<br>160×600
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
         </div>
       </aside>
 
@@ -306,7 +308,7 @@
         'generate.show_uri':'Show raw <code class="font-mono">otpauth://</code> URI',
         'generate.issuer':'2FA Tools','generate.account':'user@2fa.tools',
         'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. Your secrets never leave your browser.',
-        'ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
+        'ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600','ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
         'status.paste_first':'Please paste a secret or otpauth:// URI first.',
         'status.no_valid':'No valid secrets found. Check your input and try again.',
         'status.token_loaded':'1 token loaded',
@@ -341,7 +343,7 @@
         'generate.show_uri':'显示原始 <code class="font-mono">otpauth://</code> 链接',
         'generate.issuer':'2FA 工具','generate.account':'user@2fa.tools',
         'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 您的密钥绝不会离开浏览器。',
-        'ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
+        'ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600','ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
         'status.paste_first':'请先粘贴密钥或 otpauth:// 链接。',
         'status.no_valid':'未找到有效密钥，请检查输入后重试。',
         'status.token_loaded':'已加载 1 个验证码',
@@ -376,7 +378,7 @@
         'generate.show_uri':'生の <code class="font-mono">otpauth://</code> URIを表示',
         'generate.issuer':'2FAツール','generate.account':'user@2fa.tools',
         'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・秘密鍵がブラウザから出ることはありません。',
-        'ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
+        'ad.zoneA':'広告 · 728×90','ad.zoneB':'広告<br/>160×600','ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
         'status.paste_first':'最初にシークレットまたはotpauth:// URIを貼り付けてください。',
         'status.no_valid':'有効なシークレットが見つかりません。入力を確認してください。',
         'status.token_loaded':'1個のトークンを読み込みました',
@@ -411,7 +413,7 @@
         'generate.show_uri':'원본 <code class="font-mono">otpauth://</code> URI 표시',
         'generate.issuer':'2FA 도구','generate.account':'user@2fa.tools',
         'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 비밀키는 브라우저를 떠나지 않습니다.',
-        'ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
+        'ad.zoneA':'광고 · 728×90','ad.zoneB':'광고<br/>160×600','ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
         'status.paste_first':'먼저 비밀키 또는 otpauth:// URI를 붙여넣으세요.',
         'status.no_valid':'유효한 비밀키를 찾을 수 없습니다. 입력을 확인하세요.',
         'status.token_loaded':'토큰 1개 로드됨',
@@ -446,7 +448,7 @@
         'generate.show_uri':'Afficher l\'URI <code class="font-mono">otpauth://</code> brute',
         'generate.issuer':'Outils 2FA','generate.account':'utilisateur@2fa.tools',
         'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Vos secrets ne quittent jamais votre navigateur.',
-        'ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
+        'ad.zoneA':'Publicité · 728×90','ad.zoneB':'Publicité<br/>160×600','ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
         'status.paste_first':'Veuillez d\'abord coller un secret ou une URI otpauth://.',
         'status.no_valid':'Aucun secret valide trouvé. Vérifiez votre saisie.',
         'status.token_loaded':'1 jeton chargé',
@@ -481,7 +483,7 @@
         'generate.show_uri':'Rohe <code class="font-mono">otpauth://</code>-URI anzeigen',
         'generate.issuer':'2FA Tools','generate.account':'benutzer@2fa.tools',
         'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Ihre Secrets verlassen nie Ihren Browser.',
-        'ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
+        'ad.zoneA':'Werbung · 728×90','ad.zoneB':'Werbung<br/>160×600','ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
         'status.paste_first':'Bitte zuerst ein Secret oder eine otpauth://-URI einfügen.',
         'status.no_valid':'Keine gültigen Secrets gefunden. Eingabe überprüfen.',
         'status.token_loaded':'1 Token geladen',
@@ -516,7 +518,7 @@
         'generate.show_uri':'Mostra URI <code class="font-mono">otpauth://</code> grezzo',
         'generate.issuer':'Strumenti 2FA','generate.account':'utente@2fa.tools',
         'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. I tuoi secret non lasciano mai il browser.',
-        'ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
+        'ad.zoneA':'Pubblicità · 728×90','ad.zoneB':'Pubblicità<br/>160×600','ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
         'status.paste_first':'Incolla prima un secret o un URI otpauth://.',
         'status.no_valid':'Nessun secret valido trovato. Controlla l\'input.',
         'status.token_loaded':'1 token caricato',
@@ -551,7 +553,7 @@
         'generate.show_uri':'Mostrar URI <code class="font-mono">otpauth://</code> bruta',
         'generate.issuer':'Ferramentas 2FA','generate.account':'usuario@2fa.tools',
         'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Seus segredos nunca saem do navegador.',
-        'ad.728x90':'PUBLICIDADE · 728×90','ad.160x600':'PUB<br>160×600',
+        'ad.zoneA':'Publicidade · 728×90','ad.zoneB':'Publicidade<br/>160×600','ad.728x90':'PUBLICIDADE · 728×90','ad.160x600':'PUB<br>160×600',
         'status.paste_first':'Cole primeiro um segredo ou URI otpauth://.',
         'status.no_valid':'Nenhum segredo válido encontrado. Verifique sua entrada.',
         'status.token_loaded':'1 token carregado',
@@ -586,7 +588,7 @@
         'generate.show_uri':'Показать исходный <code class="font-mono">otpauth://</code> URI',
         'generate.issuer':'2FA Инструменты','generate.account':'user@2fa.tools',
         'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Ваши секреты никогда не покидают браузер.',
-        'ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
+        'ad.zoneA':'Реклама · 728×90','ad.zoneB':'Реклама<br/>160×600','ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
         'status.paste_first':'Сначала вставьте секрет или otpauth:// URI.',
         'status.no_valid':'Действительные секреты не найдены. Проверьте ввод.',
         'status.token_loaded':'1 токен загружен',
@@ -621,7 +623,7 @@
         'generate.show_uri':'Ham <code class="font-mono">otpauth://</code> URI\'sini göster',
         'generate.issuer':'2FA Araçları','generate.account':'kullanici@2fa.tools',
         'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Anahtarlarınız asla tarayıcıdan çıkmaz.',
-        'ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
+        'ad.zoneA':'Reklam · 728×90','ad.zoneB':'Reklam<br/>160×600','ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
         'status.paste_first':'Lütfen önce bir anahtar veya otpauth:// URI\'si yapıştırın.',
         'status.no_valid':'Geçerli anahtar bulunamadı. Girdinizi kontrol edin.',
         'status.token_loaded':'1 token yüklendi',
@@ -656,7 +658,7 @@
         'generate.show_uri':'顯示原始 <code class="font-mono">otpauth://</code> 連結',
         'generate.issuer':'2FA 工具','generate.account':'user@2fa.tools',
         'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 您的金鑰絕不會離開瀏覽器。',
-        'ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
+        'ad.zoneA':'廣告 · 728×90','ad.zoneB':'廣告<br/>160×600','ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
         'status.paste_first':'請先貼上金鑰或 otpauth:// 連結。',
         'status.no_valid':'未找到有效金鑰，請檢查輸入後重試。',
         'status.token_loaded':'已載入 1 個驗證碼',
@@ -793,6 +795,64 @@
       location.reload();
     };
     applyTheme();
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
+          } else {
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+          }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
+          iframe.setAttribute('srcdoc',
+            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
+            '</head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
 
     // Set placeholder on textarea from i18n dict
     secretsInput.placeholder = t('verify.placeholder');
@@ -1260,6 +1320,7 @@
      *  STARTUP
      * ================================================================ */
     startTimer();
+    renderAds();
     console.log('%c🔐 2FA Tools ready %c| %cWeb Crypto %c'+(crypto.subtle?'✅':'❌')+' %c| %cQRCode %c'+(typeof QRCode!=='undefined'?'✅':'❌')+' %c| %cLang %c'+currentLang,
       'font-weight:bold;','','color:#06b6d4;','font-weight:bold;','','color:#06b6d4;','font-weight:bold;','','color:#06b6d4;','font-weight:bold;');
 

@@ -73,13 +73,15 @@
     </div>
   </header>
 
-  <!-- ================================================================== -->
-  <!--  TOP AD — 728×90 Leaderboard                                        -->
-  <!-- ================================================================== -->
-  <div class="max-w-[728px] mx-auto mt-5 px-2">
-    <div id="ad-top-container" class="ad-placeholder w-full h-[50px] md:h-[90px] rounded-xl" data-i18n="ad.728x90">
-      <!-- GOOGLE ADSENSE / AD NETWORK CODE — 728×90 Leaderboard -->
-      ADVERTISEMENT · 728×90
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
     </div>
   </div>
 
@@ -89,10 +91,11 @@
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-      <!-- LEFT AD — 160×600 Skyscraper (lg only) -->
-      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div id="ad-left-container" class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">
-          AD<br>160×600
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
         </div>
       </aside>
 
@@ -225,10 +228,11 @@
 
       </div><!-- /center column -->
 
-      <!-- RIGHT AD — 160×600 Skyscraper (lg only) -->
-      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div id="ad-right-container" class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">
-          AD<br>160×600
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
         </div>
       </aside>
 
@@ -284,7 +288,7 @@
         'input.title':'Input','output.title':'Output',
         'metrics.chars':'Chars (no space)','metrics.total_chars':'Total chars','metrics.lines':'Lines',
         'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. All text processing happens locally in your browser.',
-        'ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
+        'ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600','ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
         'info.title':'About Text Cleaning & Formatting',
         'info.intro':'Copying text from PDFs, emails, websites, or code editors often brings along unwanted whitespace, empty lines, and formatting cruft. This tool gives you precise control over how your text is cleaned — each operation can be toggled independently and combined in any way, with results updating in real-time as you type.',
         'info.spaces_title':'Remove All Spaces',
@@ -309,7 +313,7 @@
         'input.title':'输入','output.title':'输出',
         'metrics.chars':'字符数（无空格）','metrics.total_chars':'总字符数','metrics.lines':'行数',
         'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 所有文本处理均在浏览器本地完成。',
-        'ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
+        'ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600','ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
         'info.title':'关于文本清洗与格式化',
         'info.intro':'从 PDF、邮件、网页或代码编辑器复制文本时，往往会带入多余的空格、空行和格式垃圾。本工具让您精确控制文本的清洗方式——每个操作可独立开关并任意组合，结果随您输入实时更新。',
         'info.spaces_title':'去除所有空格',
@@ -334,7 +338,7 @@
         'input.title':'入力','output.title':'出力',
         'metrics.chars':'文字数(空白除く)','metrics.total_chars':'総文字数','metrics.lines':'行数',
         'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・すべてのテキスト処理はブラウザ内で行われます。',
-        'ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
+        'ad.zoneA':'広告 · 728×90','ad.zoneB':'広告<br/>160×600','ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
         'info.title':'テキストクリーニングとフォーマットについて',
         'info.intro':'PDF、メール、ウェブサイト、コードエディタからテキストをコピーすると、不要な空白や空行、フォーマットのゴミが付いてくることがよくあります。このツールは各操作を個別に切り替えて自由に組み合わせることができ、入力に応じてリアルタイムで結果が更新されます。',
         'info.spaces_title':'すべてのスペースを削除',
@@ -359,7 +363,7 @@
         'input.title':'입력','output.title':'출력',
         'metrics.chars':'문자 수(공백 제외)','metrics.total_chars':'총 문자 수','metrics.lines':'줄 수',
         'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 모든 텍스트 처리는 브라우저에서 로컬로 수행됩니다.',
-        'ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
+        'ad.zoneA':'광고 · 728×90','ad.zoneB':'광고<br/>160×600','ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
         'info.title':'텍스트 정리 및 포맷팅 정보',
         'info.intro':'PDF, 이메일, 웹사이트, 코드 편집기에서 텍스트를 복사하면 원치 않는 공백, 빈 줄, 서식 찌꺼기가 함께 따라오는 경우가 많습니다. 이 도구는 각 작업을 독립적으로 전환하고 자유롭게 조합할 수 있으며, 입력에 따라 실시간으로 결과가 업데이트됩니다.',
         'info.spaces_title':'모든 공백 제거',
@@ -384,7 +388,7 @@
         'input.title':'Entrée','output.title':'Sortie',
         'metrics.chars':'Caractères (sans espaces)','metrics.total_chars':'Total caractères','metrics.lines':'Lignes',
         'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Tout le traitement se fait localement dans votre navigateur.',
-        'ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
+        'ad.zoneA':'Publicité · 728×90','ad.zoneB':'Publicité<br/>160×600','ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
         'info.title':'À propos du nettoyage et formatage de texte',
         'info.intro':'Copier du texte depuis des PDF, e-mails, sites web ou éditeurs de code apporte souvent des espaces indésirables, des lignes vides et des résidus de formatage. Cet outil vous donne un contrôle précis — chaque opération peut être activée indépendamment et combinée librement, avec des résultats en temps réel.',
         'info.spaces_title':'Supprimer tous les espaces',
@@ -409,7 +413,7 @@
         'input.title':'Eingabe','output.title':'Ausgabe',
         'metrics.chars':'Zeichen (ohne Leerz.)','metrics.total_chars':'Gesamtzeichen','metrics.lines':'Zeilen',
         'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Alle Textverarbeitung erfolgt lokal im Browser.',
-        'ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
+        'ad.zoneA':'Werbung · 728×90','ad.zoneB':'Werbung<br/>160×600','ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
         'info.title':'Über Textbereinigung & Formatierung',
         'info.intro':'Beim Kopieren von Text aus PDFs, E-Mails, Websites oder Code-Editoren entstehen oft unerwünschte Leerzeichen, Leerzeilen und Formatierungsreste. Dieses Tool gibt Ihnen präzise Kontrolle — jede Operation kann unabhängig geschaltet und beliebig kombiniert werden, mit Echtzeit-Ergebnissen.',
         'info.spaces_title':'Alle Leerzeichen entfernen',
@@ -434,7 +438,7 @@
         'input.title':'Input','output.title':'Output',
         'metrics.chars':'Caratteri (senza spazi)','metrics.total_chars':'Caratteri totali','metrics.lines':'Righe',
         'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. L\'elaborazione avviene localmente nel browser.',
-        'ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
+        'ad.zoneA':'Pubblicità · 728×90','ad.zoneB':'Pubblicità<br/>160×600','ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
         'info.title':'Informazioni sulla pulizia e formattazione del testo',
         'info.intro':'Copiare testo da PDF, email, siti web o editor di codice spesso porta con sé spazi indesiderati, righe vuote e residui di formattazione. Questo strumento offre un controllo preciso: ogni operazione può essere attivata indipendentemente e combinata liberamente, con risultati in tempo reale.',
         'info.spaces_title':'Rimuovi tutti gli spazi',
@@ -459,7 +463,7 @@
         'input.title':'Entrada','output.title':'Saída',
         'metrics.chars':'Caracteres (sem espaços)','metrics.total_chars':'Total caracteres','metrics.lines':'Linhas',
         'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Todo processamento ocorre localmente no navegador.',
-        'ad.728x90':'PUBLICIDADE · 728×90','ad.160x600':'PUB<br>160×600',
+        'ad.zoneA':'Publicidade · 728×90','ad.zoneB':'Publicidade<br/>160×600','ad.728x90':'PUBLICIDADE · 728×90','ad.160x600':'PUB<br>160×600',
         'info.title':'Sobre limpeza e formatação de texto',
         'info.intro':'Copiar texto de PDFs, e-mails, sites ou editores de código frequentemente traz espaços indesejados, linhas vazias e resíduos de formatação. Esta ferramenta oferece controle preciso — cada operação pode ser ativada independentemente e combinada livremente, com resultados em tempo real.',
         'info.spaces_title':'Remover todos os espaços',
@@ -484,7 +488,7 @@
         'input.title':'Ввод','output.title':'Вывод',
         'metrics.chars':'Символов (без проб.)','metrics.total_chars':'Всего символов','metrics.lines':'Строк',
         'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Вся обработка текста выполняется локально в браузере.',
-        'ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
+        'ad.zoneA':'Реклама · 728×90','ad.zoneB':'Реклама<br/>160×600','ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
         'info.title':'Об очистке и форматировании текста',
         'info.intro':'При копировании текста из PDF, писем, сайтов или редакторов кода часто появляются лишние пробелы, пустые строки и мусор форматирования. Этот инструмент даёт точный контроль — каждую операцию можно включать независимо и комбинировать, с обновлением результатов в реальном времени.',
         'info.spaces_title':'Удалить все пробелы',
@@ -509,7 +513,7 @@
         'input.title':'Giriş','output.title':'Çıkış',
         'metrics.chars':'Karakter (boşluksuz)','metrics.total_chars':'Toplam karakter','metrics.lines':'Satır',
         'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Tüm metin işleme tarayıcınızda yerel olarak gerçekleşir.',
-        'ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
+        'ad.zoneA':'Reklam · 728×90','ad.zoneB':'Reklam<br/>160×600','ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
         'info.title':'Metin Temizleme ve Biçimlendirme Hakkında',
         'info.intro':'PDF\'lerden, e-postalardan, web sitelerinden veya kod düzenleyicilerden metin kopyalamak genellikle istenmeyen boşluklar, boş satırlar ve biçimlendirme kalıntıları getirir. Bu araç size hassas kontrol sağlar — her işlem bağımsız olarak açılıp kapatılabilir ve serbestçe birleştirilebilir, sonuçlar gerçek zamanlı olarak güncellenir.',
         'info.spaces_title':'Tüm Boşlukları Kaldır',
@@ -534,7 +538,7 @@
         'input.title':'輸入','output.title':'輸出',
         'metrics.chars':'字元數（無空格）','metrics.total_chars':'總字元數','metrics.lines':'行數',
         'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 所有文字處理均在瀏覽器本機完成。',
-        'ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
+        'ad.zoneA':'廣告 · 728×90','ad.zoneB':'廣告<br/>160×600','ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
         'info.title':'關於文字清洗與格式化',
         'info.intro':'從 PDF、郵件、網頁或程式碼編輯器複製文字時，往往會帶入多餘的空格、空行和格式垃圾。本工具讓您精確控制文字的清洗方式——每個操作可獨立開關並任意組合，結果隨您輸入即時更新。',
         'info.spaces_title':'去除所有空格',
@@ -625,6 +629,64 @@
     function applyTheme() { if (IS_DARK) document.documentElement.classList.add('dark'); }
     window.toggleDark = function () { IS_DARK = !IS_DARK; localStorage.setItem('tx-dark', IS_DARK ? '1' : '0'); location.reload(); };
     applyTheme();
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
+          } else {
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+          }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
+          iframe.setAttribute('srcdoc',
+            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
+            '</head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
 
     /* ================================================================
      *  STATE
@@ -785,6 +847,7 @@
     buildLangMenu();
     updateLanguageUI();
     refreshOutput();
+    renderAds();
 
     console.log('%c📝 Text Cleaner ready %c| %cLang %c' + currentLang,
       'font-weight:bold;', '', 'color:#0ea5e9;', 'font-weight:bold;');

@@ -72,11 +72,16 @@
     </div>
   </header>
 
-  <!-- ================================================================== -->
-  <!--  TOP AD — 728×90                                                     -->
-  <!-- ================================================================== -->
-  <div class="max-w-[728px] mx-auto mt-5 px-2">
-    <div class="ad-placeholder w-full h-[50px] md:h-[90px] rounded-xl" data-i18n="ad.728x90">ADVERTISEMENT · 728×90</div>
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
   </div>
 
   <!-- ================================================================== -->
@@ -85,8 +90,12 @@
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">AD<br>160×600</div>
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        </div>
       </aside>
 
       <div class="lg:col-span-8 space-y-5">
@@ -221,8 +230,12 @@
 
       </div>
 
-      <aside class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div class="ad-placeholder sticky top-24 w-[160px] h-[600px] rounded-xl" data-i18n="ad.160x600">AD<br>160×600</div>
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
+        </div>
       </aside>
 
     </div>
@@ -260,8 +273,8 @@
     ];
 
     var T = {
-      en:{'app.title':'AI Avatar Generator','app.subtitle':'Free AI-Powered Profile Picture Creator','nav.home':'Home','intro.title':'Free AI Avatar Generator','intro.desc':'Powered by open-source AI compute, simply describe your ideal avatar and generate it instantly. Supports one-click switching between realistic ID-style portraits and cartoon/anime avatars. Completely free — no registration required.','intro.free':'100% Free','intro.no_auth':'No Sign-Up','intro.fast':'Fast Generation','ctrl.title':'Avatar Settings','ctrl.style':'Avatar Style','ctrl.realistic':'Realistic Portrait','ctrl.cartoon':'Cartoon Avatar','ctrl.prompt':'Custom Description (optional)','ctrl.placeholder':'e.g. programmer with glasses, blonde girl, business professional... (leave empty for random)','ctrl.dimension':'Aspect Ratio','ctrl.dim_square':'1:1 Square','ctrl.dim_idphoto':'4:3 ID Photo','ctrl.generate':'Generate Avatar','result.title':'Generated Avatar','result.empty':'Click <strong>Generate Avatar</strong> to create your AI avatar','result.download':'Download','result.copy_link':'Copy Link','copied':'Copied!','footer.powered':'Powered by','footer.privacy':'No registration required. Images generated via open-source AI.','ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600'},
-      zh:{'app.title':'AI 头像生成器','app.subtitle':'免费 AI 个人头像制作工具','nav.home':'首页','intro.title':'免费 AI 头像生成器','intro.desc':'基于开源 AI 算力，输入描述即可快速生成专属个人头像。支持一键切换真实证件照肖像与动漫画风卡通头像，完全免费，无须注册。','intro.free':'100% 免费','intro.no_auth':'无需注册','intro.fast':'快速生成','ctrl.title':'头像设置','ctrl.style':'头像风格','ctrl.realistic':'真实人物头像','ctrl.cartoon':'卡通人物头像','ctrl.prompt':'自定义描述（可选）','ctrl.placeholder':'例如：戴眼镜的程序员、金发女生、商务人士...（不输入则随机生成）','ctrl.dimension':'画面比例','ctrl.dim_square':'1:1 正方形','ctrl.dim_idphoto':'4:3 证件照','ctrl.generate':'生成头像','result.title':'生成结果','result.empty':'点击<strong>生成头像</strong>创建您的 AI 头像','result.download':'下载图片','result.copy_link':'复制链接','copied':'已复制！','footer.powered':'技术支持','footer.privacy':'无需注册。图片由开源 AI 算力生成。','ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600'},
+      en:{'app.title':'AI Avatar Generator','app.subtitle':'Free AI-Powered Profile Picture Creator','nav.home':'Home','intro.title':'Free AI Avatar Generator','intro.desc':'Powered by open-source AI compute, simply describe your ideal avatar and generate it instantly. Supports one-click switching between realistic ID-style portraits and cartoon/anime avatars. Completely free — no registration required.','intro.free':'100% Free','intro.no_auth':'No Sign-Up','intro.fast':'Fast Generation','ctrl.title':'Avatar Settings','ctrl.style':'Avatar Style','ctrl.realistic':'Realistic Portrait','ctrl.cartoon':'Cartoon Avatar','ctrl.prompt':'Custom Description (optional)','ctrl.placeholder':'e.g. programmer with glasses, blonde girl, business professional... (leave empty for random)','ctrl.dimension':'Aspect Ratio','ctrl.dim_square':'1:1 Square','ctrl.dim_idphoto':'4:3 ID Photo','ctrl.generate':'Generate Avatar','result.title':'Generated Avatar','result.empty':'Click <strong>Generate Avatar</strong> to create your AI avatar','result.download':'Download','result.copy_link':'Copy Link','copied':'Copied!','footer.powered':'Powered by','footer.privacy':'No registration required. Images generated via open-source AI.','ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600','ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600'},
+      zh:{'app.title':'AI 头像生成器','app.subtitle':'免费 AI 个人头像制作工具','nav.home':'首页','intro.title':'免费 AI 头像生成器','intro.desc':'基于开源 AI 算力，输入描述即可快速生成专属个人头像。支持一键切换真实证件照肖像与动漫画风卡通头像，完全免费，无须注册。','intro.free':'100% 免费','intro.no_auth':'无需注册','intro.fast':'快速生成','ctrl.title':'头像设置','ctrl.style':'头像风格','ctrl.realistic':'真实人物头像','ctrl.cartoon':'卡通人物头像','ctrl.prompt':'自定义描述（可选）','ctrl.placeholder':'例如：戴眼镜的程序员、金发女生、商务人士...（不输入则随机生成）','ctrl.dimension':'画面比例','ctrl.dim_square':'1:1 正方形','ctrl.dim_idphoto':'4:3 证件照','ctrl.generate':'生成头像','result.title':'生成结果','result.empty':'点击<strong>生成头像</strong>创建您的 AI 头像','result.download':'下载图片','result.copy_link':'复制链接','copied':'已复制！','footer.powered':'技术支持','footer.privacy':'无需注册。图片由开源 AI 算力生成。','ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600','ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600'},
     };
     var DICT = T;
 
@@ -300,6 +313,64 @@
     var IS_DARK=localStorage.getItem('ai-dark')==='1';
     if(IS_DARK)document.documentElement.classList.add('dark');
     window.toggleDark=function(){IS_DARK=!IS_DARK;localStorage.setItem('ai-dark',IS_DARK?'1':'0');location.reload();};
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
+          } else {
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+          }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
+          iframe.setAttribute('srcdoc',
+            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
+            '</head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
 
     /* ================================================================
      *  STATE
@@ -446,6 +517,7 @@
      *  INIT
      * ================================================================ */
     updateLangBtn();buildLangMenu();updateLangUI();
+    renderAds();
 
     console.log('%c🎨 AI Avatar Generator ready %c| %cLang %c'+currentLang,
       'font-weight:bold;','','color:#8b5cf6;','font-weight:bold;');

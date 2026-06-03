@@ -117,11 +117,35 @@
     </div>
   </section>
 
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
+  </div>
+
   <!-- ================================================================== -->
   <!--  TOOLS GRID                                                         -->
   <!-- ================================================================== -->
-  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
-    <div class="mb-8">
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        </div>
+      </aside>
+
+      <!-- CENTER COLUMN (8/12) -->
+      <div class="lg:col-span-8 space-y-5">
+        <div class="mb-8">
       <h3 class="text-lg font-bold text-slate-800" data-i18n="tools.heading">Available Tools</h3>
       <p class="text-sm text-slate-500 mt-1" data-i18n="tools.subtitle">Click any tool to get started — all free, no sign-up required.</p>
     </div>
@@ -295,7 +319,17 @@
         <h4 class="text-sm font-semibold text-slate-800 mb-1" data-i18n="why.fast.title">Blazing Fast</h4>
         <p class="text-xs text-slate-500 leading-relaxed" data-i18n="why.fast.desc">No server round-trips. Everything runs on your device using Web Crypto API and modern browser capabilities — results appear instantly.</p>
       </div>
-    </div>
+      </div><!-- /center column -->
+
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
+        </div>
+      </aside>
+
+    </div><!-- /outer grid -->
   </main>
 
   <!-- ================================================================== -->
@@ -356,6 +390,7 @@
         'why.privacy.title':'Your Data Stays Yours','why.privacy.desc':'All tools process data entirely in your browser. Nothing is ever uploaded to a server, logged, or shared with third parties.',
         'why.opensource.title':'Open Source & Transparent','why.opensource.desc':'Every line of code is inspectable. No hidden trackers, no obfuscated logic — you can verify exactly what each tool does.',
         'why.fast.title':'Blazing Fast','why.fast.desc':'No server round-trips. Everything runs on your device using Web Crypto API and modern browser capabilities — results appear instantly.',
+        'ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600',
         'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. Your data never leaves your browser.',
       },
       zh: {
@@ -377,6 +412,7 @@
         'why.privacy.title':'您的数据归您所有','why.privacy.desc':'所有工具的数据处理完全在浏览器中完成，绝不上传至服务器、不记录日志、不与第三方共享。',
         'why.opensource.title':'开源透明','why.opensource.desc':'每一行代码都可审查。无隐藏追踪器，无混淆逻辑——您可以验证每个工具的实际行为。',
         'why.fast.title':'极速响应','why.fast.desc':'无需服务器往返。一切均在您的设备上通过 Web Crypto API 和现代浏览器能力运行——结果即时呈现。',
+        'ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600',
         'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 您的数据绝不会离开浏览器。',
       },
       ja: {
@@ -398,6 +434,7 @@
         'why.privacy.title':'データはあなたのもの','why.privacy.desc':'全ツールがブラウザ内でデータを処理。サーバーへのアップロード、ログ記録、第三者共有は一切ありません。',
         'why.opensource.title':'オープンソース＆透明','why.opensource.desc':'全コードが検証可能。隠されたトラッカーや難読化ロジックはなく、各ツールの動作を正確に確認できます。',
         'why.fast.title':'超高速','why.fast.desc':'サーバー往復なし。Web Crypto APIと最新ブラウザ機能により、すべてがデバイス上で即座に実行されます。',
+        'ad.zoneA':'広告 · 728×90','ad.zoneB':'広告<br/>160×600',
         'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・データがブラウザから出ることはありません。',
       },
       ko: {
@@ -419,6 +456,7 @@
         'why.privacy.title':'데이터는 당신의 것','why.privacy.desc':'모든 도구는 브라우저 내에서 데이터를 처리합니다. 서버 업로드, 로그 기록, 제3자 공유는 절대 없습니다.',
         'why.opensource.title':'오픈소스 & 투명성','why.opensource.desc':'모든 코드를 검사할 수 있습니다. 숨겨진 추적기나 난독화된 로직이 없으며 각 도구의 동작을 정확히 확인할 수 있습니다.',
         'why.fast.title':'초고속','why.fast.desc':'서버 왕복이 없습니다. Web Crypto API와 최신 브라우저 기능으로 모든 것이 기기에서 즉시 실행됩니다.',
+        'ad.zoneA':'광고 · 728×90','ad.zoneB':'광고<br/>160×600',
         'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 데이터가 브라우저를 떠나지 않습니다.',
       },
       fr: {
@@ -440,6 +478,7 @@
         'why.privacy.title':'Vos données vous appartiennent','why.privacy.desc':'Tous les outils traitent les données entièrement dans votre navigateur. Rien n\'est jamais téléchargé, enregistré ou partagé.',
         'why.opensource.title':'Open Source & Transparent','why.opensource.desc':'Chaque ligne de code est inspectable. Pas de traqueurs cachés, pas de logique obscurcie — vous pouvez vérifier exactement ce que fait chaque outil.',
         'why.fast.title':'Ultra rapide','why.fast.desc':'Pas d\'allers-retours serveur. Tout fonctionne sur votre appareil grâce à Web Crypto API et aux capacités modernes des navigateurs.',
+        'ad.zoneA':'Publicité · 728×90','ad.zoneB':'Publicité<br/>160×600',
         'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Vos données ne quittent jamais votre navigateur.',
       },
       de: {
@@ -461,6 +500,7 @@
         'why.privacy.title':'Ihre Daten bleiben bei Ihnen','why.privacy.desc':'Alle Tools verarbeiten Daten vollständig in Ihrem Browser. Nichts wird jemals auf einen Server hochgeladen, protokolliert oder geteilt.',
         'why.opensource.title':'Open Source & Transparent','why.opensource.desc':'Jede Codezeile ist einsehbar. Keine versteckten Tracker, keine verschleierte Logik — Sie können genau prüfen, was jedes Tool tut.',
         'why.fast.title':'Rasant schnell','why.fast.desc':'Keine Server-Rundreisen. Alles läuft auf Ihrem Gerät mit Web Crypto API und modernen Browser-Funktionen — Ergebnisse erscheinen sofort.',
+        'ad.zoneA':'Werbung · 728×90','ad.zoneB':'Werbung<br/>160×600',
         'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Ihre Daten verlassen nie Ihren Browser.',
       },
       it: {
@@ -482,6 +522,7 @@
         'why.privacy.title':'I tuoi dati restano tuoi','why.privacy.desc':'Tutti gli strumenti elaborano i dati interamente nel browser. Nulla viene mai caricato su un server, registrato o condiviso con terze parti.',
         'why.opensource.title':'Open Source e trasparente','why.opensource.desc':'Ogni riga di codice è ispezionabile. Nessun tracker nascosto, nessuna logica offuscata — puoi verificare esattamente cosa fa ogni strumento.',
         'why.fast.title':'Velocissimo','why.fast.desc':'Nessun viaggio di andata e ritorno al server. Tutto funziona sul tuo dispositivo usando Web Crypto API e le moderne capacità del browser.',
+        'ad.zoneA':'Pubblicità · 728×90','ad.zoneB':'Pubblicità<br/>160×600',
         'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. I tuoi dati non lasciano mai il browser.',
       },
       pt: {
@@ -503,6 +544,7 @@
         'why.privacy.title':'Seus dados são seus','why.privacy.desc':'Todas as ferramentas processam dados inteiramente no seu navegador. Nada é enviado, registrado ou compartilhado com terceiros.',
         'why.opensource.title':'Código Aberto e Transparente','why.opensource.desc':'Cada linha de código é inspecionável. Sem rastreadores ocultos, sem lógica ofuscada — você pode verificar exatamente o que cada ferramenta faz.',
         'why.fast.title':'Super rápido','why.fast.desc':'Sem idas e vindas ao servidor. Tudo funciona no seu dispositivo usando Web Crypto API e recursos modernos do navegador.',
+        'ad.zoneA':'Publicidade · 728×90','ad.zoneB':'Publicidade<br/>160×600',
         'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Seus dados nunca saem do navegador.',
       },
       ru: {
@@ -524,6 +566,7 @@
         'why.privacy.title':'Ваши данные остаются вашими','why.privacy.desc':'Все инструменты обрабатывают данные полностью в браузере. Ничего никогда не загружается на сервер, не логируется и не передаётся третьим лицам.',
         'why.opensource.title':'Открытый исходный код','why.opensource.desc':'Каждая строка кода доступна для проверки. Никаких скрытых трекеров, никакой обфусцированной логики — вы можете точно проверить, что делает каждый инструмент.',
         'why.fast.title':'Молниеносно','why.fast.desc':'Никаких обращений к серверу. Всё работает на вашем устройстве с использованием Web Crypto API и современных возможностей браузера.',
+        'ad.zoneA':'Реклама · 728×90','ad.zoneB':'Реклама<br/>160×600',
         'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Ваши данные никогда не покидают браузер.',
       },
       tr: {
@@ -545,6 +588,7 @@
         'why.privacy.title':'Verileriniz Sizde Kalır','why.privacy.desc':'Tüm araçlar verileri tamamen tarayıcınızda işler. Hiçbir şey sunucuya yüklenmez, günlüğe kaydedilmez veya üçüncü taraflarla paylaşılmaz.',
         'why.opensource.title':'Açık Kaynak ve Şeffaf','why.opensource.desc':'Her kod satırı incelenebilir. Gizli izleyici yok, karmaşık mantık yok — her aracın tam olarak ne yaptığını doğrulayabilirsiniz.',
         'why.fast.title':'Son Derece Hızlı','why.fast.desc':'Sunucu gidiş-gelişi yok. Her şey Web Crypto API ve modern tarayıcı yetenekleri ile cihazınızda anında çalışır.',
+        'ad.zoneA':'Reklam · 728×90','ad.zoneB':'Reklam<br/>160×600',
         'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Verileriniz asla tarayıcıdan çıkmaz.',
       },
       'zh-TW': {
@@ -566,6 +610,7 @@
         'why.privacy.title':'您的資料歸您所有','why.privacy.desc':'所有工具的資料處理完全在瀏覽器中完成，絕不上傳至伺服器、不記錄日誌、不與第三方分享。',
         'why.opensource.title':'開放原始碼且透明','why.opensource.desc':'每一行程式碼皆可審查。無隱藏追蹤器，無混淆邏輯——您可以驗證每個工具的實際行為。',
         'why.fast.title':'極速回應','why.fast.desc':'無需伺服器往返。一切均在您的裝置上透過 Web Crypto API 和現代瀏覽器能力執行——結果即時呈現。',
+        'ad.zoneA':'廣告 · 728×90','ad.zoneB':'廣告<br/>160×600',
         'footer.powered':'由','footer.privacy':'無日誌 · 無追蹤 · 您的資料絕不會離開瀏覽器。',
       },
     };
@@ -651,12 +696,71 @@
     };
     applyTheme();
 
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) {
+            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
+          } else {
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+          }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0');
+          iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
+          iframe.setAttribute('srcdoc',
+            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
+            '</head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) {
+            el.parentElement.classList.remove('hidden');
+            el.parentElement.classList.add('lg:flex');
+          }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (k) els[i].innerHTML = t(k);
+        }
+      }
+
+      fill(left,  adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
+
     /* ================================================================
      *  INIT
      * ================================================================ */
     updateLangButton();
     buildLangMenu();
     updateLanguageUI();
+    renderAds();
 
     console.log('%c⚡ LinkoZen ready %c| %cLang %c' + currentLang,
       'font-weight:bold;', '', 'color:#06b6d4;', 'font-weight:bold;');
