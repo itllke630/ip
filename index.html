@@ -117,35 +117,11 @@
     </div>
   </section>
 
-  <!-- ================================================================ -->
-  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
-  <!-- ================================================================ -->
-  <div class="max-w-[728px] mx-auto mt-5">
-    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
-                border-2 border-dashed border-slate-200 rounded-xl
-                flex items-center justify-center bg-white/60 text-xs text-slate-400
-                select-none transition-colors hover:border-slate-300">
-      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
-    </div>
-  </div>
-
   <!-- ================================================================== -->
   <!--  TOOLS GRID                                                         -->
   <!-- ================================================================== -->
-  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-
-      <!-- ============================================================ -->
-      <!--  LEFT AD  (160×600, lg only)                                  -->
-      <!-- ============================================================ -->
-      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
-        </div>
-      </aside>
-
-      <!-- CENTER COLUMN (8/12) -->
-      <div class="lg:col-span-8 space-y-5">
-        <div class="mb-8">
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+    <div class="mb-8">
       <h3 class="text-lg font-bold text-slate-800" data-i18n="tools.heading">Available Tools</h3>
       <p class="text-sm text-slate-500 mt-1" data-i18n="tools.subtitle">Click any tool to get started — all free, no sign-up required.</p>
     </div>
@@ -319,17 +295,7 @@
         <h4 class="text-sm font-semibold text-slate-800 mb-1" data-i18n="why.fast.title">Blazing Fast</h4>
         <p class="text-xs text-slate-500 leading-relaxed" data-i18n="why.fast.desc">No server round-trips. Everything runs on your device using Web Crypto API and modern browser capabilities — results appear instantly.</p>
       </div>
-      </div><!-- /center column -->
-
-      <!-- ============================================================ -->
-      <!--  RIGHT AD  (160×600, lg only)                                 -->
-      <!-- ============================================================ -->
-      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
-        </div>
-      </aside>
-
-    </div><!-- /outer grid -->
+    </div>
   </main>
 
   <!-- ================================================================== -->
@@ -696,71 +662,12 @@
     };
     applyTheme();
 
-    /* ── Render Ad slots ───────────────────────────────────────── */
-    async function renderAds() {
-      var left  = document.getElementById('ad-left-container');
-      var right = document.getElementById('ad-right-container');
-      var topEl = document.getElementById('ad-top-container');
-
-      var adTop = '', adSky = '';
-      try {
-        var res = await fetch('/api/ads');
-        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
-      } catch (_) {}
-
-      function fill(el, code, labelKey, isSide) {
-        if (!el) return;
-        var isPlaceholder = !code;
-        if (!isPlaceholder) {
-          if (isSide) {
-            el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
-          } else {
-            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
-          }
-          el.innerHTML = '';
-          if (isSide && el.parentElement) {
-            el.parentElement.classList.remove('hidden');
-            el.parentElement.classList.add('lg:flex');
-          }
-          var iframe = document.createElement('iframe');
-          iframe.setAttribute('scrolling', 'no');
-          iframe.setAttribute('frameborder', '0');
-          iframe.setAttribute('marginwidth', '0');
-          iframe.setAttribute('marginheight', '0');
-          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
-          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation');
-          iframe.setAttribute('srcdoc',
-            '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-            '<style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style>' +
-            '</head><body>' + code + '</body></html>');
-          el.appendChild(iframe);
-        } else {
-          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
-          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
-          if (isSide && el.parentElement) {
-            el.parentElement.classList.remove('hidden');
-            el.parentElement.classList.add('lg:flex');
-          }
-        }
-        var els = el.querySelectorAll('[data-i18n]');
-        for (var i = 0; i < els.length; i++) {
-          var k = els[i].getAttribute('data-i18n');
-          if (k) els[i].innerHTML = t(k);
-        }
-      }
-
-      fill(left,  adSky, 'ad.zoneB', true);
-      fill(right, adSky, 'ad.zoneB', true);
-      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
-    }
-
     /* ================================================================
      *  INIT
      * ================================================================ */
     updateLangButton();
     buildLangMenu();
     updateLanguageUI();
-    renderAds();
 
     console.log('%c⚡ LinkoZen ready %c| %cLang %c' + currentLang,
       'font-weight:bold;', '', 'color:#06b6d4;', 'font-weight:bold;');
