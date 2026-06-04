@@ -894,17 +894,14 @@
     }
 
     /**
-     * Detect whether an error is a low-level network/DNS failure
-     * (as opposed to an HTTP error). On such failures the fallback is
-     * unlikely to help — skip it to save time.
+     * Only skip fallbacks when the client is truly offline (not when a
+     * specific hostname fails DNS — the fallback servers are different
+     * hosts that may resolve fine).
      */
     function isNetworkError(e) {
       var msg = (e.message || '').toLowerCase();
-      return (msg.indexOf('failed to fetch') !== -1 && msg.indexOf('ssl') === -1)
-          || msg.indexOf('networkerror') !== -1
-          || msg.indexOf('timeout') !== -1
-          || msg.indexOf('abort') !== -1
-          || msg.indexOf('dns') !== -1;
+      // Only block on offline/unreachable — NOT on DNS or generic fetch failures
+      return msg.indexOf('networkerror') !== -1;
     }
 
     /**
@@ -2026,21 +2023,51 @@
                   : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
                   : state.ipv4 || state.ipv6;
 
-      if (!geoData || geoData.latitude == null || geoData.longitude == null || (geoData.latitude === 0 && geoData.longitude === 0)) {
-        // Fallback: use a free IP geolocation service
-        var ip = (state.ipv4 && state.ipv4.ip) || (state.ipv6 && state.ipv6.ip);
-        if (ip) {
-          try {
-            var geoRes = await fetchWithTimeout('https://ipapi.co/' + encodeURIComponent(ip) + '/json/', 5000);
-            if (geoRes.ok) {
-              var geoJson = await geoRes.json();
-              if (geoJson && geoJson.latitude && geoJson.longitude) {
+      // Enrich IP data with free geo API if the primary endpoint gave no geo info
+      var enrichTarget = null;
+      if (state.ipv4 && (state.ipv4._fallback || state.ipv4.latitude == null || state.ipv4.latitude === 0)) {
+        enrichTarget = state.ipv4;
+      } else if (state.ipv6 && (state.ipv6._fallback || state.ipv6.latitude == null || state.ipv6.latitude === 0)) {
+        enrichTarget = state.ipv6;
+      }
+
+      if (enrichTarget && enrichTarget.ip) {
+        try {
+          var geoRes = await fetchWithTimeout('https://ipapi.co/' + encodeURIComponent(enrichTarget.ip) + '/json/', 5000);
+          if (geoRes.ok) {
+            var geoJson = await geoRes.json();
+            if (geoJson && !geoJson.error) {
+              // Merge geo fields into the IP state
+              if (geoJson.country_code)       enrichTarget.country = geoJson.country_code;
+              if (geoJson.city)               enrichTarget.city = geoJson.city;
+              if (geoJson.region)             enrichTarget.region = geoJson.region;
+              if (geoJson.postal)             enrichTarget.postal_code = geoJson.postal;
+              if (geoJson.timezone)           enrichTarget.timezone = geoJson.timezone;
+              if (geoJson.org)                enrichTarget.asOrganization = geoJson.org;
+              if (geoJson.asn) {
+                enrichTarget.asn = parseInt(String(geoJson.asn).replace('AS', '')) || geoJson.asn;
+              }
+              if (geoJson.latitude != null)   enrichTarget.latitude = Number(geoJson.latitude);
+              if (geoJson.longitude != null)  enrichTarget.longitude = Number(geoJson.longitude);
+
+              // Update map
+              if (geoJson.latitude && geoJson.longitude) {
                 updateMap(geoJson.latitude, geoJson.longitude, geoJson.city || geoJson.country_name || '');
               }
+
+              // Re-render cards with enriched data
+              renderAllIPCards();
+              renderAllAuditResults();
             }
-          } catch (_) { /* geolocation fallback failed — map stays at default view */ }
-        }
-      } else {
+          }
+        } catch (_) { /* enrichment failed — cards show whatever data we have */ }
+      }
+
+      // Final map update from primary data (if not already done via enrichment)
+      geoData = (state.ipv4 && !state.ipv4._fallback) ? state.ipv4
+               : (state.ipv6 && !state.ipv6._fallback) ? state.ipv6
+               : state.ipv4 || state.ipv6;
+      if (geoData && geoData.latitude && geoData.longitude && !(geoData.latitude === 0 && geoData.longitude === 0)) {
         updateMap(geoData.latitude, geoData.longitude, geoData.city || geoData.country || '');
       }
 
