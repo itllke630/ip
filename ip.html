@@ -482,12 +482,14 @@
 
     const CFG = {
       endpoints: {
-        v4: 'https://v4.linkozen.com/api/ip',
-        v6: 'https://v6.linkozen.com/api/ip',
-        v4Fallback: 'https://api4.ipify.org?format=json',
+        // Primary: public APIs that work without any infrastructure
+        v4: 'https://api4.ipify.org?format=json',
+        v6: 'https://ipv6.icanhazip.com',
+        // v4Fallback: custom Worker endpoint (requires DNS + Worker on v4.linkozen.com)
+        v4Fallback: 'https://v4.linkozen.com/api/ip',
         v6Fallbacks: [
-          'https://ipv6.icanhazip.com',
           'https://api6.ipify.org?format=json',
+          'https://v6.linkozen.com/api/ip',
         ],
       },
       proxyKeywords: [
@@ -910,7 +912,7 @@
      * Returns { ip, ...geo } or throws.
      */
     async function fetchWithFallback(primary, fallbacks, label, timeoutMs) {
-      timeoutMs = timeoutMs || 8000;
+      timeoutMs = timeoutMs || 3000;
       // Normalise to array
       var fbList = fallbacks
         ? (Array.isArray(fallbacks) ? fallbacks : [fallbacks])
