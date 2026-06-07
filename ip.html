@@ -118,9 +118,10 @@
   <!-- ================================================================ -->
   <div class="max-w-[728px] mx-auto mt-5">
     <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
-                border-2 border-dashed border-slate-300 rounded-xl
-                flex items-center justify-center bg-white text-xs text-slate-500 font-medium
-                select-none transition-colors hover:border-slate-400">
+                border-2 border-dashed border-amber-300 rounded-xl
+                flex items-center justify-center bg-amber-50 text-xs text-amber-600 font-semibold
+                select-none transition-colors hover:border-amber-400">
+      <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 16l3-4 2 2 5-6"/></svg>
       <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
     </div>
   </div>
@@ -135,7 +136,9 @@
       <!--  LEFT AD  (160×600, lg only)                                  -->
       <!-- ============================================================ -->
       <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white text-xs text-slate-500 font-medium border-2 border-dashed border-slate-300 select-none" id="ad-left-container">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex flex-col items-center justify-center gap-1.5 bg-amber-50 text-xs text-amber-600 font-semibold border-2 border-dashed border-amber-300 select-none" id="ad-left-container">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 16l3-4 2 2 5-6"/></svg>
+          <span class="text-center leading-tight" data-i18n="ad.zoneB">Advertisement<br/>160×600</span>
         </div>
       </aside>
 
@@ -441,7 +444,9 @@
       <!--  RIGHT AD  (160×600, lg only)                                 -->
       <!-- ============================================================ -->
       <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white text-xs text-slate-500 font-medium border-2 border-dashed border-slate-300 select-none" id="ad-right-container">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex flex-col items-center justify-center gap-1.5 bg-amber-50 text-xs text-amber-600 font-semibold border-2 border-dashed border-amber-300 select-none" id="ad-right-container">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 16l3-4 2 2 5-6"/></svg>
+          <span class="text-center leading-tight" data-i18n="ad.zoneB">Advertisement<br/>160×600</span>
         </div>
       </aside>
 
@@ -1256,8 +1261,12 @@
             '</head><body>' + code + '</body></html>');
           el.appendChild(iframe);
         } else {
-          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
-          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          var iconSVG = isSide
+            ? '<svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 16l3-4 2 2 5-6"/></svg>'
+            : '<svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 16l3-4 2 2 5-6"/></svg>';
+          var spanClass = isSide ? 'text-center leading-tight' : '';
+          el.innerHTML = iconSVG + '<span class="' + spanClass + '" data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-amber-300';
           if (isSide && el.parentElement) {
             el.parentElement.classList.remove('hidden');
             el.parentElement.classList.add('lg:flex');
