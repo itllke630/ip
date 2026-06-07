@@ -18,7 +18,10 @@ ABUSEIPDB_TOKEN = "${ABUSEIPDB_TOKEN}"
 AD_TOP_HTML = "${AD_TOP_HTML}"
 AD_160_HTML = "${AD_160_HTML}"
 
-# 静态资源配置
+# 静态资源配置 (Worker)
 [assets]
 binding = "ASSETS"
 directory = "public"
+
+# Pages 部署配置
+pages_build_output_dir = "public"
