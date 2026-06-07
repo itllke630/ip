@@ -482,13 +482,19 @@
 
     const CFG = {
       endpoints: {
-        // Primary: public APIs that work without any infrastructure
-        v4: 'https://api4.ipify.org?format=json',
-        v6: 'https://ipv6.icanhazip.com',
-        // v4Fallback: custom Worker endpoint (requires DNS + Worker on v4.linkozen.com)
-        v4Fallback: 'https://v4.linkozen.com/api/ip',
+        // Primary IPv4 — ipify (CORS-enabled, global CDN)
+        v4: 'https://api.ipify.org?format=json',
+        // Multiple fallbacks in case primary is blocked
+        v4Fallback: [
+          'https://api.my-ip.io/ip.json',
+          'https://api.seeip.org/jsonip',
+          'https://api4.ipify.org?format=json',
+          'https://v4.linkozen.com/api/ip',
+        ],
+        // Primary IPv6
+        v6: 'https://api6.ipify.org?format=json',
         v6Fallbacks: [
-          'https://api6.ipify.org?format=json',
+          'https://ipv6.icanhazip.com',
           'https://v6.linkozen.com/api/ip',
         ],
       },
