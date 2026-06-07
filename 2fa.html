@@ -821,8 +821,19 @@
       var adTop = '', adSky = '';
       try {
         var res = await fetch('/api/ads');
-        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
-      } catch (_) {}
+        if (res.ok) {
+          var d = await res.json();
+          adTop = d.top || '';
+          adSky = d.sky || '';
+          if (!adTop && !adSky) {
+            console.log('[ads] API returned empty — set AD_TOP_HTML / AD_160_HTML env vars in Pages Dashboard');
+          } else {
+            console.log('[ads] Loaded ad code — top: ' + (adTop ? adTop.length + ' chars' : 'empty') + ', sky: ' + (adSky ? adSky.length + ' chars' : 'empty'));
+          }
+        } else {
+          console.warn('[ads] /api/ads returned HTTP ' + res.status + ' — Pages Functions may not be deployed');
+        }
+      } catch (e) { console.warn('[ads] /api/ads fetch failed: ' + e.message); }
 
       function fill(el, code, labelKey, isSide) {
         if (!el) return;
