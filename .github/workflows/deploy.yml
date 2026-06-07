@@ -41,42 +41,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Inject secrets into wrangler.toml
-        run: |
-          python3 << 'PYEOF'
-          import os
-          with open('wrangler.toml', 'r') as f:
-              lines = f.readlines()
-          all_vars = ['IPINFO_TOKEN', 'ABUSEIPDB_TOKEN', 'AD_TOP_HTML', 'AD_160_HTML']
-          result = []
-          for line in lines:
-              for var in all_vars:
-                  val = os.environ.get(var, '')
-                  if line.strip().startswith(var + ' =') and not val:
-                      line = None
-                      break
-                  esc = val.replace("'''", "''" + "'")
-                  line = line.replace('"${' + var + '}"', "'''" + esc + "'''")
-              if line is not None:
-                  result.append(line)
-          with open('wrangler.toml', 'w') as f:
-              f.writelines(result)
-          PYEOF
-        env:
-          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
-          ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
-          AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
-          AD_160_HTML: ${{ secrets.AD_160_HTML }}
-
-      - name: Deploy to Cloudflare Workers
+      - name: Deploy Worker (clear old vars)
         run: npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
-          ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
-          AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
-          AD_160_HTML: ${{ secrets.AD_160_HTML }}
+
+      - name: Set Worker secrets
+        run: |
+          echo "${{ secrets.AD_TOP_HTML }}" | npx wrangler secret put AD_TOP_HTML --name=linkozen
+          echo "${{ secrets.AD_160_HTML }}" | npx wrangler secret put AD_160_HTML --name=linkozen
+          echo "${{ secrets.IPINFO_TOKEN }}" | npx wrangler secret put IPINFO_TOKEN --name=linkozen
+          echo "${{ secrets.ABUSEIPDB_TOKEN }}" | npx wrangler secret put ABUSEIPDB_TOKEN --name=linkozen
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Set Pages secrets (via API)
         run: |
