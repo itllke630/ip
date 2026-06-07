@@ -118,9 +118,9 @@
   <!-- ================================================================ -->
   <div class="max-w-[728px] mx-auto mt-5">
     <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
-                border-2 border-dashed border-slate-200 rounded-xl
-                flex items-center justify-center bg-white/60 text-xs text-slate-400
-                select-none transition-colors hover:border-slate-300">
+                border-2 border-dashed border-slate-300 rounded-xl
+                flex items-center justify-center bg-white text-xs text-slate-500 font-medium
+                select-none transition-colors hover:border-slate-400">
       <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
     </div>
   </div>
@@ -135,7 +135,7 @@
       <!--  LEFT AD  (160×600, lg only)                                  -->
       <!-- ============================================================ -->
       <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white text-xs text-slate-500 font-medium border-2 border-dashed border-slate-300 select-none" id="ad-left-container">
         </div>
       </aside>
 
@@ -441,7 +441,7 @@
       <!--  RIGHT AD  (160×600, lg only)                                 -->
       <!-- ============================================================ -->
       <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
-        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white text-xs text-slate-500 font-medium border-2 border-dashed border-slate-300 select-none" id="ad-right-container">
         </div>
       </aside>
 
@@ -921,6 +921,10 @@
       try {
         var res = await fetchWithTimeout(primary, timeoutMs);
         if (!res.ok) throw new Error('HTTP ' + res.status);
+        var ct = res.headers.get('Content-Type') || '';
+        if (ct.indexOf('text/plain') !== -1) {
+          return { ip: (await res.text()).trim() };
+        }
         return await res.json();
       } catch (e1) {
         // Network errors (DNS, no-route) → skip fallbacks, fail fast
