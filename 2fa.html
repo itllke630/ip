@@ -65,8 +65,13 @@
         </div>
       </div>
 
-      <!-- Right: Dark Mode + Language Switcher -->
+      <!-- Right: Home + Dark Mode + Language Switcher -->
       <div class="flex items-center gap-2">
+        <!-- Home link -->
+        <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
         <!-- Dark mode toggle -->
         <button id="btn-dark" onclick="toggleDark()"
                 class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
@@ -286,6 +291,7 @@
     var DICT = {
       en: {
         'app.title':'2FA Tools','app.subtitle':'TOTP Verifier & Secret Generator',
+        'nav.home':'Home',
         'common.copy':'Copy','common.copied':'Copied!','common.copy_token':'Copy Token',
         'about.title':'What is Two-Factor Authentication (2FA)?',
         'about.desc1':'Two-Factor Authentication (2FA) adds a critical second layer of security beyond your password. After entering your password, you also provide a <strong>Time-based One-Time Password (TOTP)</strong> — a 6‑digit code that refreshes every 30&nbsp;seconds and is generated from a secret key stored only on your device. Even if an attacker steals your password, they cannot log in without physical access to your authenticator app or security key.',
@@ -321,6 +327,7 @@
       },
       zh: {
         'app.title':'2FA 工具','app.subtitle':'TOTP 验证器与密钥生成器',
+        'nav.home':'首页',
         'common.copy':'复制','common.copied':'已复制！','common.copy_token':'复制验证码',
         'about.title':'什么是双因素认证 (2FA)？',
         'about.desc1':'双因素认证（2FA）在密码之外增加了第二层关键安全防护。输入密码后，您还需要提供一个<strong>基于时间的一次性密码（TOTP）</strong>——一个每 30 秒刷新一次的 6 位数字验证码，由仅存储在您设备上的密钥生成。即使攻击者窃取了您的密码，也无法在没有物理访问您的验证器应用或安全密钥的情况下登录。',
@@ -356,6 +363,7 @@
       },
       ja: {
         'app.title':'2FA ツール','app.subtitle':'TOTP 検証 & シークレット生成',
+        'nav.home':'ホーム',
         'common.copy':'コピー','common.copied':'コピー完了！','common.copy_token':'トークンをコピー',
         'about.title':'二要素認証（2FA）とは？',
         'about.desc1':'二要素認証（2FA）はパスワードに加えて第二のセキュリティ層を提供します。パスワード入力後、<strong>時間ベースのワンタイムパスワード（TOTP）</strong>（30秒ごとに更新される6桁のコード）を入力します。このコードはお使いのデバイスにのみ保存された秘密鍵から生成されます。攻撃者がパスワードを盗んでも、認証アプリやセキュリティキーへの物理的アクセスなしではログインできません。',
@@ -391,6 +399,7 @@
       },
       ko: {
         'app.title':'2FA 도구','app.subtitle':'TOTP 검증기 및 비밀키 생성기',
+        'nav.home':'홈',
         'common.copy':'복사','common.copied':'복사 완료!','common.copy_token':'토큰 복사',
         'about.title':'이중 인증(2FA)이란?',
         'about.desc1':'이중 인증(2FA)은 비밀번호 외에 두 번째 보안 계층을 추가합니다. 비밀번호 입력 후 <strong>시간 기반 일회용 비밀번호(TOTP)</strong>(30초마다 갱신되는 6자리 코드)를 제공해야 합니다. 이 코드는 기기에만 저장된 비밀키로 생성됩니다. 공격자가 비밀번호를 훔쳐도 인증 앱이나 보안 키에 물리적으로 접근하지 않으면 로그인할 수 없습니다.',
@@ -426,6 +435,7 @@
       },
       fr: {
         'app.title':'Outils 2FA','app.subtitle':'Vérificateur TOTP & Générateur de secret',
+        'nav.home':'Accueil',
         'common.copy':'Copier','common.copied':'Copié !','common.copy_token':'Copier jeton',
         'about.title':'Qu\'est-ce que l\'authentification à deux facteurs (2FA) ?',
         'about.desc1':'L\'authentification à deux facteurs (2FA) ajoute une deuxième couche de sécurité au-delà de votre mot de passe. Après avoir saisi votre mot de passe, vous fournissez un <strong>mot de passe à usage unique basé sur le temps (TOTP)</strong> — un code à 6 chiffres actualisé toutes les 30 secondes, généré à partir d\'une clé secrète stockée uniquement sur votre appareil. Même si un attaquant vole votre mot de passe, il ne peut pas se connecter sans accès physique à votre application d\'authentification.',
@@ -461,6 +471,7 @@
       },
       de: {
         'app.title':'2FA Tools','app.subtitle':'TOTP-Prüfer & Secret-Generator',
+        'nav.home':'Startseite',
         'common.copy':'Kopieren','common.copied':'Kopiert!','common.copy_token':'Token kopieren',
         'about.title':'Was ist Zwei-Faktor-Authentifizierung (2FA)?',
         'about.desc1':'Zwei-Faktor-Authentifizierung (2FA) fügt eine zweite Sicherheitsebene jenseits Ihres Passworts hinzu. Nach der Passworteingabe geben Sie ein <strong>zeitbasiertes Einmalpasswort (TOTP)</strong> ein — einen 6-stelligen Code, der alle 30 Sekunden aktualisiert und aus einem nur auf Ihrem Gerät gespeicherten Schlüssel generiert wird. Selbst wenn ein Angreifer Ihr Passwort stiehlt, kann er sich ohne physischen Zugriff auf Ihre Authenticator-App nicht anmelden.',
@@ -496,6 +507,7 @@
       },
       it: {
         'app.title':'Strumenti 2FA','app.subtitle':'Verifica TOTP & Generatore Secret',
+        'nav.home':'Home',
         'common.copy':'Copia','common.copied':'Copiato!','common.copy_token':'Copia token',
         'about.title':'Cos\'è l\'autenticazione a due fattori (2FA)?',
         'about.desc1':'L\'autenticazione a due fattori (2FA) aggiunge un secondo livello di sicurezza oltre alla password. Dopo aver inserito la password, fornisci una <strong>password monouso basata sul tempo (TOTP)</strong> — un codice a 6 cifre che si aggiorna ogni 30 secondi, generato da una chiave segreta memorizzata solo sul tuo dispositivo. Anche se un utente malintenzionato ruba la tua password, non può accedere senza l\'accesso fisico alla tua app di autenticazione.',
@@ -531,6 +543,7 @@
       },
       pt: {
         'app.title':'Ferramentas 2FA','app.subtitle':'Verificador TOTP & Gerador de Segredo',
+        'nav.home':'Início',
         'common.copy':'Copiar','common.copied':'Copiado!','common.copy_token':'Copiar token',
         'about.title':'O que é Autenticação de Dois Fatores (2FA)?',
         'about.desc1':'A Autenticação de Dois Fatores (2FA) adiciona uma segunda camada de segurança além da sua senha. Após digitar sua senha, você fornece uma <strong>Senha de Uso Único Baseada em Tempo (TOTP)</strong> — um código de 6 dígitos que se atualiza a cada 30 segundos, gerado a partir de uma chave secreta armazenada apenas no seu dispositivo. Mesmo que um invasor roube sua senha, ele não pode fazer login sem acesso físico ao seu aplicativo autenticador.',
@@ -566,6 +579,7 @@
       },
       ru: {
         'app.title':'2FA Инструменты','app.subtitle':'TOTP-верификатор и генератор секретов',
+        'nav.home':'Главная',
         'common.copy':'Копировать','common.copied':'Скопировано!','common.copy_token':'Копировать токен',
         'about.title':'Что такое двухфакторная аутентификация (2FA)?',
         'about.desc1':'Двухфакторная аутентификация (2FA) добавляет второй уровень безопасности помимо пароля. После ввода пароля вы предоставляете <strong>одноразовый пароль на основе времени (TOTP)</strong> — 6-значный код, обновляющийся каждые 30 секунд и генерируемый из секретного ключа, хранящегося только на вашем устройстве. Даже если злоумышленник украдёт ваш пароль, он не сможет войти без физического доступа к вашему приложению-аутентификатору.',
@@ -601,6 +615,7 @@
       },
       tr: {
         'app.title':'2FA Araçları','app.subtitle':'TOTP Doğrulayıcı ve Gizli Anahtar Oluşturucu',
+        'nav.home':'Ana Sayfa',
         'common.copy':'Kopyala','common.copied':'Kopyalandı!','common.copy_token':'Token Kopyala',
         'about.title':'İki Faktörlü Kimlik Doğrulama (2FA) Nedir?',
         'about.desc1':'İki Faktörlü Kimlik Doğrulama (2FA), parolanızın ötesinde ikinci bir güvenlik katmanı ekler. Parolanızı girdikten sonra, yalnızca cihazınızda saklanan bir anahtardan oluşturulan, her 30 saniyede bir yenilenen 6 haneli <strong>Zaman Tabanlı Tek Kullanımlık Parola (TOTP)</strong> sağlarsınız. Bir saldırgan parolanızı çalsa bile, kimlik doğrulama uygulamanıza fiziksel erişim olmadan giriş yapamaz.',
@@ -636,6 +651,7 @@
       },
       'zh-TW': {
         'app.title':'2FA 工具','app.subtitle':'TOTP 驗證器與金鑰產生器',
+        'nav.home':'首頁',
         'common.copy':'複製','common.copied':'已複製！','common.copy_token':'複製驗證碼',
         'about.title':'什麼是雙因素認證 (2FA)？',
         'about.desc1':'雙因素認證（2FA）在密碼之外增加了第二層關鍵安全防護。輸入密碼後，您還需要提供一個<strong>基於時間的一次性密碼（TOTP）</strong>——一個每 30 秒刷新一次的 6 位數驗證碼，由僅存儲在您裝置上的金鑰產生。即使攻擊者竊取了您的密碼，也無法在沒有物理存取您的驗證器應用程式或安全金鑰的情況下登入。',
