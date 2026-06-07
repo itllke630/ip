@@ -45,15 +45,22 @@ jobs:
         run: |
           python3 << 'PYEOF'
           import os
-          vars = ['IPINFO_TOKEN', 'ABUSEIPDB_TOKEN', 'AD_TOP_HTML', 'AD_160_HTML']
           with open('wrangler.toml', 'r') as f:
-              content = f.read()
-          for v in vars:
-              val = os.environ.get(v, '')
-              content = content.replace('"${' + v + '}"', "'''" + val + "'''")
+              lines = f.readlines()
+          all_vars = ['IPINFO_TOKEN', 'ABUSEIPDB_TOKEN', 'AD_TOP_HTML', 'AD_160_HTML']
+          result = []
+          for line in lines:
+              for var in all_vars:
+                  val = os.environ.get(var, '')
+                  if line.strip().startswith(var + ' =') and not val:
+                      line = None
+                      break
+                  esc = val.replace("'''", "''" + "'")
+                  line = line.replace('"${' + var + '}"', "'''" + esc + "'''")
+              if line is not None:
+                  result.append(line)
           with open('wrangler.toml', 'w') as f:
-              f.write(content)
-          print('=== wrangler.toml injected ===')
+              f.writelines(result)
           PYEOF
         env:
           IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}

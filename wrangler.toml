@@ -12,7 +12,6 @@ compatibility_date = "2025-06-02"
 keep_vars = true
 
 # 定义环境变量和密钥
-keep_vars = true
 [vars]
 IPINFO_TOKEN = "${IPINFO_TOKEN}"
 ABUSEIPDB_TOKEN = "${ABUSEIPDB_TOKEN}"
