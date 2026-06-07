@@ -1,4 +1,4 @@
-name = "linkozen"
+name = "linkozen-worker"
 main = "worker/index.js"
 
 # 部署时需要配置以下路由 (Cloudflare Dashboard → Workers → Routes):
