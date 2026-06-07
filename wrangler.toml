@@ -1,6 +1,9 @@
 name = "linkozen"
 main = "worker/index.js"
 
+# Pages 部署配置（必须放在所有 [section] 之前）
+pages_build_output_dir = "public"
+
 # 部署时需要配置以下路由 (Cloudflare Dashboard → Workers → Routes):
 #   www.linkozen.com/*   → linkozen
 #   v4.linkozen.com/*    → linkozen  (DNS: 仅 A 记录)
@@ -23,5 +26,3 @@ AD_160_HTML = "${AD_160_HTML}"
 binding = "ASSETS"
 directory = "public"
 
-# Pages 部署配置
-pages_build_output_dir = "public"
