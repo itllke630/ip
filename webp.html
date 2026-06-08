@@ -62,6 +62,22 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span data-i18n="nav.home">Home</span>
         </a>
+        <div id="tools-dropdown" class="relative">
+          <button id="btn-tools-toggle" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors" onclick="toggleToolsMenu()">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span data-i18n="nav.tools">Tools</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="tools-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden">
+            <a href="2fa.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔐 <span data-i18n="nav.2fa">2FA Tools</span></a>
+            <a href="ip.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🌐 <span data-i18n="nav.ip">IP Lookup</span></a>
+            <a href="pass.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔒 <span data-i18n="nav.pass">Password Generator</span></a>
+            <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">📝 <span data-i18n="nav.text">Text Cleaner</span></a>
+            <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🖼 <span data-i18n="nav.webp">Image Converter</span></a>
+            <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🎨 <span data-i18n="nav.ico">ICO Icon Generator</span></a>
+            <a href="pollinationsai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">✨ <span data-i18n="nav.ai">AI Avatar Generator</span></a>
+          </div>
+        </div>
         <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
@@ -284,6 +300,7 @@
       { code:'fr', label:'Français',   native:'Français',   region:'FR' },
       { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
       { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+      { code:'es', label:'Español',    native:'Español',    region:'ES' },
       { code:'pt', label:'Português',  native:'Português',  region:'BR' },
       { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
       { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
@@ -293,7 +310,7 @@
     var DICT = {
       en: {
         'app.title':'Image Converter','app.subtitle':'WebP · PNG · JPG — 100% Client-Side',
-        'nav.home':'Home','common.copy':'Copy','common.copied':'Copied!',
+        'nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'Copy','common.copied':'Copied!',
         'upload.title':'Upload Images','upload.drop':'Drag & drop images here',
         'upload.or':'or click to browse files','upload.formats':'Supports: WebP, PNG, JPG, JPEG',
         'upload.convert_all':'Convert All',
@@ -319,7 +336,7 @@
       },
       zh: {
         'app.title':'图片转换器','app.subtitle':'WebP · PNG · JPG — 100% 客户端处理',
-        'nav.home':'首页','common.copy':'复制','common.copied':'已复制！',
+        'nav.home':'首页','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'复制','common.copied':'已复制！',
         'upload.title':'上传图片','upload.drop':'拖放图片到此处',
         'upload.or':'或点击浏览文件','upload.formats':'支持格式：WebP、PNG、JPG、JPEG',
         'upload.convert_all':'全部转换',
@@ -345,7 +362,7 @@
       },
       ja: {
         'app.title':'画像変換','app.subtitle':'WebP · PNG · JPG — 100% クライアントサイド',
-        'nav.home':'ホーム','common.copy':'コピー','common.copied':'コピー完了！',
+        'nav.home':'ホーム','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'コピー','common.copied':'コピー完了！',
         'upload.title':'画像をアップロード','upload.drop':'ここに画像をドロップ',
         'upload.or':'またはクリックして参照','upload.formats':'対応形式: WebP, PNG, JPG, JPEG',
         'upload.convert_all':'すべて変換',
@@ -371,7 +388,7 @@
       },
       ko: {
         'app.title':'이미지 변환기','app.subtitle':'WebP · PNG · JPG — 100% 클라이언트 측',
-        'nav.home':'홈','common.copy':'복사','common.copied':'복사 완료!',
+        'nav.home':'홈','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'복사','common.copied':'복사 완료!',
         'upload.title':'이미지 업로드','upload.drop':'이미지를 여기에 드롭하세요',
         'upload.or':'또는 클릭하여 파일 찾기','upload.formats':'지원 형식: WebP, PNG, JPG, JPEG',
         'upload.convert_all':'모두 변환',
@@ -397,7 +414,7 @@
       },
       fr: {
         'app.title':'Convertisseur d\'images','app.subtitle':'WebP · PNG · JPG — 100% Côté Client',
-        'nav.home':'Accueil','common.copy':'Copier','common.copied':'Copié !',
+        'nav.home':'Accueil','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'Copier','common.copied':'Copié !',
         'upload.title':'Télécharger des images','upload.drop':'Glissez-déposez des images ici',
         'upload.or':'ou cliquez pour parcourir','upload.formats':'Formats acceptés : WebP, PNG, JPG, JPEG',
         'upload.convert_all':'Tout convertir',
@@ -423,7 +440,7 @@
       },
       de: {
         'app.title':'Bildkonverter','app.subtitle':'WebP · PNG · JPG — 100% Client-seitig',
-        'nav.home':'Startseite','common.copy':'Kopieren','common.copied':'Kopiert!',
+        'nav.home':'Startseite','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'Kopieren','common.copied':'Kopiert!',
         'upload.title':'Bilder hochladen','upload.drop':'Ziehen Sie Bilder hierher',
         'upload.or':'oder klicken Sie zum Durchsuchen','upload.formats':'Unterstützt: WebP, PNG, JPG, JPEG',
         'upload.convert_all':'Alle konvertieren',
@@ -449,7 +466,7 @@
       },
       it: {
         'app.title':'Convertitore immagini','app.subtitle':'WebP · PNG · JPG — 100% Lato Client',
-        'nav.home':'Home','common.copy':'Copia','common.copied':'Copiato!',
+        'nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'Copia','common.copied':'Copiato!',
         'upload.title':'Carica immagini','upload.drop':'Trascina le immagini qui',
         'upload.or':'o clicca per sfogliare','upload.formats':'Supporta: WebP, PNG, JPG, JPEG',
         'upload.convert_all':'Converti tutto',
@@ -473,9 +490,35 @@
         'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'Converti in WebP per <strong>ottimizzare per il web</strong>. Riduci drasticamente le dimensioni dei file senza perdita di qualità visibile — caricamenti più veloci e migliore SEO.',
         'info.privacy_note':'<strong>Nota sulla privacy:</strong> Tutte le conversioni avvengono nel browser tramite l\'API Canvas HTML5. Le tue immagini non vengono mai caricate su alcun server.',
       },
+      es: {
+        'app.title':'Conversor de Imágenes','app.subtitle':'WebP · PNG · JPG — 100% Lado del Cliente',
+        'nav.home':'Inicio','nav.tools':'Herramientas','nav.2fa':'2FA Herramientas','nav.ip':'Búsqueda IP','nav.pass':'Generador de Contraseñas','nav.text':'Limpiador de Texto','nav.webp':'Conversor de Imágenes','nav.ico':'Generador de Iconos ICO','nav.ai':'Generador de Avatares IA','common.copy':'Copiar','common.copied':'¡Copiado!',
+        'upload.title':'Subir Imágenes','upload.drop':'Arrastre imágenes aquí',
+        'upload.or':'o haga clic para buscar','upload.formats':'Soporta: WebP, PNG, JPG, JPEG',
+        'upload.convert_all':'Convertir Todo',
+        'settings.format':'Convertir A','settings.quality':'Calidad JPG',
+        'queue.title':'Cola de Archivos','queue.empty':'Suelte imágenes arriba para comenzar',
+        'queue.download_all_zip':'Descargar Todo (ZIP)','queue.clear':'Limpiar Todo',
+        'queue.download':'Descargar','queue.converting':'Convirtiendo…',
+        'queue.done':'Completado','queue.error':'Error',
+        'queue.original':'Original','queue.converted':'Convertido',
+        'status.no_files':'Agregue al menos una imagen primero.',
+        'status.converted':'{n} archivo(s) convertido(s) exitosamente.',
+        'footer.powered':'Desarrollado por','footer.privacy':'Sin registros. Sin seguimiento. Toda la conversión ocurre localmente.',
+        'ad.zoneA':'Publicidad · 728×90','ad.zoneB':'Publicidad<br/>160×600','ad.728x90':'PUBLICIDAD · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Acerca de WebP y Conversión de Formatos de Imagen',
+        'info.what_is_webp_title':'¿Qué es WebP?',
+        'info.what_is_webp_desc':'WebP es un formato de imagen moderno desarrollado por Google que ofrece compresión con y sin pérdida. Comparado con JPG, los archivos WebP son típicamente 25-35% más pequeños con la misma calidad visual.',
+        'info.why_convert_title':'¿Por Qué Convertir Entre Formatos?',
+        'info.why_convert_desc':'Diferentes casos de uso requieren diferentes formatos. WebP es ideal para sitios web, pero algunas aplicaciones antiguas no lo soportan. PNG es mejor para capturas de pantalla y logotipos. JPG sigue siendo el formato más compatible universalmente.',
+        'info.to_png_title':'WebP → PNG','info.to_png_desc':'Convierta a PNG cuando necesite calidad sin pérdida o trabaje con aplicaciones sin soporte WebP.',
+        'info.to_jpg_title':'WebP / PNG → JPG','info.to_jpg_desc':'Convierta a JPG para máxima compatibilidad y fotos más pequeñas.',
+        'info.to_webp_title':'PNG / JPG → WebP','info.to_webp_desc':'Convierta a WebP para optimizar para la web. Reduzca drásticamente el tamaño de archivos sin pérdida de calidad notable.',
+        'info.privacy_note':'<strong>Nota de privacidad:</strong> Todas las conversiones ocurren en su navegador usando la API Canvas HTML5. Sus imágenes nunca se suben a ningún servidor.',
+      },
       pt: {
         'app.title':'Conversor de imagens','app.subtitle':'WebP · PNG · JPG — 100% No Cliente',
-        'nav.home':'Início','common.copy':'Copiar','common.copied':'Copiado!',
+        'nav.home':'Início','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'Copiar','common.copied':'Copiado!',
         'upload.title':'Enviar imagens','upload.drop':'Arraste imagens para cá',
         'upload.or':'ou clique para procurar','upload.formats':'Suporta: WebP, PNG, JPG, JPEG',
         'upload.convert_all':'Converter tudo',
@@ -501,7 +544,7 @@
       },
       ru: {
         'app.title':'Конвертер изображений','app.subtitle':'WebP · PNG · JPG — 100% На стороне клиента',
-        'nav.home':'Главная','common.copy':'Копировать','common.copied':'Скопировано!',
+        'nav.home':'Главная','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'Копировать','common.copied':'Скопировано!',
         'upload.title':'Загрузить изображения','upload.drop':'Перетащите изображения сюда',
         'upload.or':'или нажмите для выбора','upload.formats':'Поддерживаются: WebP, PNG, JPG, JPEG',
         'upload.convert_all':'Конвертировать всё',
@@ -527,7 +570,7 @@
       },
       tr: {
         'app.title':'Görüntü Dönüştürücü','app.subtitle':'WebP · PNG · JPG — %100 İstemci Tarafı',
-        'nav.home':'Ana Sayfa','common.copy':'Kopyala','common.copied':'Kopyalandı!',
+        'nav.home':'Ana Sayfa','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'Kopyala','common.copied':'Kopyalandı!',
         'upload.title':'Görüntü Yükle','upload.drop':'Görüntüleri buraya sürükleyin',
         'upload.or':'veya göz atmak için tıklayın','upload.formats':'Desteklenen: WebP, PNG, JPG, JPEG',
         'upload.convert_all':'Tümünü Dönüştür',
@@ -553,7 +596,7 @@
       },
       'zh-TW': {
         'app.title':'圖片轉換器','app.subtitle':'WebP · PNG · JPG — 100% 用戶端處理',
-        'nav.home':'首頁','common.copy':'複製','common.copied':'已複製！',
+        'nav.home':'首頁','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'複製','common.copied':'已複製！',
         'upload.title':'上傳圖片','upload.drop':'拖放圖片到此處',
         'upload.or':'或點擊瀏覽檔案','upload.formats':'支援格式：WebP、PNG、JPG、JPEG',
         'upload.convert_all':'全部轉換',
@@ -629,6 +672,7 @@
       updateLanguageUI();
     };
 
+    window.toggleToolsMenu = function () {var m=document.getElementById('tools-menu');if(m)m.classList.toggle('hidden');};
     window.toggleLangMenu = function () {
       buildLangMenu();
       var menu = document.getElementById('lang-menu');
@@ -640,10 +684,9 @@
     };
     document.addEventListener('click', function (e) {
       var dd = document.getElementById('lang-dropdown');
-      if (dd && !dd.contains(e.target)) {
-        var menu = document.getElementById('lang-menu');
-        if (menu) menu.classList.add('hidden');
-      }
+      if (dd && !dd.contains(e.target)) {var m=document.getElementById('lang-menu');if(m)m.classList.add('hidden');}
+      var td = document.getElementById('tools-dropdown');
+      if (td && !td.contains(e.target)) {var tm=document.getElementById('tools-menu');if(tm)tm.classList.add('hidden');}
     });
 
     /* ================================================================

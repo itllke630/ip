@@ -59,6 +59,23 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span data-i18n="nav.home">Home</span>
         </a>
+        <!-- Tools dropdown -->
+        <div id="tools-dropdown" class="relative">
+          <button id="btn-tools-toggle" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors" onclick="toggleToolsMenu()">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span data-i18n="nav.tools">Tools</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="tools-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden">
+            <a href="2fa.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔐 <span data-i18n="nav.2fa">2FA Tools</span></a>
+            <a href="ip.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🌐 <span data-i18n="nav.ip">IP Lookup</span></a>
+            <a href="pass.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔒 <span data-i18n="nav.pass">Password Generator</span></a>
+            <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">📝 <span data-i18n="nav.text">Text Cleaner</span></a>
+            <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🖼 <span data-i18n="nav.webp">Image Converter</span></a>
+            <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🎨 <span data-i18n="nav.ico">ICO Icon Generator</span></a>
+            <a href="pollinationsai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">✨ <span data-i18n="nav.ai">AI Avatar Generator</span></a>
+          </div>
+        </div>
         <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
@@ -296,6 +313,7 @@
       { code:'fr', label:'Français',   native:'Français',   region:'FR' },
       { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
       { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+      { code:'es', label:'Español',    native:'Español',    region:'ES' },
       { code:'pt', label:'Português',  native:'Português',  region:'BR' },
       { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
       { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
@@ -305,7 +323,7 @@
     var DICT = {
       en: {
         'app.title':'Password Generator','app.subtitle':'Cryptographically-Random & Customizable',
-        'nav.home':'Home','common.copy':'Copy','common.copied':'Copied!',
+        'nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','common.copy':'Copy','common.copied':'Copied!',
         'gen.title':'Random Password Generator','gen.charsets':'Character Sets',
         'gen.no_set_selected':'Please select at least one character set.',
         'gen.exclude_title':'Exclude Ambiguous Characters',
@@ -328,7 +346,7 @@
       },
       zh: {
         'app.title':'密码生成器','app.subtitle':'加密随机 · 高度可定制',
-        'nav.home':'首页','common.copy':'复制','common.copied':'已复制！',
+        'nav.home':'首页','nav.tools':'工具','nav.2fa':'2FA 工具','nav.ip':'IP 查询','nav.pass':'密码生成器','nav.text':'文本清洗器','nav.webp':'图片转换器','nav.ico':'ICO 图标生成器','nav.ai':'AI 头像生成器','common.copy':'复制','common.copied':'已复制！',
         'gen.title':'随机密码生成器','gen.charsets':'字符集',
         'gen.no_set_selected':'请至少选择一个字符集。',
         'gen.exclude_title':'排除易混淆字符',
@@ -351,7 +369,7 @@
       },
       ja: {
         'app.title':'パスワード生成','app.subtitle':'暗号論的乱数 · カスタマイズ可能',
-        'nav.home':'ホーム','common.copy':'コピー','common.copied':'コピー完了！',
+        'nav.home':'ホーム','nav.tools':'ツール','nav.2fa':'2FA ツール','nav.ip':'IP ルックアップ','nav.pass':'パスワード生成','nav.text':'テキストクリーナー','nav.webp':'画像変換','nav.ico':'ICO アイコン生成','nav.ai':'AI アバター生成','common.copy':'コピー','common.copied':'コピー完了！',
         'gen.title':'ランダムパスワード生成','gen.charsets':'文字セット',
         'gen.no_set_selected':'少なくとも1つの文字セットを選択してください。',
         'gen.exclude_title':'あいまいな文字を除外',
@@ -374,7 +392,7 @@
       },
       ko: {
         'app.title':'비밀번호 생성기','app.subtitle':'암호학적 난수 · 사용자 정의 가능',
-        'nav.home':'홈','common.copy':'복사','common.copied':'복사 완료!',
+        'nav.home':'홈','nav.tools':'도구','nav.2fa':'2FA 도구','nav.ip':'IP 조회','nav.pass':'비밀번호 생성기','nav.text':'텍스트 클리너','nav.webp':'이미지 변환기','nav.ico':'ICO 아이콘 생성기','nav.ai':'AI 아바타 생성기','common.copy':'복사','common.copied':'복사 완료!',
         'gen.title':'랜덤 비밀번호 생성기','gen.charsets':'문자 집합',
         'gen.no_set_selected':'최소 하나 이상의 문자 집합을 선택하세요.',
         'gen.exclude_title':'모호한 문자 제외',
@@ -397,7 +415,7 @@
       },
       fr: {
         'app.title':'Générateur de mots de passe','app.subtitle':'Aléatoire cryptographique & personnalisable',
-        'nav.home':'Accueil','common.copy':'Copier','common.copied':'Copié !',
+        'nav.home':'Accueil','nav.tools':'Outils','nav.2fa':'Outils 2FA','nav.ip':'Recherche IP','nav.pass':'Générateur MDP','nav.text':'Nettoyeur texte','nav.webp':'Convertisseur img','nav.ico':'Générateur ICO','nav.ai':'Générateur avatar IA','common.copy':'Copier','common.copied':'Copié !',
         'gen.title':'Générateur de mots de passe aléatoires','gen.charsets':'Jeux de caractères',
         'gen.no_set_selected':'Veuillez sélectionner au moins un jeu de caractères.',
         'gen.exclude_title':'Exclure les caractères ambigus',
@@ -420,7 +438,7 @@
       },
       de: {
         'app.title':'Passwort-Generator','app.subtitle':'Kryptografisch zufällig & anpassbar',
-        'nav.home':'Startseite','common.copy':'Kopieren','common.copied':'Kopiert!',
+        'nav.home':'Startseite','nav.tools':'Werkzeuge','nav.2fa':'2FA Tools','nav.ip':'IP-Abfrage','nav.pass':'Passwort-Generator','nav.text':'Textreiniger','nav.webp':'Bildkonverter','nav.ico':'ICO Generator','nav.ai':'KI-Avatar-Generator','common.copy':'Kopieren','common.copied':'Kopiert!',
         'gen.title':'Zufälliger Passwort-Generator','gen.charsets':'Zeichensätze',
         'gen.no_set_selected':'Bitte wählen Sie mindestens einen Zeichensatz aus.',
         'gen.exclude_title':'Mehrdeutige Zeichen ausschließen',
@@ -443,7 +461,7 @@
       },
       it: {
         'app.title':'Generatore di password','app.subtitle':'Casuale crittografico e personalizzabile',
-        'nav.home':'Home','common.copy':'Copia','common.copied':'Copiato!',
+        'nav.home':'Home','nav.tools':'Strumenti','nav.2fa':'Strumenti 2FA','nav.ip':'Ricerca IP','nav.pass':'Generatore PW','nav.text':'Pulitore testo','nav.webp':'Convertitore img','nav.ico':'Generatore ICO','nav.ai':'Generatore avatar AI','common.copy':'Copia','common.copied':'Copiato!',
         'gen.title':'Generatore di password casuali','gen.charsets':'Set di caratteri',
         'gen.no_set_selected':'Seleziona almeno un set di caratteri.',
         'gen.exclude_title':'Escludi caratteri ambigui',
@@ -464,9 +482,33 @@
         'info.random_title':'Vera casualità','info.random_desc':'Gli umani non sono bravi con la casualità — usiamo schemi prevedibili. Questo strumento utilizza crypto.getRandomValues() per un\'entropia crittograficamente sicura.',
         'info.p2':'<strong>Non ricordi password complesse?</strong> È normale — ed è proprio il punto. Usa un gestore di password (Bitwarden, 1Password o il gestore integrato del browser). Devi ricordare solo <strong>una password master forte</strong>.',
       },
+      es: {
+        'app.title':'Generador de Contraseñas','app.subtitle':'Aleatorio Criptográfico y Personalizable',
+        'nav.home':'Inicio','nav.tools':'Herramientas','nav.2fa':'2FA Herramientas','nav.ip':'Búsqueda IP','nav.pass':'Generador de Contraseñas','nav.text':'Limpiador de Texto','nav.webp':'Conversor de Imágenes','nav.ico':'Generador de Iconos ICO','nav.ai':'Generador de Avatares IA',
+        'common.copy':'Copiar','common.copied':'¡Copiado!',
+        'gen.title':'Generador de Contraseñas Aleatorias','gen.charsets':'Conjuntos de Caracteres',
+        'gen.no_set_selected':'Seleccione al menos un conjunto de caracteres.',
+        'gen.exclude_title':'Excluir Caracteres Ambiguos',
+        'gen.exclude_hint':'Caracteres a excluir de las contraseñas generadas.',
+        'gen.length':'Longitud','gen.quantity':'Cantidad','gen.button':'Generar Contraseña',
+        'gen.empty':'Haga clic en <strong>Generar Contraseña</strong> para crear una contraseña segura',
+        'history.title':'Historial de Contraseñas','history.record':'Registrar Historial',
+        'history.hide':'Ocultar Historial','history.show':'Mostrar Historial',
+        'history.clear':'Limpiar Historial','history.copy_all':'Copiar Todo',
+        'history.empty':'Aún no se han generado contraseñas',
+        'history.confirm_clear':'¿Limpiar todas las {n} entradas del historial? Esta acción no se puede deshacer.',
+        'footer.powered':'Desarrollado por','footer.privacy':'Sin registros. Sin seguimiento. Sus contraseñas nunca abandonan su navegador.',
+        'ad.zoneA':'Publicidad · 728×90','ad.zoneB':'Publicidad<br/>160×600','ad.728x90':'PUBLICIDAD · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Por Qué Importan las Contraseñas Seguras',
+        'info.p1':'<strong>Las contraseñas son la primera línea de defensa</strong> de sus cuentas en línea. Una contraseña débil o reutilizada es como dejar la puerta de casa sin llave. Más del 80% de las violaciones de seguridad involucran contraseñas comprometidas o débiles.',
+        'info.len_title':'Longitud y Complejidad','info.len_desc':'Una contraseña de 12 caracteres con letras, números y símbolos tarda siglos en descifrarse, mientras que una de 6 caracteres solo minúsculas tarda segundos.',
+        'info.unique_title':'Única por Cuenta','info.unique_desc':'Reutilizar contraseñas en varios sitios significa que un servicio vulnerado expone todas sus cuentas.',
+        'info.random_title':'Aleatoriedad Verdadera','info.random_desc':'Los humanos no somos buenos generando aleatoriedad. Esta herramienta usa crypto.getRandomValues() para entropía segura.',
+        'info.p2':'<strong>¿No puede recordar contraseñas complejas?</strong> Es normal. Use un gestor de contraseñas (Bitwarden, 1Password). Solo necesita recordar <strong>una contraseña maestra segura</strong>.',
+      },
       pt: {
         'app.title':'Gerador de senhas','app.subtitle':'Aleatório criptográfico e personalizável',
-        'nav.home':'Início','common.copy':'Copiar','common.copied':'Copiado!',
+        'nav.home':'Início','nav.tools':'Ferramentas','nav.2fa':'2FA Ferramentas','nav.ip':'Busca IP','nav.pass':'Gerador de senhas','nav.text':'Limpador texto','nav.webp':'Conversor imagem','nav.ico':'Gerador ICO','nav.ai':'Gerador avatar IA','common.copy':'Copiar','common.copied':'Copiado!',
         'gen.title':'Gerador de senhas aleatórias','gen.charsets':'Conjuntos de caracteres',
         'gen.no_set_selected':'Selecione pelo menos um conjunto de caracteres.',
         'gen.exclude_title':'Excluir caracteres ambíguos',
@@ -489,7 +531,7 @@
       },
       ru: {
         'app.title':'Генератор паролей','app.subtitle':'Криптографически случайный и настраиваемый',
-        'nav.home':'Главная','common.copy':'Копировать','common.copied':'Скопировано!',
+        'nav.home':'Главная','nav.tools':'Инструменты','nav.2fa':'2FA Инструменты','nav.ip':'Поиск IP','nav.pass':'Генератор паролей','nav.text':'Очиститель текста','nav.webp':'Конвертер изображений','nav.ico':'Генератор ICO','nav.ai':'Генератор аватаров','common.copy':'Копировать','common.copied':'Скопировано!',
         'gen.title':'Генератор случайных паролей','gen.charsets':'Наборы символов',
         'gen.no_set_selected':'Пожалуйста, выберите хотя бы один набор символов.',
         'gen.exclude_title':'Исключить неоднозначные символы',
@@ -512,7 +554,7 @@
       },
       tr: {
         'app.title':'Şifre Oluşturucu','app.subtitle':'Kriptografik Rastgele ve Özelleştirilebilir',
-        'nav.home':'Ana Sayfa','common.copy':'Kopyala','common.copied':'Kopyalandı!',
+        'nav.home':'Ana Sayfa','nav.tools':'Araçlar','nav.2fa':'2FA Araçları','nav.ip':'IP Sorgulama','nav.pass':'Şifre Oluşturucu','nav.text':'Metin Temizleyici','nav.webp':'Görüntü Dönüştürücü','nav.ico':'ICO Oluşturucu','nav.ai':'AI Avatar Oluşturucu','common.copy':'Kopyala','common.copied':'Kopyalandı!',
         'gen.title':'Rastgele Şifre Oluşturucu','gen.charsets':'Karakter Setleri',
         'gen.no_set_selected':'Lütfen en az bir karakter seti seçin.',
         'gen.exclude_title':'Belirsiz Karakterleri Hariç Tut',
@@ -535,7 +577,7 @@
       },
       'zh-TW': {
         'app.title':'密碼產生器','app.subtitle':'加密隨機 · 高度可自訂',
-        'nav.home':'首頁','common.copy':'複製','common.copied':'已複製！',
+        'nav.home':'首頁','nav.tools':'工具','nav.2fa':'2FA 工具','nav.ip':'IP 查詢','nav.pass':'密碼產生器','nav.text':'文字清洗器','nav.webp':'圖片轉換器','nav.ico':'ICO 圖示產生器','nav.ai':'AI 頭像產生器','common.copy':'複製','common.copied':'已複製！',
         'gen.title':'隨機密碼產生器','gen.charsets':'字元集',
         'gen.no_set_selected':'請至少選擇一個字元集。',
         'gen.exclude_title':'排除易混淆字元',
@@ -610,6 +652,10 @@
       renderHistory();
     };
 
+    window.toggleToolsMenu = function () {
+      var menu = document.getElementById('tools-menu');
+      if (menu) menu.classList.toggle('hidden');
+    };
     window.toggleLangMenu = function () {
       buildLangMenu();
       var menu = document.getElementById('lang-menu');
@@ -624,6 +670,11 @@
       if (dd && !dd.contains(e.target)) {
         var menu = document.getElementById('lang-menu');
         if (menu) menu.classList.add('hidden');
+      }
+      var td = document.getElementById('tools-dropdown');
+      if (td && !td.contains(e.target)) {
+        var tmenu = document.getElementById('tools-menu');
+        if (tmenu) tmenu.classList.add('hidden');
       }
     });
 

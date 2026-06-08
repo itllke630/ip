@@ -58,6 +58,23 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span data-i18n="nav.home">Home</span>
         </a>
+        <!-- Tools dropdown -->
+        <div id="tools-dropdown" class="relative">
+          <button id="btn-tools-toggle" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors" onclick="toggleToolsMenu()">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span data-i18n="nav.tools">Tools</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="tools-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden">
+            <a href="2fa.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔐 <span data-i18n="nav.2fa">2FA Tools</span></a>
+            <a href="ip.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🌐 <span data-i18n="nav.ip">IP Lookup</span></a>
+            <a href="pass.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔒 <span data-i18n="nav.pass">Password Generator</span></a>
+            <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">📝 <span data-i18n="nav.text">Text Cleaner</span></a>
+            <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🖼 <span data-i18n="nav.webp">Image Converter</span></a>
+            <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🎨 <span data-i18n="nav.ico">ICO Icon Generator</span></a>
+            <a href="pollinationsai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">✨ <span data-i18n="nav.ai">AI Avatar Generator</span></a>
+          </div>
+        </div>
         <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
@@ -271,6 +288,7 @@
       { code:'fr', label:'Français',   native:'Français',   region:'FR' },
       { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
       { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+      { code:'es', label:'Español',    native:'Español',    region:'ES' },
       { code:'pt', label:'Português',  native:'Português',  region:'BR' },
       { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
       { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
@@ -280,7 +298,7 @@
     var DICT = {
       en: {
         'app.title':'Text Cleaner','app.subtitle':'Instant Formatting & Whitespace Control',
-        'nav.home':'Home',
+        'nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'Actions:','actions.remove_spaces':'Remove All Spaces',
         'actions.remove_empty_lines':'Remove Empty Lines','actions.trim_lines':'Trim Line Edits',
         'actions.merge_empty_lines':'Merge Empty Lines','actions.to_single_line':'To Single Line',
@@ -305,7 +323,7 @@
       },
       zh: {
         'app.title':'文本清洗器','app.subtitle':'即时格式化与空白字符控制',
-        'nav.home':'首页',
+        'nav.home':'首页','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'操作：','actions.remove_spaces':'去除所有空格',
         'actions.remove_empty_lines':'去除空行','actions.trim_lines':'修剪行首尾空白',
         'actions.merge_empty_lines':'合并多余空行','actions.to_single_line':'转为单行',
@@ -330,7 +348,7 @@
       },
       ja: {
         'app.title':'テキストクリーナー','app.subtitle':'即時フォーマットと空白制御',
-        'nav.home':'ホーム',
+        'nav.home':'ホーム','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'操作:','actions.remove_spaces':'すべてのスペースを削除',
         'actions.remove_empty_lines':'空行を削除','actions.trim_lines':'行の空白をトリム',
         'actions.merge_empty_lines':'空行を統合','actions.to_single_line':'1行に変換',
@@ -355,7 +373,7 @@
       },
       ko: {
         'app.title':'텍스트 클리너','app.subtitle':'즉시 포맷팅 및 공백 제어',
-        'nav.home':'홈',
+        'nav.home':'홈','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'작업:','actions.remove_spaces':'모든 공백 제거',
         'actions.remove_empty_lines':'빈 줄 제거','actions.trim_lines':'줄 공백 정리',
         'actions.merge_empty_lines':'빈 줄 병합','actions.to_single_line':'한 줄로 변환',
@@ -380,7 +398,7 @@
       },
       fr: {
         'app.title':'Nettoyeur de texte','app.subtitle':'Formatage instantané et contrôle des espaces',
-        'nav.home':'Accueil',
+        'nav.home':'Accueil','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'Actions :','actions.remove_spaces':'Supprimer les espaces',
         'actions.remove_empty_lines':'Supprimer lignes vides','actions.trim_lines':'Découper les lignes',
         'actions.merge_empty_lines':'Fusionner lignes vides','actions.to_single_line':'En une seule ligne',
@@ -405,7 +423,7 @@
       },
       de: {
         'app.title':'Textreiniger','app.subtitle':'Sofortige Formatierung und Leerzeichenkontrolle',
-        'nav.home':'Startseite',
+        'nav.home':'Startseite','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'Aktionen:','actions.remove_spaces':'Alle Leerzeichen entfernen',
         'actions.remove_empty_lines':'Leere Zeilen entfernen','actions.trim_lines':'Zeilen trimmen',
         'actions.merge_empty_lines':'Leere Zeilen zusammenführen','actions.to_single_line':'In eine Zeile',
@@ -430,7 +448,7 @@
       },
       it: {
         'app.title':'Pulitore di testo','app.subtitle':'Formattazione immediata e controllo spazi',
-        'nav.home':'Home',
+        'nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'Azioni:','actions.remove_spaces':'Rimuovi tutti gli spazi',
         'actions.remove_empty_lines':'Rimuovi righe vuote','actions.trim_lines':'Taglia righe',
         'actions.merge_empty_lines':'Unisci righe vuote','actions.to_single_line':'In una riga',
@@ -453,9 +471,34 @@
         'info.single_desc':'Converte ogni interruzione di riga in uno spazio singolo, unendo l\'intero documento in una riga continua. Combinato con <strong>Rimuovi tutti gli spazi</strong>, produce testo completamente compatto.',
         'info.privacy':'<strong>Nota sulla privacy:</strong> Tutta l\'elaborazione del testo avviene in tempo reale nel browser utilizzando espressioni regolari JavaScript. Nessun testo viene mai inviato a un server.',
       },
+      es: {
+        'app.title':'Limpiador de Texto','app.subtitle':'Formateo Instantáneo y Control de Espacios',
+        'nav.home':'Inicio','nav.tools':'Herramientas','nav.2fa':'2FA Herramientas','nav.ip':'Búsqueda IP','nav.pass':'Generador de Contraseñas','nav.text':'Limpiador de Texto','nav.webp':'Conversor de Imágenes','nav.ico':'Generador de Iconos ICO','nav.ai':'Generador de Avatares IA',
+        'actions.label':'Acciones:','actions.remove_spaces':'Eliminar Todos los Espacios',
+        'actions.remove_empty_lines':'Eliminar Líneas Vacías','actions.trim_lines':'Recortar Líneas',
+        'actions.merge_empty_lines':'Unir Líneas Vacías','actions.to_single_line':'A Una Sola Línea',
+        'actions.copy_output':'Copiar Resultado','actions.clear_all':'Limpiar','actions.copied':'¡Copiado!',
+        'input.title':'Entrada','output.title':'Salida',
+        'metrics.chars':'Caracteres (sin espacios)','metrics.total_chars':'Caracteres totales','metrics.lines':'Líneas',
+        'footer.powered':'Desarrollado por','footer.privacy':'Sin registros. Sin seguimiento. Todo el procesamiento de texto ocurre localmente en su navegador.',
+        'ad.zoneA':'Publicidad · 728×90','ad.zoneB':'Publicidad<br/>160×600','ad.728x90':'PUBLICIDAD · 728×90','ad.160x600':'PUB<br>160×600',
+        'info.title':'Acerca de la Limpieza y Formateo de Texto',
+        'info.intro':'Copiar texto de PDFs, correos electrónicos, sitios web o editores de código a menudo trae espacios no deseados, líneas vacías y residuos de formato. Esta herramienta le da control preciso sobre cómo se limpia su texto.',
+        'info.spaces_title':'Eliminar Todos los Espacios',
+        'info.spaces_desc':'Elimina todos los espacios regulares, espacios de ancho completo y tabulaciones. Útil para compactar JSON, minificar código o limpiar datos copiados.',
+        'info.empty_title':'Eliminar Líneas Vacías',
+        'info.empty_desc':'Elimina cualquier línea que contenga solo espacios en blanco o esté completamente vacía. Ideal para limpiar registros.',
+        'info.trim_title':'Recortar Líneas',
+        'info.trim_desc':'Elimina espacios iniciales y finales de cada línea preservando el espaciado interno.',
+        'info.merge_title':'Unir Líneas Vacías Extra',
+        'info.merge_desc':'Comprime tres o más líneas vacías consecutivas en exactamente dos líneas vacías.',
+        'info.single_title':'A Una Sola Línea — La Herramienta Potente',
+        'info.single_desc':'Convierte cada salto de línea en un solo espacio. Combinado con <strong>Eliminar Todos los Espacios</strong>, produce texto completamente compacto.',
+        'info.privacy':'<strong>Nota de privacidad:</strong> Todo el procesamiento de texto ocurre en tiempo real en su navegador usando expresiones regulares de JavaScript. Ningún texto se envía a un servidor.',
+      },
       pt: {
         'app.title':'Limpador de texto','app.subtitle':'Formatação instantânea e controle de espaços',
-        'nav.home':'Início',
+        'nav.home':'Início','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'Ações:','actions.remove_spaces':'Remover todos os espaços',
         'actions.remove_empty_lines':'Remover linhas vazias','actions.trim_lines':'Aparar linhas',
         'actions.merge_empty_lines':'Mesclar linhas vazias','actions.to_single_line':'Para uma linha',
@@ -480,7 +523,7 @@
       },
       ru: {
         'app.title':'Очиститель текста','app.subtitle':'Мгновенное форматирование и управление пробелами',
-        'nav.home':'Главная',
+        'nav.home':'Главная','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'Действия:','actions.remove_spaces':'Удалить все пробелы',
         'actions.remove_empty_lines':'Удалить пустые строки','actions.trim_lines':'Обрезать строки',
         'actions.merge_empty_lines':'Объединить пустые строки','actions.to_single_line':'В одну строку',
@@ -505,7 +548,7 @@
       },
       tr: {
         'app.title':'Metin Temizleyici','app.subtitle':'Anında Biçimlendirme ve Boşluk Kontrolü',
-        'nav.home':'Ana Sayfa',
+        'nav.home':'Ana Sayfa','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'İşlemler:','actions.remove_spaces':'Tüm Boşlukları Kaldır',
         'actions.remove_empty_lines':'Boş Satırları Kaldır','actions.trim_lines':'Satırları Kırp',
         'actions.merge_empty_lines':'Boş Satırları Birleştir','actions.to_single_line':'Tek Satıra Dönüştür',
@@ -530,7 +573,7 @@
       },
       'zh-TW': {
         'app.title':'文字清洗器','app.subtitle':'即時格式化與空白字元控制',
-        'nav.home':'首頁',
+        'nav.home':'首頁','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator',
         'actions.label':'操作：','actions.remove_spaces':'去除所有空格',
         'actions.remove_empty_lines':'去除空行','actions.trim_lines':'修剪行首尾空白',
         'actions.merge_empty_lines':'合併多餘空行','actions.to_single_line':'轉為單行',
@@ -605,6 +648,7 @@
       updateLanguageUI();
     };
 
+    window.toggleToolsMenu = function () {var m=document.getElementById('tools-menu');if(m)m.classList.toggle('hidden');};
     window.toggleLangMenu = function () {
       buildLangMenu();
       var menu = document.getElementById('lang-menu');
@@ -616,10 +660,9 @@
     };
     document.addEventListener('click', function (e) {
       var dd = document.getElementById('lang-dropdown');
-      if (dd && !dd.contains(e.target)) {
-        var menu = document.getElementById('lang-menu');
-        if (menu) menu.classList.add('hidden');
-      }
+      if (dd && !dd.contains(e.target)) {var m=document.getElementById('lang-menu');if(m)m.classList.add('hidden');}
+      var td = document.getElementById('tools-dropdown');
+      if (td && !td.contains(e.target)) {var tm=document.getElementById('tools-menu');if(tm)tm.classList.add('hidden');}
     });
 
     /* ================================================================
