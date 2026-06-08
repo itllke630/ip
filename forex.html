@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Real-Time Currency Converter with 30-Day Trend Chart — live exchange rates with multi-source failover, instant local conversion, and interactive history chart." />
+  <title>Currency Converter — LinkoZen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'fade-in':  'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+          },
+          keyframes: {
+            fadeIn:  { '0%':{opacity:'0'}, '100%':{opacity:'1'} },
+            slideUp: { '0%':{opacity:'0',transform:'translateY(12px)'}, '100%':{opacity:'1',transform:'translateY(0)'} },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Chart.js (local) -->
+  <script src="chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="common.css" />
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================================================================== -->
+  <!--  HEADER                                                             -->
+  <!-- ================================================================== -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">$</div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">Currency Converter</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Real-Time Rates &amp; 30-Day Trend Chart</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
+        <div id="tools-dropdown" class="relative">
+          <button id="btn-tools-toggle" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors" onclick="toggleToolsMenu()">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span data-i18n="nav.tools">Tools</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="tools-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden">
+            <a href="2fa.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f510; <span data-i18n="nav.2fa">2FA Tools</span></a>
+            <a href="ip.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f310; <span data-i18n="nav.ip">IP Lookup</span></a>
+            <a href="pass.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f512; <span data-i18n="nav.pass">Password Generator</span></a>
+            <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f4dd; <span data-i18n="nav.text">Text Cleaner</span></a>
+            <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f5bc; <span data-i18n="nav.webp">Image Converter</span></a>
+            <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f3a8; <span data-i18n="nav.ico">ICO Icon Generator</span></a>
+            <a href="pollinationsai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x2728; <span data-i18n="nav.ai">AI Avatar Generator</span></a>
+            <a href="forex.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f4b1; <span data-i18n="nav.forex">Currency Converter</span></a>
+          </div>
+        </div>
+        <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm" onclick="toggleLangMenu()" aria-label="Switch language">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================== -->
+  <!--  MAIN CONTENT                                                       -->
+  <!-- ================================================================== -->
+  <main class="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+
+    <!-- ================================================================ -->
+    <!--  INTRO                                                            -->
+    <!-- ================================================================ -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up mb-5">
+      <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
+        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span data-i18n="intro.title">Real-Time Currency Converter &amp; Trends</span>
+      </h2>
+      <p class="text-xs text-slate-500 leading-relaxed" data-i18n="intro.desc">
+        Multi-source failover live exchange rates. Instant local conversion. Built-in 30-day trend chart. Data loads in seconds.
+      </p>
+    </div>
+
+    <!-- ================================================================ -->
+    <!--  CONVERTER CARD                                                   -->
+    <!-- ================================================================ -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up mb-5">
+      <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span data-i18n="converter.title">Live Currency Converter</span>
+      </h2>
+
+      <!-- Amount Input -->
+      <div class="mb-4">
+        <label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="converter.amount">Amount</label>
+        <input type="number" id="amount-input" value="100" min="0" step="any"
+               class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-lg font-mono font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-shadow"
+               oninput="onInputChanged()" aria-label="Amount">
+      </div>
+
+      <!-- Currency Row -->
+      <div class="flex items-end gap-3 mb-4">
+        <div class="flex-1">
+          <label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="converter.from">From</label>
+          <select id="from-currency" onchange="onCurrencyChanged()"
+                  class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-shadow"></select>
+        </div>
+        <button onclick="swapCurrencies()"
+                class="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-all active:scale-95 mb-0.5"
+                title="Swap currencies" aria-label="Swap currencies">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+        </button>
+        <div class="flex-1">
+          <label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="converter.to">To</label>
+          <select id="to-currency" onchange="onCurrencyChanged()"
+                  class="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-shadow"></select>
+        </div>
+      </div>
+
+      <!-- Result Display -->
+      <div id="result-area" class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 animate-fade-in">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-medium text-emerald-600 uppercase tracking-wider" data-i18n="converter.result">Converted Amount</span>
+          <span id="rate-display" class="text-[11px] font-mono text-emerald-700"></span>
+        </div>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span id="result-value" class="text-2xl font-bold font-mono text-emerald-800 tabular-nums">—</span>
+          <span id="result-currency" class="text-sm font-medium text-emerald-600"></span>
+        </div>
+      </div>
+
+      <!-- Status Indicator -->
+      <div class="mt-3 flex items-center gap-2">
+        <span id="status-dot" class="w-2 h-2 rounded-full bg-slate-300"></span>
+        <span id="status-text" class="text-[11px] text-slate-400" data-i18n="status.loading">Loading rates…</span>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!--  TREND CHART CARD                                                 -->
+    <!-- ================================================================ -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up mb-5">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+          <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span id="chart-title-text" class="font-mono text-xs">USD/CNY 30-Day Trend</span>
+        </h2>
+        <div class="flex items-center gap-3 text-[11px]">
+          <span class="text-emerald-600 font-semibold"><span data-i18n="chart.high">High</span>: <span id="chart-max" class="font-mono">—</span></span>
+          <span class="text-amber-600 font-semibold"><span data-i18n="chart.low">Low</span>: <span id="chart-min" class="font-mono">—</span></span>
+        </div>
+      </div>
+      <div class="relative w-full" style="height:280px;">
+        <canvas id="trend-chart"></canvas>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!--  INFO CARD                                                        -->
+    <!-- ================================================================ -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
+      <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span data-i18n="info.title">About This Converter</span>
+      </h2>
+      <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+        <p data-i18n="info.p1"><strong>Real-Time Market Rates:</strong> Every calculation uses freshly fetched exchange rates from public financial APIs with automatic failover — if the primary source is unavailable, a backup source kicks in seamlessly. No stale cached data.</p>
+        <p data-i18n="info.p2"><strong>Instant Local Conversion:</strong> Once the rate matrix is loaded, all calculations happen locally in your browser as you type. Zero network latency for conversions — the result updates with every keystroke.</p>
+        <p data-i18n="info.p3"><strong>30-Day Trend Visualization:</strong> The interactive chart shows daily closing rates for the past 30 days, helping you spot trends at a glance. Hover over any point to see the exact rate on that date.</p>
+        <p class="text-xs text-slate-400" data-i18n="info.privacy"><strong>Privacy note:</strong> All currency conversion calculations happen in your browser. No search queries are logged, stored, or shared with any third party.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================================================================== -->
+  <!--  FOOTER                                                             -->
+  <!-- ================================================================== -->
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a href="index.html" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 ml-1 font-medium">LinkoZen</a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No logs. No tracking. All calculations happen locally in your browser.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ====================================================================== -->
+  <!--  APPLICATION LOGIC                                                      -->
+  <!-- ====================================================================== -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ================================================================
+     *  i18n
+     * ================================================================ */
+    var LANGS = [
+      { code:'en', label:'English',    native:'English',    region:'US' },
+      { code:'zh', label:'简体中文',    native:'简体中文',    region:'CN' },
+      { code:'ja', label:'日本語',      native:'日本語',      region:'JP' },
+      { code:'ko', label:'한국어',      native:'한국어',      region:'KR' },
+      { code:'fr', label:'Français',   native:'Français',   region:'FR' },
+      { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
+      { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+      { code:'es', label:'Español',    native:'Español',    region:'ES' },
+      { code:'pt', label:'Português',  native:'Português',  region:'PT' },
+      { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
+      { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
+      { code:'zh-TW', label:'繁體中文',  native:'繁體中文',    region:'TW' },
+    ];
+
+    var DICT = {
+      en: {
+        'app.title':'Currency Converter','app.subtitle':'Real-Time Rates & 30-Day Trend Chart',
+        'nav.home':'Home','nav.tools':'Tools',
+        'nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.forex':'Currency Converter','nav.ai':'AI Avatar Generator',
+        'intro.title':'Real-Time Currency Converter & Trends','intro.desc':'Multi-source failover live exchange rates. Instant local conversion. Built-in 30-day trend chart. Data loads in seconds.',
+        'converter.title':'Live Currency Converter','converter.amount':'Amount','converter.from':'From','converter.to':'To','converter.result':'Converted Amount',
+        'status.loading':'Loading rates…','status.primary':'Live (Primary)','status.backup':'Live (Backup)','status.error':'Offline — Retrying…',
+        'chart.title':'{from}/{to} 30-Day Trend','chart.high':'High','chart.low':'Low',
+        'info.title':'About This Converter',
+        'info.p1':'<strong>Real-Time Market Rates:</strong> Every calculation uses freshly fetched exchange rates from public financial APIs with automatic failover — if the primary source is unavailable, a backup source kicks in seamlessly. No stale cached data.',
+        'info.p2':'<strong>Instant Local Conversion:</strong> Once the rate matrix is loaded, all calculations happen locally in your browser as you type. Zero network latency for conversions — the result updates with every keystroke.',
+        'info.p3':'<strong>30-Day Trend Visualization:</strong> The interactive chart shows daily closing rates for the past 30 days, helping you spot trends at a glance. Hover over any point to see the exact rate on that date.',
+        'info.privacy':'<strong>Privacy note:</strong> All currency conversion calculations happen in your browser. No search queries are logged, stored, or shared with any third party.',
+        'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. All calculations happen locally in your browser.',
+      },
+      zh: {
+        'app.title':'汇率换算器','app.subtitle':'实时汇率与30天趋势图',
+        'nav.home':'首页','nav.tools':'工具',
+        'nav.2fa':'2FA 工具','nav.ip':'IP 查询','nav.pass':'密码生成器','nav.text':'文本清洗器','nav.webp':'图片转换器','nav.ico':'ICO 图标生成器','nav.ai':'AI 头像生成器',
+        'intro.title':'实时汇率换算与趋势','intro.desc':'多源容灾的实时公开市场汇率换算。内置近30天汇率波动趋势图表，数据秒级加载。',
+        'converter.title':'实时汇率换算','converter.amount':'金额','converter.from':'从','converter.to':'到','converter.result':'换算结果',
+        'status.loading':'加载汇率中…','status.primary':'在线 (主源)','status.backup':'在线 (备用)','status.error':'离线 — 重试中…',
+        'chart.title':'{from}/{to} 近30天走势','chart.high':'最高','chart.low':'最低',
+        'info.title':'关于此换算器',
+        'info.p1':'<strong>实时市场汇率：</strong>每次计算均使用从公开金融 API 最新获取的汇率数据，具备自动容灾切换——主数据源不可用时，备用源无缝接管。无陈旧缓存数据。',
+        'info.p2':'<strong>即时本地换算：</strong>汇率矩阵加载完成后，所有计算均在您的浏览器本地完成。换算结果随键盘输入即时更新，零网络延迟。',
+        'info.p3':'<strong>30天趋势可视化：</strong>交互式图表展示近30天的每日收盘汇率，帮助您一目了然地发现走势。悬停任意数据点可查看当日精确汇率。',
+        'info.privacy':'<strong>隐私说明：</strong>所有汇率换算计算均在您的浏览器中完成。搜索查询不会被记录、存储或分享给任何第三方。',
+        'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 所有计算均在浏览器本地完成。',
+      },
+      ja: {
+        'app.title':'通貨換算ツール','app.subtitle':'リアルタイム為替レートと30日トレンド',
+        'nav.home':'ホーム','nav.tools':'ツール',
+        'nav.2fa':'2FA ツール','nav.ip':'IP ルックアップ','nav.pass':'パスワード生成','nav.text':'テキストクリーナー','nav.webp':'画像変換','nav.ico':'ICO アイコン生成','nav.ai':'AI アバター生成',
+        'intro.title':'リアルタイム通貨換算とトレンド','intro.desc':'マルチソースのフェイルオーバー対応ライブ為替レート。即時ローカル換算。30日トレンドチャート内蔵。',
+        'converter.title':'ライブ通貨換算','converter.amount':'金額','converter.from':'変換元','converter.to':'変換先','converter.result':'換算結果',
+        'status.loading':'レート読込中…','status.primary':'オンライン (メイン)','status.backup':'オンライン (バックアップ)','status.error':'オフライン — 再試行中…',
+        'chart.title':'{from}/{to} 30日トレンド','chart.high':'最高','chart.low':'最低',
+        'info.title':'この換算ツールについて',
+        'info.p1':'<strong>リアルタイム市場レート：</strong>毎回の計算で公開金融APIから最新の為替レートを取得。自動フェイルオーバー機能により、メインソースが利用不可の場合もバックアップがシームレスに作動します。',
+        'info.p2':'<strong>即時ローカル換算：</strong>レートデータ読み込み後、すべての計算はブラウザ内でローカルに実行。入力に応じて結果が即座に更新されます。',
+        'info.p3':'<strong>30日トレンド可視化：</strong>過去30日間の日次終値をインタラクティブなチャートで表示。トレンドを一目で把握できます。',
+        'info.privacy':'<strong>プライバシーについて：</strong>すべての換算計算はブラウザ内で実行されます。検索クエリが記録・保存・共有されることはありません。',
+        'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・すべての計算はブラウザ内で行われます。',
+      },
+      ko: {
+        'app.title':'환율 변환기','app.subtitle':'실시간 환율 및 30일 추세 차트',
+        'nav.home':'홈','nav.tools':'도구',
+        'nav.2fa':'2FA 도구','nav.ip':'IP 조회','nav.pass':'비밀번호 생성기','nav.text':'텍스트 클리너','nav.webp':'이미지 변환기','nav.ico':'ICO 아이콘 생성기','nav.ai':'AI 아바타 생성기',
+        'intro.title':'실시간 환율 변환 및 추세','intro.desc':'다중 소스 장애 조치 실시간 환율. 즉시 로컬 변환. 30일 추세 차트 내장.',
+        'converter.title':'실시간 환율 변환','converter.amount':'금액','converter.from':'출발','converter.to':'도착','converter.result':'변환 결과',
+        'status.loading':'환율 로딩 중…','status.primary':'온라인 (주)','status.backup':'온라인 (백업)','status.error':'오프라인 — 재시도 중…',
+        'chart.title':'{from}/{to} 30일 추세','chart.high':'최고','chart.low':'최저',
+        'info.title':'이 변환기 정보',
+        'info.p1':'<strong>실시간 시장 환율:</strong> 모든 계산은 공개 금융 API에서 최신 환율을 가져와 사용합니다. 기본 소스를 사용할 수 없는 경우 백업 소스가 자동으로 대체됩니다.',
+        'info.p2':'<strong>즉시 로컬 변환:</strong> 환율 데이터가 로드된 후 모든 계산은 브라우저에서 로컬로 실행됩니다. 입력할 때마다 결과가 즉시 업데이트됩니다.',
+        'info.p3':'<strong>30일 추세 시각화:</strong> 지난 30일간의 일일 종가를 인터랙티브 차트로 표시합니다. 추세를 한눈에 파악할 수 있습니다.',
+        'info.privacy':'<strong>개인정보 보호:</strong> 모든 환율 변환 계산은 브라우저에서 수행됩니다. 검색 쿼리가 기록, 저장 또는 공유되지 않습니다.',
+        'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 모든 계산은 브라우저에서 로컬로 수행됩니다.',
+      },
+      fr: {
+        'app.title':'Convertisseur de devises','app.subtitle':'Taux en temps réel & graphique 30 jours',
+        'nav.home':'Accueil','nav.tools':'Outils',
+        'nav.2fa':'Outils 2FA','nav.ip':'Recherche IP','nav.pass':'Générateur MDP','nav.text':'Nettoyeur texte','nav.webp':'Convertisseur img','nav.ico':'Générateur ICO','nav.forex':'Convertisseur devise','nav.ai':'Générateur avatar IA',
+        'intro.title':'Convertisseur de devises en temps réel','intro.desc':'Taux de change en direct avec basculement multi-sources. Conversion locale instantanée. Graphique de tendance 30 jours intégré.',
+        'converter.title':'Convertisseur en direct','converter.amount':'Montant','converter.from':'De','converter.to':'Vers','converter.result':'Montant converti',
+        'status.loading':'Chargement…','status.primary':'En ligne (Principal)','status.backup':'En ligne (Sauvegarde)','status.error':'Hors ligne…',
+        'chart.title':'{from}/{to} Tendance 30 jours','chart.high':'Max','chart.low':'Min',
+        'info.title':'À propos','info.p1':'<strong>Taux du marché en temps réel :</strong> Chaque calcul utilise les derniers taux de change issus d\'API financières publiques avec basculement automatique.','info.p2':'<strong>Conversion locale instantanée :</strong> Tous les calculs sont effectués localement dans votre navigateur.','info.p3':'<strong>Tendance 30 jours :</strong> Le graphique interactif montre les taux de clôture quotidiens des 30 derniers jours.','info.privacy':'<strong>Confidentialité :</strong> Tous les calculs sont effectués dans votre navigateur. Aucune donnée n\'est enregistrée.',
+        'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Tous les calculs sont locaux.',
+      },
+      de: {
+        'app.title':'Währungsrechner','app.subtitle':'Echtzeitkurse & 30-Tage-Trend',
+        'nav.home':'Startseite','nav.tools':'Werkzeuge',
+        'nav.2fa':'2FA Tools','nav.ip':'IP-Abfrage','nav.pass':'Passwort-Generator','nav.text':'Textreiniger','nav.webp':'Bildkonverter','nav.ico':'ICO Generator','nav.forex':'Währungsrechner','nav.ai':'KI-Avatar-Generator',
+        'intro.title':'Echtzeit-Währungsrechner','intro.desc':'Live-Wechselkurse mit Multi-Source-Failover. Sofortige lokale Umrechnung. Integriertes 30-Tage-Diagramm.',
+        'converter.title':'Live Währungsrechner','converter.amount':'Betrag','converter.from':'Von','converter.to':'Nach','converter.result':'Umgerechneter Betrag',
+        'status.loading':'Lade…','status.primary':'Online (Primär)','status.backup':'Online (Backup)','status.error':'Offline…',
+        'chart.title':'{from}/{to} 30-Tage-Trend','chart.high':'Hoch','chart.low':'Tief',
+        'info.title':'Über diesen Rechner','info.p1':'<strong>Echtzeit-Marktkurse:</strong> Jede Berechnung verwendet aktuelle Wechselkurse von öffentlichen Finanz-APIs mit automatischem Failover.','info.p2':'<strong>Sofortige lokale Umrechnung:</strong> Alle Berechnungen erfolgen lokal in Ihrem Browser.','info.p3':'<strong>30-Tage-Visualisierung:</strong> Das interaktive Diagramm zeigt die täglichen Schlusskurse der letzten 30 Tage.','info.privacy':'<strong>Datenschutz:</strong> Alle Berechnungen erfolgen in Ihrem Browser. Keine Daten werden gespeichert.',
+        'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Alle Berechnungen sind lokal.',
+      },
+      it: {
+        'app.title':'Convertitore di valuta','app.subtitle':'Tassi in tempo reale e grafico 30 giorni',
+        'nav.home':'Home','nav.tools':'Strumenti',
+        'nav.2fa':'Strumenti 2FA','nav.ip':'Ricerca IP','nav.pass':'Generatore PW','nav.text':'Pulitore testo','nav.webp':'Convertitore img','nav.ico':'Generatore ICO','nav.forex':'Convertitore valuta','nav.ai':'Generatore avatar AI',
+        'intro.title':'Convertitore di valuta in tempo reale','intro.desc':'Tassi di cambio live con failover multi-sorgente. Conversione locale istantanea. Grafico trend 30 giorni integrato.',
+        'converter.title':'Convertitore live','converter.amount':'Importo','converter.from':'Da','converter.to':'A','converter.result':'Importo convertito',
+        'status.loading':'Caricamento…','status.primary':'Online (Primario)','status.backup':'Online (Backup)','status.error':'Offline…',
+        'chart.title':'{from}/{to} Trend 30 giorni','chart.high':'Max','chart.low':'Min',
+        'info.title':'Informazioni','info.p1':'<strong>Tassi di mercato in tempo reale:</strong> Ogni calcolo utilizza i tassi di cambio più recenti da API finanziarie pubbliche con failover automatico.','info.p2':'<strong>Conversione locale istantanea:</strong> Tutti i calcoli vengono eseguiti localmente nel browser.','info.p3':'<strong>Trend 30 giorni:</strong> Il grafico interattivo mostra i tassi di chiusura giornalieri degli ultimi 30 giorni.','info.privacy':'<strong>Privacy:</strong> Tutti i calcoli avvengono nel browser. Nessun dato viene registrato.',
+        'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. Tutti i calcoli sono locali.',
+      },
+      es: {
+        'app.title':'Conversor de divisas','app.subtitle':'Tasas en tiempo real y gráfico 30 días',
+        'nav.home':'Inicio','nav.tools':'Herramientas',
+        'nav.2fa':'2FA Herramientas','nav.ip':'Búsqueda IP','nav.pass':'Generador de contraseñas','nav.text':'Limpiador texto','nav.webp':'Conversor imágenes','nav.ico':'Generador ICO','nav.forex':'Conversor divisas','nav.ai':'Generador avatares IA',
+        'intro.title':'Conversor de divisas en tiempo real','intro.desc':'Tasas de cambio en vivo con conmutación por error multi-fuente. Conversión local instantánea. Gráfico de tendencia de 30 días.',
+        'converter.title':'Conversor en vivo','converter.amount':'Cantidad','converter.from':'De','converter.to':'A','converter.result':'Cantidad convertida',
+        'status.loading':'Cargando…','status.primary':'En línea (Principal)','status.backup':'En línea (Respaldo)','status.error':'Sin conexión…',
+        'chart.title':'{from}/{to} Tendencia 30 días','chart.high':'Máx','chart.low':'Mín',
+        'info.title':'Acerca de','info.p1':'<strong>Tasas de mercado en tiempo real:</strong> Cada cálculo utiliza las últimas tasas de cambio de APIs financieras públicas con conmutación automática.','info.p2':'<strong>Conversión local instantánea:</strong> Todos los cálculos se realizan localmente en su navegador.','info.p3':'<strong>Tendencia 30 días:</strong> El gráfico interactivo muestra las tasas de cierre diarias de los últimos 30 días.','info.privacy':'<strong>Privacidad:</strong> Todos los cálculos ocurren en su navegador. No se registran datos.',
+        'footer.powered':'Desarrollado por','footer.privacy':'Sin registros. Sin seguimiento. Todos los cálculos son locales.',
+      },
+      pt: {
+        'app.title':'Conversor de moedas','app.subtitle':'Taxas em tempo real e gráfico 30 dias',
+        'nav.home':'Início','nav.tools':'Ferramentas',
+        'nav.2fa':'2FA Ferramentas','nav.ip':'Busca IP','nav.pass':'Gerador de senhas','nav.text':'Limpador texto','nav.webp':'Conversor imagem','nav.ico':'Gerador ICO','nav.forex':'Conversor moeda','nav.ai':'Gerador avatar IA',
+        'intro.title':'Conversor de moedas em tempo real','intro.desc':'Taxas de câmbio ao vivo com failover multi-fonte. Conversão local instantânea. Gráfico de tendência de 30 dias.',
+        'converter.title':'Conversor ao vivo','converter.amount':'Valor','converter.from':'De','converter.to':'Para','converter.result':'Valor convertido',
+        'status.loading':'Carregando…','status.primary':'Online (Principal)','status.backup':'Online (Backup)','status.error':'Offline…',
+        'chart.title':'{from}/{to} Tendência 30 dias','chart.high':'Máx','chart.low':'Mín',
+        'info.title':'Sobre','info.p1':'<strong>Taxas de mercado em tempo real:</strong> Cada cálculo usa as taxas de câmbio mais recentes de APIs financeiras públicas com failover automático.','info.p2':'<strong>Conversão local instantânea:</strong> Todos os cálculos são feitos localmente no seu navegador.','info.p3':'<strong>Tendência 30 dias:</strong> O gráfico interativo mostra as taxas de fechamento diárias dos últimos 30 dias.','info.privacy':'<strong>Privacidade:</strong> Todos os cálculos ocorrem no navegador. Nenhum dado é registrado.',
+        'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Todos os cálculos são locais.',
+      },
+      ru: {
+        'app.title':'Конвертер валют','app.subtitle':'Курсы в реальном времени и график за 30 дней',
+        'nav.home':'Главная','nav.tools':'Инструменты',
+        'nav.2fa':'2FA Инструменты','nav.ip':'Поиск IP','nav.pass':'Генератор паролей','nav.text':'Очиститель текста','nav.webp':'Конвертер изображений','nav.ico':'Генератор ICO','nav.forex':'Конвертер валют','nav.ai':'Генератор аватаров',
+        'intro.title':'Конвертер валют в реальном времени','intro.desc':'Живые курсы валют с автоматическим переключением источников. Мгновенная локальная конвертация. Встроенный график за 30 дней.',
+        'converter.title':'Живой конвертер','converter.amount':'Сумма','converter.from':'Из','converter.to':'В','converter.result':'Результат',
+        'status.loading':'Загрузка…','status.primary':'Онлайн (Основной)','status.backup':'Онлайн (Резерв)','status.error':'Офлайн…',
+        'chart.title':'{from}/{to} График за 30 дней','chart.high':'Макс','chart.low':'Мин',
+        'info.title':'О сервисе','info.p1':'<strong>Рыночные курсы в реальном времени:</strong> Каждый расчёт использует свежие курсы из публичных финансовых API с автоматическим переключением.','info.p2':'<strong>Мгновенная локальная конвертация:</strong> Все расчёты выполняются локально в вашем браузере.','info.p3':'<strong>График за 30 дней:</strong> Интерактивный график показывает ежедневные курсы закрытия за последние 30 дней.','info.privacy':'<strong>Конфиденциальность:</strong> Все расчёты происходят в браузере. Данные не сохраняются.',
+        'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Все расчёты локальны.',
+      },
+      tr: {
+        'app.title':'Döviz Çevirici','app.subtitle':'Gerçek zamanlı kurlar ve 30 günlük grafik',
+        'nav.home':'Ana Sayfa','nav.tools':'Araçlar',
+        'nav.2fa':'2FA Araçları','nav.ip':'IP Sorgulama','nav.pass':'Şifre Oluşturucu','nav.text':'Metin Temizleyici','nav.webp':'Görüntü Dönüştürücü','nav.ico':'ICO Oluşturucu','nav.forex':'Döviz Çevirici','nav.ai':'AI Avatar Oluşturucu',
+        'intro.title':'Gerçek zamanlı döviz çevirici','intro.desc':'Çok kaynaklı yedeklemeli canlı döviz kurları. Anında yerel çevrim. Dahili 30 günlük trend grafiği.',
+        'converter.title':'Canlı Döviz Çevirici','converter.amount':'Tutar','converter.from':'Kaynak','converter.to':'Hedef','converter.result':'Çevrilen Tutar',
+        'status.loading':'Yükleniyor…','status.primary':'Çevrimiçi (Birincil)','status.backup':'Çevrimiçi (Yedek)','status.error':'Çevrimdışı…',
+        'chart.title':'{from}/{to} 30 Günlük Trend','chart.high':'En Yüksek','chart.low':'En Düşük',
+        'info.title':'Hakkında','info.p1':'<strong>Gerçek zamanlı piyasa kurları:</strong> Her hesaplama, otomatik yedeklemeli genel finans API\'lerinden alınan en son döviz kurlarını kullanır.','info.p2':'<strong>Anında yerel çevrim:</strong> Tüm hesaplamalar tarayıcınızda yerel olarak yapılır.','info.p3':'<strong>30 günlük trend:</strong> Etkileşimli grafik, son 30 günün günlük kapanış kurlarını gösterir.','info.privacy':'<strong>Gizlilik:</strong> Tüm hesaplamalar tarayıcınızda yapılır. Hiçbir veri kaydedilmez.',
+        'footer.powered':'Tarafından','footer.privacy':'Günlük yok. İzleme yok. Tüm hesaplamalar yereldir.',
+      },
+      'zh-TW': {
+        'app.title':'匯率換算器','app.subtitle':'即時匯率與30天趨勢圖',
+        'nav.home':'首頁','nav.tools':'工具',
+        'nav.2fa':'2FA 工具','nav.ip':'IP 查詢','nav.pass':'密碼產生器','nav.text':'文字清洗器','nav.webp':'圖片轉換器','nav.ico':'ICO 圖示產生器','nav.forex':'匯率換算器','nav.ai':'AI 頭像產生器',
+        'intro.title':'即時匯率換算與趨勢','intro.desc':'多源容災的即時公開市場匯率換算。內置近30天匯率波動趨勢圖表，資料秒級載入。',
+        'converter.title':'即時匯率換算','converter.amount':'金額','converter.from':'從','converter.to':'到','converter.result':'換算結果',
+        'status.loading':'載入匯率中…','status.primary':'線上 (主源)','status.backup':'線上 (備用)','status.error':'離線 — 重試中…',
+        'chart.title':'{from}/{to} 近30天走勢','chart.high':'最高','chart.low':'最低',
+        'info.title':'關於此換算器',
+        'info.p1':'<strong>即時市場匯率：</strong>每次計算均使用從公開金融 API 最新取得的匯率資料，具備自動容災切換——主資料源不可用時，備用源無縫接管。無陳舊快取資料。',
+        'info.p2':'<strong>即時本地換算：</strong>匯率矩陣載入完成後，所有計算均在您的瀏覽器本機完成。換算結果隨鍵盤輸入即時更新，零網路延遲。',
+        'info.p3':'<strong>30天趨勢視覺化：</strong>互動式圖表展示近30天的每日收盤匯率，幫助您一目了然地發現走勢。懸停任意資料點可檢視當日精確匯率。',
+        'info.privacy':'<strong>隱私說明：</strong>所有匯率換算計算均在您的瀏覽器中完成。搜尋查詢不會被記錄、儲存或分享給任何第三方。',
+        'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 所有計算均在瀏覽器本機完成。',
+      },
+    };
+
+    var currentLang = localStorage.getItem('fx-lang') || 'en';
+    function t(key) {
+      var d = DICT[currentLang];
+      var fallback = DICT.en;
+      return (d && d[key]) || (fallback && fallback[key]) || key;
+    }
+
+    function updateLangUI() {
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var k = els[i].getAttribute('data-i18n');
+        if (k) els[i].innerHTML = t(k);
+      }
+      updateCurrencySelectors();
+    }
+
+    function updateLangBtn() {
+      var found = null;
+      for (var i = 0; i < LANGS.length; i++) { if (LANGS[i].code === currentLang) { found = LANGS[i]; break; } }
+      var label = document.getElementById('btn-lang-label');
+      if (label && found) label.textContent = found.label;
+      document.documentElement.lang = (currentLang === 'zh') ? 'zh-CN' : currentLang;
+    }
+
+    function buildLangMenu() {
+      var menu = document.getElementById('lang-menu');
+      if (!menu) return;
+      var html = '';
+      for (var i = 0; i < LANGS.length; i++) {
+        var L = LANGS[i];
+        var active = L.code === currentLang ? ' bg-cyan-50' : '';
+        html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3' + active + '" onclick="switchLang(\'' + L.code + '\');closeLangMenu()"><span class="text-[11px] font-bold text-gray-400 w-7">' + L.region + '</span><span class="text-slate-700">' + L.native + '</span></button>';
+      }
+      menu.innerHTML = html;
+    }
+
+    window.switchLang = function (lang) {
+      currentLang = lang;
+      localStorage.setItem('fx-lang', lang);
+      updateLangBtn();
+      buildLangMenu();
+      updateLangUI();
+      updateChartTitle();
+    };
+
+    window.toggleToolsMenu = function () { var m = document.getElementById('tools-menu'); if (m) m.classList.toggle('hidden'); };
+    window.toggleLangMenu = function () { buildLangMenu(); var m = document.getElementById('lang-menu'); if (m) m.classList.toggle('hidden'); };
+    window.closeLangMenu = function () { var m = document.getElementById('lang-menu'); if (m) m.classList.add('hidden'); };
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('lang-dropdown');
+      if (dd && !dd.contains(e.target)) { var m = document.getElementById('lang-menu'); if (m) m.classList.add('hidden'); }
+      var td = document.getElementById('tools-dropdown');
+      if (td && !td.contains(e.target)) { var tm = document.getElementById('tools-menu'); if (tm) tm.classList.add('hidden'); }
+    });
+
+    /* ================================================================
+     *  DARK MODE
+     * ================================================================ */
+    var IS_DARK = localStorage.getItem('fx-dark') === '1';
+    function applyTheme() { if (IS_DARK) document.documentElement.classList.add('dark'); }
+    window.toggleDark = function () { IS_DARK = !IS_DARK; localStorage.setItem('fx-dark', IS_DARK ? '1' : '0'); location.reload(); };
+    applyTheme();
+
+    /* ================================================================
+     *  CURRENCY DATA
+     * ================================================================ */
+    var CURRENCIES = [
+      // G10 Majors
+      { code:'USD', name:'US Dollar', symbol:'$', nameZh:'美元', nameJa:'米ドル', nameKo:'미국 달러' },
+      { code:'EUR', name:'Euro', symbol:'€', nameZh:'欧元', nameJa:'ユーロ', nameKo:'유로' },
+      { code:'GBP', name:'British Pound', symbol:'£', nameZh:'英镑', nameJa:'英ポンド', nameKo:'영국 파운드' },
+      { code:'JPY', name:'Japanese Yen', symbol:'¥', nameZh:'日元', nameJa:'日本円', nameKo:'일본 엔' },
+      { code:'AUD', name:'Australian Dollar', symbol:'A$', nameZh:'澳元', nameJa:'豪ドル', nameKo:'호주 달러' },
+      { code:'NZD', name:'New Zealand Dollar', symbol:'NZ$', nameZh:'新西兰元', nameJa:'NZドル', nameKo:'뉴질랜드 달러' },
+      { code:'CAD', name:'Canadian Dollar', symbol:'C$', nameZh:'加元', nameJa:'カナダドル', nameKo:'캐나다 달러' },
+      { code:'CHF', name:'Swiss Franc', symbol:'CHF', nameZh:'瑞士法郎', nameJa:'スイスフラン', nameKo:'스위스 프랑' },
+      // Asia
+      { code:'CNY', name:'Chinese Yuan', symbol:'¥', nameZh:'人民币', nameJa:'中国人民元', nameKo:'중국 위안' },
+      { code:'CNH', name:'Chinese Yuan Offshore', symbol:'¥', nameZh:'离岸人民币', nameJa:'オフショア人民元', nameKo:'역외 위안' },
+      { code:'HKD', name:'Hong Kong Dollar', symbol:'HK$', nameZh:'港币', nameJa:'香港ドル', nameKo:'홍콩 달러' },
+      { code:'TWD', name:'New Taiwan Dollar', symbol:'NT$', nameZh:'新台币', nameJa:'台湾ドル', nameKo:'대만 달러' },
+      { code:'SGD', name:'Singapore Dollar', symbol:'S$', nameZh:'新加坡元', nameJa:'シンガポールドル', nameKo:'싱가포르 달러' },
+      { code:'KRW', name:'Korean Won', symbol:'₩', nameZh:'韩元', nameJa:'韓国ウォン', nameKo:'대한민국 원' },
+      { code:'INR', name:'Indian Rupee', symbol:'₹', nameZh:'印度卢比', nameJa:'インドルピー', nameKo:'인도 루피' },
+      { code:'THB', name:'Thai Baht', symbol:'฿', nameZh:'泰铢', nameJa:'タイバーツ', nameKo:'태국 바트' },
+      { code:'MYR', name:'Malaysian Ringgit', symbol:'RM', nameZh:'马来西亚林吉特', nameJa:'マレーシアリンギ', nameKo:'말레이시아 링깃' },
+      { code:'IDR', name:'Indonesian Rupiah', symbol:'Rp', nameZh:'印尼盾', nameJa:'インドネシアルピア', nameKo:'인도네시아 루피아' },
+      { code:'PHP', name:'Philippine Peso', symbol:'₱', nameZh:'菲律宾比索', nameJa:'フィリピンペソ', nameKo:'필리핀 페소' },
+      { code:'VND', name:'Vietnamese Dong', symbol:'₫', nameZh:'越南盾', nameJa:'ベトナムドン', nameKo:'베트남 동' },
+      { code:'PKR', name:'Pakistani Rupee', symbol:'₨', nameZh:'巴基斯坦卢比', nameJa:'パキスタンルピー', nameKo:'파키스탄 루피' },
+      { code:'BDT', name:'Bangladeshi Taka', symbol:'৳', nameZh:'孟加拉塔卡', nameJa:'バングラデシュタカ', nameKo:'방글라데시 타카' },
+      { code:'LKR', name:'Sri Lankan Rupee', symbol:'₨', nameZh:'斯里兰卡卢比', nameJa:'スリランカルピー', nameKo:'스리랑카 루피' },
+      { code:'KZT', name:'Kazakhstani Tenge', symbol:'₸', nameZh:'哈萨克坚戈', nameJa:'カザフスタンテンゲ', nameKo:'카자흐스탄 텡게' },
+      // Europe
+      { code:'SEK', name:'Swedish Krona', symbol:'kr', nameZh:'瑞典克朗', nameJa:'スウェーデンクローナ', nameKo:'스웨덴 크로나' },
+      { code:'NOK', name:'Norwegian Krone', symbol:'kr', nameZh:'挪威克朗', nameJa:'ノルウェークローネ', nameKo:'노르웨이 크로네' },
+      { code:'DKK', name:'Danish Krone', symbol:'kr', nameZh:'丹麦克朗', nameJa:'デンマーククローネ', nameKo:'덴마크 크로네' },
+      { code:'PLN', name:'Polish Zloty', symbol:'zł', nameZh:'波兰兹罗提', nameJa:'ポーランドズウォティ', nameKo:'폴란드 즈워티' },
+      { code:'CZK', name:'Czech Koruna', symbol:'Kč', nameZh:'捷克克朗', nameJa:'チェココルナ', nameKo:'체코 코루나' },
+      { code:'HUF', name:'Hungarian Forint', symbol:'Ft', nameZh:'匈牙利福林', nameJa:'ハンガリーフォリント', nameKo:'헝가리 포린트' },
+      { code:'RON', name:'Romanian Leu', symbol:'lei', nameZh:'罗马尼亚列伊', nameJa:'ルーマニアレウ', nameKo:'루마니아 레우' },
+      { code:'BGN', name:'Bulgarian Lev', symbol:'лв', nameZh:'保加利亚列弗', nameJa:'ブルガリアレフ', nameKo:'불가리아 레프' },
+      { code:'ISK', name:'Icelandic Krona', symbol:'kr', nameZh:'冰岛克朗', nameJa:'アイスランドクローナ', nameKo:'아이슬란드 크로나' },
+      // Americas — North
+      { code:'MXN', name:'Mexican Peso', symbol:'Mex$', nameZh:'墨西哥比索', nameJa:'メキシコペソ', nameKo:'멕시코 페소' },
+      // Americas — Central
+      { code:'CRC', name:'Costa Rican Colón', symbol:'₡', nameZh:'哥斯达黎加科朗', nameJa:'コスタリカコロン', nameKo:'코스타리카 콜론' },
+      { code:'GTQ', name:'Guatemalan Quetzal', symbol:'Q', nameZh:'危地马拉格查尔', nameJa:'グアテマラケツァル', nameKo:'과테말라 케찰' },
+      { code:'HNL', name:'Honduran Lempira', symbol:'L', nameZh:'洪都拉斯伦皮拉', nameJa:'ホンジュラスレンピラ', nameKo:'온두라스 렘피라' },
+      { code:'NIO', name:'Nicaraguan Córdoba', symbol:'C$', nameZh:'尼加拉瓜科多巴', nameJa:'ニカラグアコルドバ', nameKo:'니카라과 코르도바' },
+      { code:'PAB', name:'Panamanian Balboa', symbol:'B/.', nameZh:'巴拿马巴波亚', nameJa:'パナマバルボア', nameKo:'파나마 발보아' },
+      { code:'BZD', name:'Belize Dollar', symbol:'BZ$', nameZh:'伯利兹元', nameJa:'ベリーズドル', nameKo:'벨리즈 달러' },
+      // Americas — South
+      { code:'BRL', name:'Brazilian Real', symbol:'R$', nameZh:'巴西雷亚尔', nameJa:'ブラジルレアル', nameKo:'브라질 헤알' },
+      { code:'ARS', name:'Argentine Peso', symbol:'AR$', nameZh:'阿根廷比索', nameJa:'アルゼンチンペソ', nameKo:'아르헨티나 페소' },
+      { code:'CLP', name:'Chilean Peso', symbol:'CLP$', nameZh:'智利比索', nameJa:'チリペソ', nameKo:'칠레 페소' },
+      { code:'COP', name:'Colombian Peso', symbol:'COL$', nameZh:'哥伦比亚比索', nameJa:'コロンビアペソ', nameKo:'콜롬비아 페소' },
+      { code:'PEN', name:'Peruvian Sol', symbol:'S/', nameZh:'秘鲁索尔', nameJa:'ペルーソル', nameKo:'페루 솔' },
+      { code:'UYU', name:'Uruguayan Peso', symbol:'$U', nameZh:'乌拉圭比索', nameJa:'ウルグアイペソ', nameKo:'우루과이 페소' },
+      { code:'PYG', name:'Paraguayan Guaraní', symbol:'₲', nameZh:'巴拉圭瓜拉尼', nameJa:'パラグアイグアラニ', nameKo:'파라과이 과라니' },
+      { code:'BOB', name:'Bolivian Boliviano', symbol:'Bs.', nameZh:'玻利维亚诺', nameJa:'ボリビアボリビアーノ', nameKo:'볼리비아 볼리비아노' },
+      { code:'VES', name:'Venezuelan Bolívar', symbol:'Bs.', nameZh:'委内瑞拉玻利瓦尔', nameJa:'ベネズエラボリバル', nameKo:'베네수엘라 볼리바르' },
+      // Middle East
+      { code:'AED', name:'UAE Dirham', symbol:'د.إ', nameZh:'阿联酋迪拉姆', nameJa:'UAEディルハム', nameKo:'UAE 디르함' },
+      { code:'SAR', name:'Saudi Riyal', symbol:'﷼', nameZh:'沙特里亚尔', nameJa:'サウジリヤル', nameKo:'사우디 리얄' },
+      { code:'QAR', name:'Qatari Riyal', symbol:'﷼', nameZh:'卡塔尔里亚尔', nameJa:'カタールリヤル', nameKo:'카타르 리얄' },
+      { code:'KWD', name:'Kuwaiti Dinar', symbol:'د.ك', nameZh:'科威特第纳尔', nameJa:'クウェートディナール', nameKo:'쿠웨이트 디나르' },
+      { code:'BHD', name:'Bahraini Dinar', symbol:'.د.ب', nameZh:'巴林第纳尔', nameJa:'バーレーンディナール', nameKo:'바레인 디나르' },
+      { code:'OMR', name:'Omani Rial', symbol:'﷼', nameZh:'阿曼里亚尔', nameJa:'オマーンリアル', nameKo:'오만 리알' },
+      { code:'ILS', name:'Israeli Shekel', symbol:'₪', nameZh:'以色列谢克尔', nameJa:'イスラエルシェケル', nameKo:'이스라엘 셰켈' },
+      { code:'JOD', name:'Jordanian Dinar', symbol:'د.ا', nameZh:'约旦第纳尔', nameJa:'ヨルダンディナール', nameKo:'요르단 디나르' },
+      // Africa
+      { code:'ZAR', name:'South African Rand', symbol:'R', nameZh:'南非兰特', nameJa:'南アフリカランド', nameKo:'남아공 랜드' },
+      { code:'EGP', name:'Egyptian Pound', symbol:'E£', nameZh:'埃及镑', nameJa:'エジプトポンド', nameKo:'이집트 파운드' },
+      { code:'NGN', name:'Nigerian Naira', symbol:'₦', nameZh:'尼日利亚奈拉', nameJa:'ナイジェリアナイラ', nameKo:'나이지리아 나이라' },
+      { code:'KES', name:'Kenyan Shilling', symbol:'KSh', nameZh:'肯尼亚先令', nameJa:'ケニアシリング', nameKo:'케냐 실링' },
+      { code:'MAD', name:'Moroccan Dirham', symbol:'د.م.', nameZh:'摩洛哥迪拉姆', nameJa:'モロッコディルハム', nameKo:'모로코 디르함' },
+      // Eastern Europe / CIS
+      { code:'RUB', name:'Russian Ruble', symbol:'₽', nameZh:'俄罗斯卢布', nameJa:'ロシアルーブル', nameKo:'러시아 루블' },
+      { code:'UAH', name:'Ukrainian Hryvnia', symbol:'₴', nameZh:'乌克兰格里夫纳', nameJa:'ウクライナフリヴニャ', nameKo:'우크라이나 흐리브냐' },
+      { code:'BYN', name:'Belarusian Ruble', symbol:'Br', nameZh:'白俄罗斯卢布', nameJa:'ベラルーシルーブル', nameKo:'벨라루스 루블' },
+      // Turkey & Caucasus
+      { code:'TRY', name:'Turkish Lira', symbol:'₺', nameZh:'土耳其里拉', nameJa:'トルコリラ', nameKo:'터키 리라' },
+      { code:'AZN', name:'Azerbaijani Manat', symbol:'₼', nameZh:'阿塞拜疆马纳特', nameJa:'アゼルバイジャンマナト', nameKo:'아제르바이잔 마나트' },
+      { code:'GEL', name:'Georgian Lari', symbol:'₾', nameZh:'格鲁吉亚拉里', nameJa:'ジョージアラリ', nameKo:'조지아 라리' },
+      { code:'AMD', name:'Armenian Dram', symbol:'֏', nameZh:'亚美尼亚德拉姆', nameJa:'アルメニアドラム', nameKo:'아르메니아 드람' },
+      // Central Asia
+      { code:'UZS', name:'Uzbekistani Som', symbol:'soʻm', nameZh:'乌兹别克斯坦索姆', nameJa:'ウズベキスタンスム', nameKo:'우즈베키스탄 숨' },
+      { code:'KGS', name:'Kyrgyzstani Som', symbol:'с', nameZh:'吉尔吉斯斯坦索姆', nameJa:'キルギスソム', nameKo:'키르기스스탄 솜' },
+      { code:'TJS', name:'Tajikistani Somoni', symbol:'SM', nameZh:'塔吉克斯坦索莫尼', nameJa:'タジキスタンソモニ', nameKo:'타지키스탄 소모니' },
+    ];
+
+    function getCurrencyName(c) {
+      if (currentLang === 'zh') return c.nameZh || c.name;
+      if (currentLang === 'ja') return c.nameJa || c.name;
+      if (currentLang === 'ko') return c.nameKo || c.name;
+      return c.name;
+    }
+
+    function updateCurrencySelectors() {
+      var fromEl = document.getElementById('from-currency');
+      var toEl = document.getElementById('to-currency');
+      var currentFrom = fromEl.value;
+      var currentTo = toEl.value;
+      fromEl.innerHTML = '';
+      toEl.innerHTML = '';
+      for (var i = 0; i < CURRENCIES.length; i++) {
+        var c = CURRENCIES[i];
+        var label = c.code + ' — ' + getCurrencyName(c);
+        fromEl.innerHTML += '<option value="' + c.code + '"' + (c.code === currentFrom ? ' selected' : '') + '>' + label + '</option>';
+        toEl.innerHTML += '<option value="' + c.code + '"' + (c.code === currentTo ? ' selected' : '') + '>' + label + '</option>';
+      }
+      if (!currentFrom) fromEl.value = 'USD';
+      if (!currentTo) toEl.value = 'CNY';
+    }
+
+    /* ================================================================
+     *  STATE
+     * ================================================================ */
+    var rateMatrix = null;    // { base, rates: { USD: 1, CNY: 7.2, ... } }
+    var apiSource = '';       // 'primary' | 'backup'
+    var chartInstance = null;
+    var histData = null;      // { dates: [...], rates: [...] }
+
+    /* ================================================================
+     *  API — FAILOVER FETCH
+     * ================================================================ */
+    function fetchWithTimeout(url, ms) {
+      ms = ms || 30000;
+      var ctrl = new AbortController();
+      var timer = setTimeout(function () { ctrl.abort(); }, ms);
+      return fetch(url, { signal: ctrl.signal }).finally(function () { clearTimeout(timer); });
+    }
+
+    async function fetchRates() {
+      var primary = 'https://open.er-api.com/v6/latest/USD';
+      var backup = 'https://api.frankfurter.app/latest?from=USD';
+
+      // Try primary
+      try {
+        var res = await fetchWithTimeout(primary, 8000);
+        if (res.ok) {
+          var data = await res.json();
+          if (data && data.rates) {
+            apiSource = 'primary';
+            return data;
+          }
+        }
+      } catch (_) {}
+
+      // Try backup
+      try {
+        var res2 = await fetchWithTimeout(backup, 8000);
+        if (res2.ok) {
+          var data2 = await res2.json();
+          if (data2 && data2.rates) {
+            apiSource = 'backup';
+            return data2;
+          }
+        }
+      } catch (_) {}
+
+      throw new Error('All API sources failed');
+    }
+
+    async function fetchHistory(from, to) {
+      var end = new Date();
+      var start = new Date(end.getTime() - 30 * 24 * 3600 * 1000);
+      var sY = start.getFullYear();
+      var sM = String(start.getMonth() + 1).padStart(2, '0');
+      var sD = String(start.getDate()).padStart(2, '0');
+      var eY = end.getFullYear();
+      var eM = String(end.getMonth() + 1).padStart(2, '0');
+      var eD = String(end.getDate()).padStart(2, '0');
+
+      var url = 'https://api.frankfurter.app/' + sY + '-' + sM + '-' + sD + '..' + eY + '-' + eM + '-' + eD + '?from=' + from + '&to=' + to;
+
+      try {
+        var res = await fetchWithTimeout(url, 10000);
+        if (res.ok) {
+          var data = await res.json();
+          if (data && data.rates) {
+            var dates = Object.keys(data.rates).sort();
+            var rates = dates.map(function (d) { return data.rates[d][to]; });
+            return { dates: dates, rates: rates };
+          }
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    /* ================================================================
+     *  CONVERSION LOGIC
+     * ================================================================ */
+    function convert(amount, from, to) {
+      if (!rateMatrix || !rateMatrix.rates) return null;
+      var fromRate = rateMatrix.rates[from];
+      var toRate = rateMatrix.rates[to];
+      if (!fromRate || !toRate) return null;
+      // Convert via USD base
+      var usdAmount = amount / fromRate;
+      return usdAmount * toRate;
+    }
+
+    function updateResult() {
+      var amount = parseFloat(document.getElementById('amount-input').value) || 0;
+      var from = document.getElementById('from-currency').value;
+      var to = document.getElementById('to-currency').value;
+      var result = convert(amount, from, to);
+
+      var resultEl = document.getElementById('result-value');
+      var resultCur = document.getElementById('result-currency');
+      var rateEl = document.getElementById('rate-display');
+
+      if (result !== null && rateMatrix) {
+        resultEl.textContent = result.toFixed(4);
+        resultCur.textContent = to;
+        var rate = convert(1, from, to);
+        rateEl.textContent = '1 ' + from + ' = ' + (rate !== null ? rate.toFixed(6) : '—') + ' ' + to;
+      } else {
+        resultEl.textContent = '—';
+        resultCur.textContent = '';
+        rateEl.textContent = '';
+      }
+    }
+
+    /* ================================================================
+     *  STATUS INDICATOR
+     * ================================================================ */
+    function setStatus(type) {
+      var dot = document.getElementById('status-dot');
+      var text = document.getElementById('status-text');
+      if (type === 'primary') {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        text.textContent = t('status.primary');
+      } else if (type === 'backup') {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+        text.textContent = t('status.backup');
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-red-400 animate-pulse';
+        text.textContent = t('status.error');
+      }
+    }
+
+    /* ================================================================
+     *  CHART
+     * ================================================================ */
+    function updateChartTitle() {
+      var from = document.getElementById('from-currency').value;
+      var to = document.getElementById('to-currency').value;
+      var title = t('chart.title').replace('{from}', from).replace('{to}', to);
+      var el = document.getElementById('chart-title-text');
+      if (el) el.textContent = title;
+    }
+
+    function renderChart(dates, rates, from, to) {
+      var ctx = document.getElementById('trend-chart').getContext('2d');
+
+      if (chartInstance) chartInstance.destroy();
+
+      // Format dates as MM-DD
+      var labels = dates.map(function (d) { return d.slice(5); });
+
+      // Compute min/max
+      var min = Math.min.apply(null, rates);
+      var max = Math.max.apply(null, rates);
+      document.getElementById('chart-max').textContent = max.toFixed(4);
+      document.getElementById('chart-min').textContent = min.toFixed(4);
+
+      var gradient = ctx.createLinearGradient(0, 0, 0, 280);
+      gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+      gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: from + '/' + to,
+            data: rates,
+            borderColor: '#10b981',
+            backgroundColor: gradient,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: '#10b981',
+            fill: true,
+            tension: 0.3,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#f1f5f9',
+              bodyColor: '#cbd5e1',
+              displayColors: false,
+              callbacks: {
+                label: function (ctx) { return from + '/' + to + ': ' + parseFloat(ctx.raw).toFixed(6); },
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#94a3b8', font: { size: 10 }, maxTicksLimit: 10 },
+            },
+            y: {
+              grid: { color: '#f1f5f9' },
+              ticks: { color: '#94a3b8', font: { size: 10 }, callback: function (v) { return v.toFixed(4); } },
+            },
+          },
+          interaction: { intersect: false, mode: 'index' },
+        },
+      });
+
+      updateChartTitle();
+    }
+
+    async function loadChart() {
+      var from = document.getElementById('from-currency').value;
+      var to = document.getElementById('to-currency').value;
+      var data = await fetchHistory(from, to);
+      if (data && data.dates.length > 0) {
+        histData = data;
+        renderChart(data.dates, data.rates, from, to);
+      } else {
+        document.getElementById('chart-max').textContent = '—';
+        document.getElementById('chart-min').textContent = '—';
+        var ctx = document.getElementById('trend-chart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = null;
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      }
+    }
+
+    /* ================================================================
+     *  EVENT HANDLERS
+     * ================================================================ */
+    window.onInputChanged = function () { updateResult(); };
+    window.onCurrencyChanged = function () {
+      updateResult();
+      loadChart();
+    };
+    window.swapCurrencies = function () {
+      var from = document.getElementById('from-currency');
+      var to = document.getElementById('to-currency');
+      var tmp = from.value;
+      from.value = to.value;
+      to.value = tmp;
+      updateResult();
+      loadChart();
+    };
+
+    /* ================================================================
+     *  INIT
+     * ================================================================ */
+    async function init() {
+      updateLangBtn();
+      buildLangMenu();
+      updateLangUI();
+
+      // Fetch rates
+      try {
+        rateMatrix = await fetchRates();
+        setStatus(apiSource);
+      } catch (e) {
+        setStatus('error');
+        console.error('[forex] Rate fetch failed:', e);
+      }
+
+      updateResult();
+      loadChart();
+
+      console.log('%c💱 Currency Converter ready %c| %cLang %c' + currentLang,
+        'font-weight:bold;', '', 'color:#10b981;', 'font-weight:bold;');
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+
+</body>
+</html>
