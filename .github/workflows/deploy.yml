@@ -41,7 +41,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Deploy Worker (clear old vars)
+      - name: Deploy to Cloudflare Pages
+        run: npx wrangler pages deploy public/ --project-name=linkozen --branch=main --commit-dirty=true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy Worker
         run: npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
