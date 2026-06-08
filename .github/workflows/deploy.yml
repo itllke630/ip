@@ -9,7 +9,7 @@ on:
 jobs:
   check_credentials:
     runs-on: ubuntu-latest
-    name: Check for Cloudflare Credentials
+    name: Check Credentials
     outputs:
       has_creds: ${{ steps.cf_creds.outputs.has_creds }}
     steps:
@@ -24,46 +24,19 @@ jobs:
             echo "has_creds=true" >> $GITHUB_OUTPUT
           fi
 
-  deploy:
+  # ═══════════════════════════════════════════════════════════════
+  #  Worker — 独立部署，与 Pages 并行
+  # ═══════════════════════════════════════════════════════════════
+  deploy-worker:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Deploy Worker
     needs: check_credentials
     if: needs.check_credentials.outputs.has_creds == 'true'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Create Pages project (if needed) & Deploy
-        run: |
-          echo "=== Creating Pages project (if not exists) ==="
-          create_resp=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"name":"linkozen","production_branch":"main"}')
-          echo "$create_resp" | jq '{success: .success, errors: .errors, name: .result.name}'
-
-          echo "=== Deploying Pages ==="
-          cd public && zip -r ../site.zip . && cd ..
-          deploy_resp=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/linkozen/deployments" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            -F "file=@site.zip")
-          echo "$deploy_resp" | jq '{success: .success, errors: .errors, url: .result.url}'
-          if echo "$deploy_resp" | jq -e '.success' > /dev/null; then
-            echo "✅ Pages deployed!"
-          else
-            echo "❌ Pages deploy FAILED"
-          fi
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm install
 
       - name: Deploy Worker
         run: npx wrangler deploy
@@ -81,40 +54,32 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Set Pages secrets and Deploy (via API)
-        run: |
-          echo "=== Setting secrets ==="
-          for secret in AD_TOP_HTML AD_160_HTML IPINFO_TOKEN ABUSEIPDB_TOKEN; do
-            val=$(printenv "$secret")
-            if [ -n "$val" ]; then
-              echo "Setting $secret (${#val} chars)..."
-              resp=$(curl -s -w "\n%{http_code}" -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/linkozen/secrets" \
-                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-                -H "Content-Type: application/json" \
-                -d "{\"name\": \"$secret\", \"text\": $(echo "$val" | jq -Rs .)}")
-              http_code=$(echo "$resp" | tail -1)
-              body=$(echo "$resp" | head -1)
-              echo "  HTTP $http_code: $body"
-            else
-              echo "WARNING: $secret is empty!"
-            fi
-          done
+  # ═══════════════════════════════════════════════════════════════
+  #  Pages — 独立部署，与 Worker 并行
+  # ═══════════════════════════════════════════════════════════════
+  deploy-pages:
+    runs-on: ubuntu-latest
+    name: Deploy Pages
+    needs: check_credentials
+    if: needs.check_credentials.outputs.has_creds == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm install
 
-          echo "=== Deploying Pages ==="
-          cd public && zip -r ../site.zip . && cd ..
-          deploy_resp=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/linkozen/deployments" \
-            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            -F "file=@site.zip")
-          echo "$deploy_resp" | jq '{success: .success, errors: .errors, url: .result.url}'
-          if echo "$deploy_resp" | jq -e '.success' > /dev/null; then
-            echo "Pages deployed!"
-          else
-            echo "Pages deploy FAILED — see errors above"
-          fi
+      - name: Deploy Pages
+        run: npx wrangler pages deploy public/ --project-name=linkozen --branch=main --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          AD_TOP_HTML: ${{ secrets.AD_TOP_HTML }}
-          AD_160_HTML: ${{ secrets.AD_160_HTML }}
-          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
-          ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
+
+      - name: Set Pages secrets
+        run: |
+          echo "${{ secrets.AD_TOP_HTML }}" | npx wrangler pages secret put AD_TOP_HTML --project-name=linkozen
+          echo "${{ secrets.AD_160_HTML }}" | npx wrangler pages secret put AD_160_HTML --project-name=linkozen
+          echo "${{ secrets.IPINFO_TOKEN }}" | npx wrangler pages secret put IPINFO_TOKEN --project-name=linkozen
+          echo "${{ secrets.ABUSEIPDB_TOKEN }}" | npx wrangler pages secret put ABUSEIPDB_TOKEN --project-name=linkozen
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
