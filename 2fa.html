@@ -37,17 +37,8 @@
     };
   </script>
 
-  <!-- QRCode.js — client-side QR generation (with fallback) -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-  <script>
-    // Fallback: if jsdelivr is blocked, try unpkg
-    if (typeof QRCode === 'undefined') {
-      var s = document.createElement('script');
-      s.src = 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';
-      s.onload = function() { console.log('[qr] Loaded from fallback CDN'); };
-      document.head.appendChild(s);
-    }
-  </script>
+  <!-- QRCode.js — local copy (v1.4.4) -->
+  <script src="qrcode.min.js"></script>
 
   <link rel="stylesheet" href="common.css" />
   <style>
@@ -339,7 +330,7 @@
         'generate.scan_hint':'Scan with any authenticator app',
         'generate.live_token':'Live Token','generate.copy_token':'Copy Token',
         'generate.show_uri':'Show raw <code class="font-mono">otpauth://</code> URI',
-        'generate.issuer':'2FA Tools','generate.account':'user@2fa.tools',
+        'generate.issuer':'LinkoZen','generate.account':'user@linkozen.com',
         'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. Your secrets never leave your browser.',
         'ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600','ad.728x90':'ADVERTISEMENT · 728×90','ad.160x600':'AD<br>160×600',
         'status.paste_first':'Please paste a secret or otpauth:// URI first.',
@@ -375,7 +366,7 @@
         'generate.scan_hint':'使用任何验证器应用扫描',
         'generate.live_token':'实时验证码','generate.copy_token':'复制验证码',
         'generate.show_uri':'显示原始 <code class="font-mono">otpauth://</code> 链接',
-        'generate.issuer':'2FA 工具','generate.account':'user@2fa.tools',
+        'generate.issuer':'2FA 工具','generate.account':'user@linkozen.com',
         'footer.powered':'由','footer.privacy':'无日志 · 无追踪 · 您的密钥绝不会离开浏览器。',
         'ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600','ad.728x90':'广告位 · 728×90','ad.160x600':'广告<br>160×600',
         'status.paste_first':'请先粘贴密钥或 otpauth:// 链接。',
@@ -411,7 +402,7 @@
         'generate.scan_hint':'任意の認証アプリでスキャン',
         'generate.live_token':'ライブトークン','generate.copy_token':'トークンをコピー',
         'generate.show_uri':'生の <code class="font-mono">otpauth://</code> URIを表示',
-        'generate.issuer':'2FAツール','generate.account':'user@2fa.tools',
+        'generate.issuer':'2FAツール','generate.account':'user@linkozen.com',
         'footer.powered':'提供','footer.privacy':'ログなし・追跡なし・秘密鍵がブラウザから出ることはありません。',
         'ad.zoneA':'広告 · 728×90','ad.zoneB':'広告<br/>160×600','ad.728x90':'広告 · 728×90','ad.160x600':'広告<br>160×600',
         'status.paste_first':'最初にシークレットまたはotpauth:// URIを貼り付けてください。',
@@ -447,7 +438,7 @@
         'generate.scan_hint':'인증 앱으로 스캔하세요',
         'generate.live_token':'실시간 토큰','generate.copy_token':'토큰 복사',
         'generate.show_uri':'원본 <code class="font-mono">otpauth://</code> URI 표시',
-        'generate.issuer':'2FA 도구','generate.account':'user@2fa.tools',
+        'generate.issuer':'2FA 도구','generate.account':'user@linkozen.com',
         'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음 · 비밀키는 브라우저를 떠나지 않습니다.',
         'ad.zoneA':'광고 · 728×90','ad.zoneB':'광고<br/>160×600','ad.728x90':'광고 · 728×90','ad.160x600':'광고<br>160×600',
         'status.paste_first':'먼저 비밀키 또는 otpauth:// URI를 붙여넣으세요.',
@@ -483,7 +474,7 @@
         'generate.scan_hint':'Scannez avec n\'importe quelle application d\'authentification',
         'generate.live_token':'Jeton en direct','generate.copy_token':'Copier jeton',
         'generate.show_uri':'Afficher l\'URI <code class="font-mono">otpauth://</code> brute',
-        'generate.issuer':'Outils 2FA','generate.account':'utilisateur@2fa.tools',
+        'generate.issuer':'Outils 2FA','generate.account':'utilisateur@linkozen.com',
         'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Vos secrets ne quittent jamais votre navigateur.',
         'ad.zoneA':'Publicité · 728×90','ad.zoneB':'Publicité<br/>160×600','ad.728x90':'PUBLICITÉ · 728×90','ad.160x600':'PUB<br>160×600',
         'status.paste_first':'Veuillez d\'abord coller un secret ou une URI otpauth://.',
@@ -519,7 +510,7 @@
         'generate.scan_hint':'Mit beliebiger Authenticator-App scannen',
         'generate.live_token':'Live-Token','generate.copy_token':'Token kopieren',
         'generate.show_uri':'Rohe <code class="font-mono">otpauth://</code>-URI anzeigen',
-        'generate.issuer':'2FA Tools','generate.account':'benutzer@2fa.tools',
+        'generate.issuer':'2FA Tools','generate.account':'benutzer@linkozen.com',
         'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Ihre Secrets verlassen nie Ihren Browser.',
         'ad.zoneA':'Werbung · 728×90','ad.zoneB':'Werbung<br/>160×600','ad.728x90':'WERBUNG · 728×90','ad.160x600':'WERBUNG<br>160×600',
         'status.paste_first':'Bitte zuerst ein Secret oder eine otpauth://-URI einfügen.',
@@ -555,7 +546,7 @@
         'generate.scan_hint':'Scansiona con qualsiasi app di autenticazione',
         'generate.live_token':'Token in tempo reale','generate.copy_token':'Copia token',
         'generate.show_uri':'Mostra URI <code class="font-mono">otpauth://</code> grezzo',
-        'generate.issuer':'Strumenti 2FA','generate.account':'utente@2fa.tools',
+        'generate.issuer':'Strumenti 2FA','generate.account':'utente@linkozen.com',
         'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. I tuoi secret non lasciano mai il browser.',
         'ad.zoneA':'Pubblicità · 728×90','ad.zoneB':'Pubblicità<br/>160×600','ad.728x90':'PUBBLICITÀ · 728×90','ad.160x600':'PUB<br>160×600',
         'status.paste_first':'Incolla prima un secret o un URI otpauth://.',
@@ -590,7 +581,7 @@
         'generate.scan_hint':'Escanee con cualquier aplicación de autenticación',
         'generate.live_token':'Token en Vivo','generate.copy_token':'Copiar Token',
         'generate.show_uri':'Mostrar URI <code class=\"font-mono\">otpauth://</code> sin procesar',
-        'generate.issuer':'2FA Herramientas','generate.account':'usuario@2fa.herramientas',
+        'generate.issuer':'2FA Herramientas','generate.account':'usuario@linkozen.com',
         'footer.powered':'Desarrollado por','footer.privacy':'Sin registros. Sin seguimiento. Sus secretos nunca abandonan su navegador.',
         'ad.zoneA':'Publicidad · 728×90','ad.zoneB':'Publicidad<br/>160×600',
         'status.paste_first':'Primero pegue un secreto o URI otpauth://.',
@@ -662,7 +653,7 @@
         'generate.scan_hint':'Отсканируйте любым приложением-аутентификатором',
         'generate.live_token':'Текущий токен','generate.copy_token':'Копировать токен',
         'generate.show_uri':'Показать исходный <code class="font-mono">otpauth://</code> URI',
-        'generate.issuer':'2FA Инструменты','generate.account':'user@2fa.tools',
+        'generate.issuer':'2FA Инструменты','generate.account':'user@linkozen.com',
         'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Ваши секреты никогда не покидают браузер.',
         'ad.zoneA':'Реклама · 728×90','ad.zoneB':'Реклама<br/>160×600','ad.728x90':'РЕКЛАМА · 728×90','ad.160x600':'РЕКЛАМА<br>160×600',
         'status.paste_first':'Сначала вставьте секрет или otpauth:// URI.',
@@ -698,7 +689,7 @@
         'generate.scan_hint':'Herhangi bir kimlik doğrulama uygulamasıyla tarayın',
         'generate.live_token':'Canlı Token','generate.copy_token':'Token Kopyala',
         'generate.show_uri':'Ham <code class="font-mono">otpauth://</code> URI\'sini göster',
-        'generate.issuer':'2FA Araçları','generate.account':'kullanici@2fa.tools',
+        'generate.issuer':'2FA Araçları','generate.account':'kullanici@linkozen.com',
         'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Anahtarlarınız asla tarayıcıdan çıkmaz.',
         'ad.zoneA':'Reklam · 728×90','ad.zoneB':'Reklam<br/>160×600','ad.728x90':'REKLAM · 728×90','ad.160x600':'REKLAM<br>160×600',
         'status.paste_first':'Lütfen önce bir anahtar veya otpauth:// URI\'si yapıştırın.',
@@ -734,7 +725,7 @@
         'generate.scan_hint':'使用任何驗證器應用程式掃描',
         'generate.live_token':'即時驗證碼','generate.copy_token':'複製驗證碼',
         'generate.show_uri':'顯示原始 <code class="font-mono">otpauth://</code> 連結',
-        'generate.issuer':'2FA 工具','generate.account':'user@2fa.tools',
+        'generate.issuer':'2FA 工具','generate.account':'user@linkozen.com',
         'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤 · 您的金鑰絕不會離開瀏覽器。',
         'ad.zoneA':'廣告 · 728×90','ad.zoneB':'廣告<br/>160×600','ad.728x90':'廣告 · 728×90','ad.160x600':'廣告<br>160×600',
         'status.paste_first':'請先貼上金鑰或 otpauth:// 連結。',

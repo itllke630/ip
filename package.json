@@ -4,5 +4,8 @@
   "private": true,
   "devDependencies": {
     "wrangler": "^3.60.0"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.3"
   }
 }
