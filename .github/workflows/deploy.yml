@@ -41,6 +41,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Debug — list all Pages projects
+        run: |
+          echo "=== Listing all Pages projects ==="
+          curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '.result[] | {name, subdomain}'
+          echo "=== End list ==="
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Deploy to Cloudflare Pages
         run: npx wrangler pages deploy public/ --project-name=linkozen --branch=main --commit-dirty=true
         env:
@@ -82,9 +91,3 @@ jobs:
           AD_160_HTML: ${{ secrets.AD_160_HTML }}
           IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
           ABUSEIPDB_TOKEN: ${{ secrets.ABUSEIPDB_TOKEN }}
-
-      - name: Deploy to Cloudflare Pages
-        run: npx wrangler pages deploy public/ --project-name=linkozen --branch=main --commit-dirty=true
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
