@@ -41,27 +41,26 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: List all Pages projects & accounts
+      - name: Create Pages project (if needed) & Deploy
         run: |
-          echo "=== Account ID: $CLOUDFLARE_ACCOUNT_ID ==="
-          echo "=== Token preview: ${CLOUDFLARE_API_TOKEN:0:10}... ==="
-          echo "=== Pages projects ==="
-          curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '{result_count: (.result | length), projects: [.result[]? | {name, subdomain}]}'
-          echo "=== Verify token ==="
-          curl -s "https://api.cloudflare.com/client/v4/user/tokens/verify" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '{status: .result.status, id: .result.id}'
-          echo "=== End ==="
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
-      - name: Deploy to Cloudflare Pages (via API)
-        run: |
-          # Zip the public/ directory and upload via API
-          cd public && zip -r ../site.zip . && cd ..
-          curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/linkozen/deployments" \
+          echo "=== Creating Pages project (if not exists) ==="
+          create_resp=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects" \
             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            -F "file=@site.zip" \
-            -F "branch=main" | jq '{success: .success, errors: .errors, id: .result.id, url: .result.url}'
+            -H "Content-Type: application/json" \
+            -d '{"name":"linkozen","production_branch":"main"}')
+          echo "$create_resp" | jq '{success: .success, errors: .errors, name: .result.name}'
+
+          echo "=== Deploying Pages ==="
+          cd public && zip -r ../site.zip . && cd ..
+          deploy_resp=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/linkozen/deployments" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -F "file=@site.zip")
+          echo "$deploy_resp" | jq '{success: .success, errors: .errors, url: .result.url}'
+          if echo "$deploy_resp" | jq -e '.success' > /dev/null; then
+            echo "✅ Pages deployed!"
+          else
+            echo "❌ Pages deploy FAILED"
+          fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -82,18 +81,36 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Set Pages secrets (via API)
+      - name: Set Pages secrets and Deploy (via API)
         run: |
+          echo "=== Setting secrets ==="
           for secret in AD_TOP_HTML AD_160_HTML IPINFO_TOKEN ABUSEIPDB_TOKEN; do
             val=$(printenv "$secret")
             if [ -n "$val" ]; then
-              echo "Setting $secret..."
-              curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/linkozen/secrets" \
+              echo "Setting $secret (${#val} chars)..."
+              resp=$(curl -s -w "\n%{http_code}" -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/linkozen/secrets" \
                 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
                 -H "Content-Type: application/json" \
-                -d "{\"name\": \"$secret\", \"text\": $(echo "$val" | jq -Rs .)}" | jq '.success'
+                -d "{\"name\": \"$secret\", \"text\": $(echo "$val" | jq -Rs .)}")
+              http_code=$(echo "$resp" | tail -1)
+              body=$(echo "$resp" | head -1)
+              echo "  HTTP $http_code: $body"
+            else
+              echo "WARNING: $secret is empty!"
             fi
           done
+
+          echo "=== Deploying Pages ==="
+          cd public && zip -r ../site.zip . && cd ..
+          deploy_resp=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/linkozen/deployments" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -F "file=@site.zip")
+          echo "$deploy_resp" | jq '{success: .success, errors: .errors, url: .result.url}'
+          if echo "$deploy_resp" | jq -e '.success' > /dev/null; then
+            echo "Pages deployed!"
+          else
+            echo "Pages deploy FAILED — see errors above"
+          fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
