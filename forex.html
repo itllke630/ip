@@ -625,32 +625,24 @@
     }
 
     async function fetchRates() {
-      // Primary: frankfurter.dev (reliable, open-source, CORS-enabled)
-      // Backup:  jsdelivr-hosted currency-api (globally cached CDN)
-      var primary = 'https://api.frankfurter.dev/latest?from=USD';
-      var backup  = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json';
+      // Primary: exchangerate-api (fast, CORS, no key needed)
+      // Backup:  open.er-api (same format, free tier)
+      var primary = 'https://api.exchangerate-api.com/v4/latest/USD';
+      var backup  = 'https://open.er-api.com/v6/latest/USD';
 
-      // Try primary
       try {
         var res = await fetchWithTimeout(primary, 8000);
         if (res.ok) {
           var data = await res.json();
-          if (data && data.rates) {
-            apiSource = 'primary';
-            return data;
-          }
+          if (data && data.rates) { apiSource = 'primary'; return data; }
         }
       } catch (_) {}
 
-      // Try backup — cdnavy-api uses different format: { usd: { eur: 0.92, ... } }
       try {
         var res2 = await fetchWithTimeout(backup, 8000);
         if (res2.ok) {
-          var raw = await res2.json();
-          if (raw && raw.usd) {
-            apiSource = 'backup';
-            return { base: 'USD', rates: raw.usd };
-          }
+          var data2 = await res2.json();
+          if (data2 && data2.rates) { apiSource = 'backup'; return data2; }
         }
       } catch (_) {}
 
@@ -658,28 +650,32 @@
     }
 
     async function fetchHistory(from, to) {
-      var end = new Date();
-      var start = new Date(end.getTime() - 30 * 24 * 3600 * 1000);
-      var sY = start.getFullYear();
-      var sM = String(start.getMonth() + 1).padStart(2, '0');
-      var sD = String(start.getDate()).padStart(2, '0');
-      var eY = end.getFullYear();
-      var eM = String(end.getMonth() + 1).padStart(2, '0');
-      var eD = String(end.getDate()).padStart(2, '0');
-
-      var url = 'https://api.frankfurter.dev/' + sY + '-' + sM + '-' + sD + '..' + eY + '-' + eM + '-' + eD + '?from=' + from + '&to=' + to;
-
-      try {
-        var res = await fetchWithTimeout(url, 10000);
-        if (res.ok) {
-          var data = await res.json();
-          if (data && data.rates) {
-            var dates = Object.keys(data.rates).sort();
-            var rates = dates.map(function (d) { return data.rates[d][to]; });
-            return { dates: dates, rates: rates };
-          }
-        }
-      } catch (_) {}
+      var dates = [], rates = [];
+      // Build 30 daily requests — all CDN-cached, parallel, extremely fast
+      var tasks = [];
+      for (var i = 29; i >= 0; i--) {
+        var d = new Date(Date.now() - i * 24 * 3600 * 1000);
+        var ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        var url = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@' + ds + '/v1/currencies/' + from.toLowerCase() + '.min.json';
+        tasks.push(
+          fetchWithTimeout(url, 5000)
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .catch(function () { return null; })
+            .then(function (data) {
+              if (data && data[from.toLowerCase()] && data[from.toLowerCase()][to.toLowerCase()] !== undefined) {
+                dates.push(ds);
+                rates.push(data[from.toLowerCase()][to.toLowerCase()]);
+              }
+            })
+        );
+      }
+      await Promise.allSettled(tasks);
+      if (dates.length >= 2) {
+        // Sort by date
+        var combined = dates.map(function (d, i) { return { date: d, rate: rates[i] }; });
+        combined.sort(function (a, b) { return a.date.localeCompare(b.date); });
+        return { dates: combined.map(function (c) { return c.date; }), rates: combined.map(function (c) { return c.rate; }) };
+      }
       return null;
     }
 
