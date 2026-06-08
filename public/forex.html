@@ -90,10 +90,34 @@
     </div>
   </header>
 
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px]
+                border-2 border-dashed border-slate-200 rounded-xl
+                flex items-center justify-center bg-white/60 text-xs text-slate-400
+                select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
+  </div>
+
   <!-- ================================================================== -->
   <!--  MAIN CONTENT                                                       -->
   <!-- ================================================================== -->
-  <main class="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container">
+        </div>
+      </aside>
+
+      <!-- CENTER COLUMN (8/12) -->
+      <div class="lg:col-span-8 space-y-5">
 
     <!-- ================================================================ -->
     <!--  INTRO                                                            -->
@@ -198,6 +222,17 @@
       </div>
     </section>
 
+      </div><!-- /center column -->
+
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container">
+        </div>
+      </aside>
+
+    </div><!-- /grid -->
   </main>
 
   <!-- ================================================================== -->
@@ -245,6 +280,7 @@
         'nav.home':'Home','nav.tools':'Tools',
         'nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.forex':'Currency Converter','nav.ai':'AI Avatar Generator',
         'intro.title':'Real-Time Currency Converter & Trends','intro.desc':'Multi-source failover live exchange rates. Instant local conversion. Built-in 30-day trend chart. Data loads in seconds.',
+        'ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600',
         'converter.title':'Live Currency Converter','converter.amount':'Amount','converter.from':'From','converter.to':'To','converter.result':'Converted Amount',
         'status.loading':'Loading rates…','status.primary':'Live (Primary)','status.backup':'Live (Backup)','status.error':'Offline — Retrying…',
         'chart.title':'{from}/{to} 30-Day Trend','chart.high':'High','chart.low':'Low',
@@ -260,7 +296,7 @@
         'nav.home':'首页','nav.tools':'工具',
         'nav.2fa':'2FA 工具','nav.ip':'IP 查询','nav.pass':'密码生成器','nav.text':'文本清洗器','nav.webp':'图片转换器','nav.ico':'ICO 图标生成器','nav.ai':'AI 头像生成器',
         'intro.title':'实时汇率换算与趋势','intro.desc':'多源容灾的实时公开市场汇率换算。内置近30天汇率波动趋势图表，数据秒级加载。',
-        'converter.title':'实时汇率换算','converter.amount':'金额','converter.from':'从','converter.to':'到','converter.result':'换算结果',
+        'ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600','converter.title':'实时汇率换算','converter.amount':'金额','converter.from':'从','converter.to':'到','converter.result':'换算结果',
         'status.loading':'加载汇率中…','status.primary':'在线 (主源)','status.backup':'在线 (备用)','status.error':'离线 — 重试中…',
         'chart.title':'{from}/{to} 近30天走势','chart.high':'最高','chart.low':'最低',
         'info.title':'关于此换算器',
@@ -305,7 +341,7 @@
         'nav.home':'Accueil','nav.tools':'Outils',
         'nav.2fa':'Outils 2FA','nav.ip':'Recherche IP','nav.pass':'Générateur MDP','nav.text':'Nettoyeur texte','nav.webp':'Convertisseur img','nav.ico':'Générateur ICO','nav.forex':'Convertisseur devise','nav.ai':'Générateur avatar IA',
         'intro.title':'Convertisseur de devises en temps réel','intro.desc':'Taux de change en direct avec basculement multi-sources. Conversion locale instantanée. Graphique de tendance 30 jours intégré.',
-        'converter.title':'Convertisseur en direct','converter.amount':'Montant','converter.from':'De','converter.to':'Vers','converter.result':'Montant converti',
+        'ad.zoneA':'Publicité · 728×90','ad.zoneB':'Publicité<br/>160×600','converter.title':'Convertisseur en direct','converter.amount':'Montant','converter.from':'De','converter.to':'Vers','converter.result':'Montant converti',
         'status.loading':'Chargement…','status.primary':'En ligne (Principal)','status.backup':'En ligne (Sauvegarde)','status.error':'Hors ligne…',
         'chart.title':'{from}/{to} Tendance 30 jours','chart.high':'Max','chart.low':'Min',
         'info.title':'À propos','info.p1':'<strong>Taux du marché en temps réel :</strong> Chaque calcul utilise les derniers taux de change issus d\'API financières publiques avec basculement automatique.','info.p2':'<strong>Conversion locale instantanée :</strong> Tous les calculs sont effectués localement dans votre navigateur.','info.p3':'<strong>Tendance 30 jours :</strong> Le graphique interactif montre les taux de clôture quotidiens des 30 derniers jours.','info.privacy':'<strong>Confidentialité :</strong> Tous les calculs sont effectués dans votre navigateur. Aucune donnée n\'est enregistrée.',
@@ -316,7 +352,7 @@
         'nav.home':'Startseite','nav.tools':'Werkzeuge',
         'nav.2fa':'2FA Tools','nav.ip':'IP-Abfrage','nav.pass':'Passwort-Generator','nav.text':'Textreiniger','nav.webp':'Bildkonverter','nav.ico':'ICO Generator','nav.forex':'Währungsrechner','nav.ai':'KI-Avatar-Generator',
         'intro.title':'Echtzeit-Währungsrechner','intro.desc':'Live-Wechselkurse mit Multi-Source-Failover. Sofortige lokale Umrechnung. Integriertes 30-Tage-Diagramm.',
-        'converter.title':'Live Währungsrechner','converter.amount':'Betrag','converter.from':'Von','converter.to':'Nach','converter.result':'Umgerechneter Betrag',
+        'ad.zoneA':'Werbung · 728×90','ad.zoneB':'Werbung<br/>160×600','converter.title':'Live Währungsrechner','converter.amount':'Betrag','converter.from':'Von','converter.to':'Nach','converter.result':'Umgerechneter Betrag',
         'status.loading':'Lade…','status.primary':'Online (Primär)','status.backup':'Online (Backup)','status.error':'Offline…',
         'chart.title':'{from}/{to} 30-Tage-Trend','chart.high':'Hoch','chart.low':'Tief',
         'info.title':'Über diesen Rechner','info.p1':'<strong>Echtzeit-Marktkurse:</strong> Jede Berechnung verwendet aktuelle Wechselkurse von öffentlichen Finanz-APIs mit automatischem Failover.','info.p2':'<strong>Sofortige lokale Umrechnung:</strong> Alle Berechnungen erfolgen lokal in Ihrem Browser.','info.p3':'<strong>30-Tage-Visualisierung:</strong> Das interaktive Diagramm zeigt die täglichen Schlusskurse der letzten 30 Tage.','info.privacy':'<strong>Datenschutz:</strong> Alle Berechnungen erfolgen in Ihrem Browser. Keine Daten werden gespeichert.',
@@ -327,7 +363,7 @@
         'nav.home':'Home','nav.tools':'Strumenti',
         'nav.2fa':'Strumenti 2FA','nav.ip':'Ricerca IP','nav.pass':'Generatore PW','nav.text':'Pulitore testo','nav.webp':'Convertitore img','nav.ico':'Generatore ICO','nav.forex':'Convertitore valuta','nav.ai':'Generatore avatar AI',
         'intro.title':'Convertitore di valuta in tempo reale','intro.desc':'Tassi di cambio live con failover multi-sorgente. Conversione locale istantanea. Grafico trend 30 giorni integrato.',
-        'converter.title':'Convertitore live','converter.amount':'Importo','converter.from':'Da','converter.to':'A','converter.result':'Importo convertito',
+        'ad.zoneA':'Pubblicità · 728×90','ad.zoneB':'Pubblicità<br/>160×600','converter.title':'Convertitore live','converter.amount':'Importo','converter.from':'Da','converter.to':'A','converter.result':'Importo convertito',
         'status.loading':'Caricamento…','status.primary':'Online (Primario)','status.backup':'Online (Backup)','status.error':'Offline…',
         'chart.title':'{from}/{to} Trend 30 giorni','chart.high':'Max','chart.low':'Min',
         'info.title':'Informazioni','info.p1':'<strong>Tassi di mercato in tempo reale:</strong> Ogni calcolo utilizza i tassi di cambio più recenti da API finanziarie pubbliche con failover automatico.','info.p2':'<strong>Conversione locale istantanea:</strong> Tutti i calcoli vengono eseguiti localmente nel browser.','info.p3':'<strong>Trend 30 giorni:</strong> Il grafico interattivo mostra i tassi di chiusura giornalieri degli ultimi 30 giorni.','info.privacy':'<strong>Privacy:</strong> Tutti i calcoli avvengono nel browser. Nessun dato viene registrato.',
@@ -338,7 +374,7 @@
         'nav.home':'Inicio','nav.tools':'Herramientas',
         'nav.2fa':'2FA Herramientas','nav.ip':'Búsqueda IP','nav.pass':'Generador de contraseñas','nav.text':'Limpiador texto','nav.webp':'Conversor imágenes','nav.ico':'Generador ICO','nav.forex':'Conversor divisas','nav.ai':'Generador avatares IA',
         'intro.title':'Conversor de divisas en tiempo real','intro.desc':'Tasas de cambio en vivo con conmutación por error multi-fuente. Conversión local instantánea. Gráfico de tendencia de 30 días.',
-        'converter.title':'Conversor en vivo','converter.amount':'Cantidad','converter.from':'De','converter.to':'A','converter.result':'Cantidad convertida',
+        'ad.zoneA':'Publicidad · 728×90','ad.zoneB':'Publicidad<br/>160×600','converter.title':'Conversor en vivo','converter.amount':'Cantidad','converter.from':'De','converter.to':'A','converter.result':'Cantidad convertida',
         'status.loading':'Cargando…','status.primary':'En línea (Principal)','status.backup':'En línea (Respaldo)','status.error':'Sin conexión…',
         'chart.title':'{from}/{to} Tendencia 30 días','chart.high':'Máx','chart.low':'Mín',
         'info.title':'Acerca de','info.p1':'<strong>Tasas de mercado en tiempo real:</strong> Cada cálculo utiliza las últimas tasas de cambio de APIs financieras públicas con conmutación automática.','info.p2':'<strong>Conversión local instantánea:</strong> Todos los cálculos se realizan localmente en su navegador.','info.p3':'<strong>Tendencia 30 días:</strong> El gráfico interactivo muestra las tasas de cierre diarias de los últimos 30 días.','info.privacy':'<strong>Privacidad:</strong> Todos los cálculos ocurren en su navegador. No se registran datos.',
@@ -349,7 +385,7 @@
         'nav.home':'Início','nav.tools':'Ferramentas',
         'nav.2fa':'2FA Ferramentas','nav.ip':'Busca IP','nav.pass':'Gerador de senhas','nav.text':'Limpador texto','nav.webp':'Conversor imagem','nav.ico':'Gerador ICO','nav.forex':'Conversor moeda','nav.ai':'Gerador avatar IA',
         'intro.title':'Conversor de moedas em tempo real','intro.desc':'Taxas de câmbio ao vivo com failover multi-fonte. Conversão local instantânea. Gráfico de tendência de 30 dias.',
-        'converter.title':'Conversor ao vivo','converter.amount':'Valor','converter.from':'De','converter.to':'Para','converter.result':'Valor convertido',
+        'ad.zoneA':'Publicidade · 728×90','ad.zoneB':'Publicidade<br/>160×600','converter.title':'Conversor ao vivo','converter.amount':'Valor','converter.from':'De','converter.to':'Para','converter.result':'Valor convertido',
         'status.loading':'Carregando…','status.primary':'Online (Principal)','status.backup':'Online (Backup)','status.error':'Offline…',
         'chart.title':'{from}/{to} Tendência 30 dias','chart.high':'Máx','chart.low':'Mín',
         'info.title':'Sobre','info.p1':'<strong>Taxas de mercado em tempo real:</strong> Cada cálculo usa as taxas de câmbio mais recentes de APIs financeiras públicas com failover automático.','info.p2':'<strong>Conversão local instantânea:</strong> Todos os cálculos são feitos localmente no seu navegador.','info.p3':'<strong>Tendência 30 dias:</strong> O gráfico interativo mostra as taxas de fechamento diárias dos últimos 30 dias.','info.privacy':'<strong>Privacidade:</strong> Todos os cálculos ocorrem no navegador. Nenhum dado é registrado.',
@@ -360,7 +396,7 @@
         'nav.home':'Главная','nav.tools':'Инструменты',
         'nav.2fa':'2FA Инструменты','nav.ip':'Поиск IP','nav.pass':'Генератор паролей','nav.text':'Очиститель текста','nav.webp':'Конвертер изображений','nav.ico':'Генератор ICO','nav.forex':'Конвертер валют','nav.ai':'Генератор аватаров',
         'intro.title':'Конвертер валют в реальном времени','intro.desc':'Живые курсы валют с автоматическим переключением источников. Мгновенная локальная конвертация. Встроенный график за 30 дней.',
-        'converter.title':'Живой конвертер','converter.amount':'Сумма','converter.from':'Из','converter.to':'В','converter.result':'Результат',
+        'ad.zoneA':'Реклама · 728×90','ad.zoneB':'Реклама<br/>160×600','converter.title':'Живой конвертер','converter.amount':'Сумма','converter.from':'Из','converter.to':'В','converter.result':'Результат',
         'status.loading':'Загрузка…','status.primary':'Онлайн (Основной)','status.backup':'Онлайн (Резерв)','status.error':'Офлайн…',
         'chart.title':'{from}/{to} График за 30 дней','chart.high':'Макс','chart.low':'Мин',
         'info.title':'О сервисе','info.p1':'<strong>Рыночные курсы в реальном времени:</strong> Каждый расчёт использует свежие курсы из публичных финансовых API с автоматическим переключением.','info.p2':'<strong>Мгновенная локальная конвертация:</strong> Все расчёты выполняются локально в вашем браузере.','info.p3':'<strong>График за 30 дней:</strong> Интерактивный график показывает ежедневные курсы закрытия за последние 30 дней.','info.privacy':'<strong>Конфиденциальность:</strong> Все расчёты происходят в браузере. Данные не сохраняются.',
@@ -371,7 +407,7 @@
         'nav.home':'Ana Sayfa','nav.tools':'Araçlar',
         'nav.2fa':'2FA Araçları','nav.ip':'IP Sorgulama','nav.pass':'Şifre Oluşturucu','nav.text':'Metin Temizleyici','nav.webp':'Görüntü Dönüştürücü','nav.ico':'ICO Oluşturucu','nav.forex':'Döviz Çevirici','nav.ai':'AI Avatar Oluşturucu',
         'intro.title':'Gerçek zamanlı döviz çevirici','intro.desc':'Çok kaynaklı yedeklemeli canlı döviz kurları. Anında yerel çevrim. Dahili 30 günlük trend grafiği.',
-        'converter.title':'Canlı Döviz Çevirici','converter.amount':'Tutar','converter.from':'Kaynak','converter.to':'Hedef','converter.result':'Çevrilen Tutar',
+        'ad.zoneA':'Reklam · 728×90','ad.zoneB':'Reklam<br/>160×600','converter.title':'Canlı Döviz Çevirici','converter.amount':'Tutar','converter.from':'Kaynak','converter.to':'Hedef','converter.result':'Çevrilen Tutar',
         'status.loading':'Yükleniyor…','status.primary':'Çevrimiçi (Birincil)','status.backup':'Çevrimiçi (Yedek)','status.error':'Çevrimdışı…',
         'chart.title':'{from}/{to} 30 Günlük Trend','chart.high':'En Yüksek','chart.low':'En Düşük',
         'info.title':'Hakkında','info.p1':'<strong>Gerçek zamanlı piyasa kurları:</strong> Her hesaplama, otomatik yedeklemeli genel finans API\'lerinden alınan en son döviz kurlarını kullanır.','info.p2':'<strong>Anında yerel çevrim:</strong> Tüm hesaplamalar tarayıcınızda yerel olarak yapılır.','info.p3':'<strong>30 günlük trend:</strong> Etkileşimli grafik, son 30 günün günlük kapanış kurlarını gösterir.','info.privacy':'<strong>Gizlilik:</strong> Tüm hesaplamalar tarayıcınızda yapılır. Hiçbir veri kaydedilmez.',
@@ -382,7 +418,7 @@
         'nav.home':'首頁','nav.tools':'工具',
         'nav.2fa':'2FA 工具','nav.ip':'IP 查詢','nav.pass':'密碼產生器','nav.text':'文字清洗器','nav.webp':'圖片轉換器','nav.ico':'ICO 圖示產生器','nav.forex':'匯率換算器','nav.ai':'AI 頭像產生器',
         'intro.title':'即時匯率換算與趨勢','intro.desc':'多源容災的即時公開市場匯率換算。內置近30天匯率波動趨勢圖表，資料秒級載入。',
-        'converter.title':'即時匯率換算','converter.amount':'金額','converter.from':'從','converter.to':'到','converter.result':'換算結果',
+        'ad.zoneA':'廣告 · 728×90','ad.zoneB':'廣告<br/>160×600','converter.title':'即時匯率換算','converter.amount':'金額','converter.from':'從','converter.to':'到','converter.result':'換算結果',
         'status.loading':'載入匯率中…','status.primary':'線上 (主源)','status.backup':'線上 (備用)','status.error':'離線 — 重試中…',
         'chart.title':'{from}/{to} 近30天走勢','chart.high':'最高','chart.low':'最低',
         'info.title':'關於此換算器',
@@ -589,8 +625,10 @@
     }
 
     async function fetchRates() {
-      var primary = 'https://open.er-api.com/v6/latest/USD';
-      var backup = 'https://api.frankfurter.app/latest?from=USD';
+      // Primary: frankfurter.dev (reliable, open-source, CORS-enabled)
+      // Backup:  jsdelivr-hosted currency-api (globally cached CDN)
+      var primary = 'https://api.frankfurter.dev/latest?from=USD';
+      var backup  = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json';
 
       // Try primary
       try {
@@ -604,14 +642,14 @@
         }
       } catch (_) {}
 
-      // Try backup
+      // Try backup — cdnavy-api uses different format: { usd: { eur: 0.92, ... } }
       try {
         var res2 = await fetchWithTimeout(backup, 8000);
         if (res2.ok) {
-          var data2 = await res2.json();
-          if (data2 && data2.rates) {
+          var raw = await res2.json();
+          if (raw && raw.usd) {
             apiSource = 'backup';
-            return data2;
+            return { base: 'USD', rates: raw.usd };
           }
         }
       } catch (_) {}
@@ -629,7 +667,7 @@
       var eM = String(end.getMonth() + 1).padStart(2, '0');
       var eD = String(end.getDate()).padStart(2, '0');
 
-      var url = 'https://api.frankfurter.app/' + sY + '-' + sM + '-' + sD + '..' + eY + '-' + eM + '-' + eD + '?from=' + from + '&to=' + to;
+      var url = 'https://api.frankfurter.dev/' + sY + '-' + sM + '-' + sD + '..' + eY + '-' + eM + '-' + eD + '?from=' + from + '&to=' + to;
 
       try {
         var res = await fetchWithTimeout(url, 10000);
@@ -811,6 +849,44 @@
       loadChart();
     };
 
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds() {
+      var left  = document.getElementById('ad-left-container');
+      var right = document.getElementById('ad-right-container');
+      var topEl = document.getElementById('ad-top-container');
+      var adTop = '', adSky = '';
+      try {
+        var res = await fetch('/api/ads');
+        if (res.ok) { var d = await res.json(); adTop = d.top || ''; adSky = d.sky || ''; }
+      } catch (_) {}
+      function fill(el, code, labelKey, isSide) {
+        if (!el) return;
+        var isPlaceholder = !code;
+        if (!isPlaceholder) {
+          if (isSide) { el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden'; }
+          else { el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto bg-white'; }
+          el.innerHTML = '';
+          if (isSide && el.parentElement) { el.parentElement.classList.remove('hidden'); el.parentElement.classList.add('lg:flex'); }
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('scrolling', 'no'); iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('marginwidth', '0'); iframe.setAttribute('marginheight', '0');
+          iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;overflow:hidden;';
+          iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation');
+          iframe.setAttribute('srcdoc', '<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style></head><body>' + code + '</body></html>');
+          el.appendChild(iframe);
+        } else {
+          el.innerHTML = '<span data-i18n="' + labelKey + '">Advertisement</span>';
+          if (el.className.indexOf('border-dashed') === -1) el.className += ' border-2 border-dashed border-slate-200';
+          if (isSide && el.parentElement) { el.parentElement.classList.remove('hidden'); el.parentElement.classList.add('lg:flex'); }
+        }
+        var els = el.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) { var k = els[i].getAttribute('data-i18n'); if (k) els[i].innerHTML = t(k); }
+      }
+      fill(left, adSky, 'ad.zoneB', true);
+      fill(right, adSky, 'ad.zoneB', true);
+      if (topEl) fill(topEl, adTop, 'ad.zoneA', false);
+    }
+
     /* ================================================================
      *  INIT
      * ================================================================ */
@@ -818,6 +894,8 @@
       updateLangBtn();
       buildLangMenu();
       updateLangUI();
+
+      renderAds();
 
       // Fetch rates
       try {
