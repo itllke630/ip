@@ -507,7 +507,7 @@
         'Vultr', 'DigitalOcean', 'Gcore', 'Amazon', 'Google',
         'Microsoft', 'Datacenter', 'Choopa', 'OvH', 'Linode',
       ],
-      webrtcTimeout: 3000,
+      webrtcTimeout: 30000,
       mapDefaultCenter: [20, 0],
       mapDefaultZoom: 2,
       mapFlyZoom: 14,
@@ -925,7 +925,7 @@
      * Returns { ip, ...geo } or throws.
      */
     async function fetchWithFallback(primary, fallbacks, label, timeoutMs) {
-      timeoutMs = timeoutMs || 3000;
+      timeoutMs = timeoutMs || 30000;
       // Normalise to array
       var fbList = fallbacks
         ? (Array.isArray(fallbacks) ? fallbacks : [fallbacks])
@@ -947,7 +947,7 @@
         // Try each fallback in order
         for (var i = 0; i < fbList.length; i++) {
           try {
-            var fbTimeout = Math.min(timeoutMs, 4000);
+            var fbTimeout = Math.min(timeoutMs, 30000);
             var res2 = await fetchWithTimeout(fbList[i], fbTimeout);
             if (!res2.ok) continue;
             // ipv6.icanhazip.com returns plain text — wrap it
@@ -983,7 +983,7 @@
 
     async function probeIPv6() {
       // IPv6 is often unavailable — shorter timeout
-      var data = await fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallbacks, 'IPv6', 4000);
+      var data = await fetchWithFallback(CFG.endpoints.v6, CFG.endpoints.v6Fallbacks, 'IPv6', 30000);
 
       // Backend signals IPv6 unsupported
       if (data && data.ipv6_unsupported) {
@@ -1254,7 +1254,7 @@
           if (isSide) {
             el.className = 'sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';
           } else {
-            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto';
+            el.className = 'w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto bg-white';
           }
           el.innerHTML = '';
           if (isSide && el.parentElement) {
@@ -1613,7 +1613,7 @@
     async function detectDNSLeak() {
       try {
         var id = 'ip-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-        var res = await fetchWithTimeout('https://bash.ws/dnsleak/test/' + id + '?json', 8000);
+        var res = await fetchWithTimeout('https://bash.ws/dnsleak/test/' + id + '?json', 30000);
         if (!res.ok) return null;
         var data = await res.json();
         // Count unique DNS servers
@@ -1625,7 +1625,7 @@
     /* ── IPinfo.io lookup (via proxy — token from Cloudflare env) ── */
     async function fetchIPinfo(ip) {
       try {
-        var res = await fetchWithTimeout('/api/ipinfo?ip=' + encodeURIComponent(ip), 15000);
+        var res = await fetchWithTimeout('/api/ipinfo?ip=' + encodeURIComponent(ip), 30000);
         if (!res.ok) { console.warn('[ip.linkozen] IPinfo proxy ' + res.status); return null; }
         return await res.json();
       } catch (e) { console.warn('[ip.linkozen] IPinfo failed: ' + (e.message||'')); return null; }
@@ -1634,7 +1634,7 @@
     /* ── AbuseIPDB lookup (via proxy — token from Cloudflare env) ── */
     async function fetchAbuseIPDB(ip) {
       try {
-        var res = await fetchWithTimeout('/api/abuseipdb?ip=' + encodeURIComponent(ip), 15000);
+        var res = await fetchWithTimeout('/api/abuseipdb?ip=' + encodeURIComponent(ip), 30000);
         if (!res.ok) { console.warn('[ip.linkozen] AbuseIPDB proxy ' + res.status); return null; }
         var data = await res.json();
         return data.data;
@@ -2063,7 +2063,7 @@
 
       if (enrichTarget && enrichTarget.ip) {
         try {
-          var geoRes = await fetchWithTimeout('https://ipapi.co/' + encodeURIComponent(enrichTarget.ip) + '/json/', 5000);
+          var geoRes = await fetchWithTimeout('https://ipapi.co/' + encodeURIComponent(enrichTarget.ip) + '/json/', 30000);
           if (geoRes.ok) {
             var geoJson = await geoRes.json();
             if (geoJson && !geoJson.error) {
