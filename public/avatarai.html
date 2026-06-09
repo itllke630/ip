@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AI Portrait Generator — create photorealistic ID photos or cartoon avatars with dual-stage AI pipeline." />
+  <meta name="description" content="AI Portrait Generator — create photorealistic ID photos or cartoon avatars." />
   <title>AI Portrait Generator — LinkoZen</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,14 +11,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['"Urbanist"','system-ui','-apple-system','sans-serif'],mono:['"JetBrains Mono"','"Cascadia Code"','ui-monospace','SFMono-Regular','monospace']},animation:{'fade-in':'fadeIn 0.4s ease-out','slide-up':'slideUp 0.35s ease-out'},keyframes:{fadeIn:{'0%':{opacity:'0'},'100%':{opacity:'1'}},slideUp:{'0%':{opacity:'0',transform:'translateY(12px)'},'100%':{opacity:'1',transform:'translateY(0)'}}}}}};</script>
   <link rel="stylesheet" href="common.css" />
-  <style>
-    details summary { cursor: pointer; list-style: none; }
-    details summary::-webkit-details-marker { display: none; }
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
-    .chip { cursor: pointer; transition: all 0.15s ease; user-select: none; }
-    .chip.selected { box-shadow: 0 0 0 2px #8b5cf6; border-color: #8b5cf6; background: #f5f3ff; color: #6d28d9; }
-    .style-cartoon .realistic-only { opacity: 0.35; pointer-events: none; }
-  </style>
+  <style>details summary{cursor:pointer;list-style:none}details summary::-webkit-details-marker{display:none}.feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem}.chip{cursor:pointer;transition:all .15s ease;user-select:none}.chip.selected{box-shadow:0 0 0 2px #8b5cf6;border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}.style-cartoon .realistic-only{opacity:.35;pointer-events:none}</style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
@@ -27,60 +20,63 @@
   <!-- ================================================================== -->
   <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">AI</div>
-        <div><h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">AI Portrait Generator</h1><p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Professional ID Photo Creator</p></div>
-      </div>
+      <div class="flex items-center gap-3"><div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">AI</div><div><h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">AI Portrait Generator</h1><p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Professional ID Photo Creator</p></div></div>
       <div class="flex items-center gap-2">
         <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg><span data-i18n="nav.home">Home</span></a>
         <div id="tools-dropdown" class="relative">
           <button id="btn-tools-toggle" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors" onclick="toggleToolsMenu()"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg><span data-i18n="nav.tools">Tools</span><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
           <div id="tools-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden">
-            <a href="2fa.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f510; <span data-i18n="nav.2fa">2FA Tools</span></a>
-            <a href="ip.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f310; <span data-i18n="nav.ip">IP Lookup</span></a>
-            <a href="pass.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f512; <span data-i18n="nav.pass">Password Generator</span></a>
-            <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f4dd; <span data-i18n="nav.text">Text Cleaner</span></a>
-            <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f5bc; <span data-i18n="nav.webp">Image Converter</span></a>
-            <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f3a8; <span data-i18n="nav.ico">ICO Icon Generator</span></a>
-            <a href="avatarai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x2728; <span data-i18n="nav.ai">AI Portrait Generator</span></a>
-            <a href="forex.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#x1f4b1; <span data-i18n="nav.forex">Currency Converter</span></a>
+            <a href="2fa.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔐 <span data-i18n="nav.2fa">2FA Tools</span></a>
+            <a href="ip.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🌐 <span data-i18n="nav.ip">IP Lookup</span></a>
+            <a href="pass.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔒 <span data-i18n="nav.pass">Password Generator</span></a>
+            <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">📝 <span data-i18n="nav.text">Text Cleaner</span></a>
+            <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🖼 <span data-i18n="nav.webp">Image Converter</span></a>
+            <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🎨 <span data-i18n="nav.ico">ICO Icon Generator</span></a>
+            <a href="avatarai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">✨ <span data-i18n="nav.ai">AI Portrait Generator</span></a>
+            <a href="forex.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">💱 <span data-i18n="nav.forex">Currency Converter</span></a>
           </div>
         </div>
         <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
         <div id="lang-dropdown" class="relative">
-          <button id="btn-lang-toggle" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm" onclick="toggleLangMenu()"><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span><svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <button id="btn-lang-toggle" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm" onclick="toggleLangMenu()"><svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="btn-lang-label" class="text-slate-700 font-medium">English</span><svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
           <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
         </div>
       </div>
     </div>
   </header>
 
+  <!-- ================================================================ -->
+  <!--  AD ZONE A  —  728×90 (Leaderboard)                               -->
+  <!-- ================================================================ -->
+  <div class="max-w-[728px] mx-auto mt-5">
+    <div id="ad-top-container" class="w-full h-[50px] md:h-[90px] border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none transition-colors hover:border-slate-300">
+      <span data-i18n="ad.zoneA">Advertisement · 728×90</span>
+    </div>
+  </div>
+
   <!-- ================================================================== -->
   <!--  MAIN CONTENT                                                       -->
   <!-- ================================================================== -->
-  <main class="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-5">
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- ============================================================ -->
+      <!--  LEFT AD  (160×600, lg only)                                  -->
+      <!-- ============================================================ -->
+      <aside id="ad-left" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-left-container"></div>
+      </aside>
+
+      <!-- CENTER COLUMN (8/12) -->
+      <div class="lg:col-span-8 space-y-5">
 
     <!-- API Key + Models -->
     <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
       <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4"><svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span data-i18n="auth.title">API Configuration</span> <span class="text-[10px] text-slate-400 font-normal">(<span data-i18n="auth.optional">optional — free tier works without key</span>)</span></h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div>
-          <label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="auth.key">API Key (optional)</label>
-          <input type="password" id="api-key" placeholder="sk_..." class="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-sm font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-shadow" oninput="onKeyChange()">
-        </div>
-        <div>
-          <label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="auth.imgModel">Image Model</label>
-          <select id="img-model" class="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-shadow">
-            <option value="flux">Flux Schnell</option><option value="turbo">Turbo</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="auth.translateModel">Translation Model</label>
-          <select id="translate-model" class="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-shadow">
-            <option value="openai">GPT-4o-mini</option><option value="deepseek">DeepSeek</option><option value="llama">Llama</option>
-          </select>
-        </div>
+        <div><label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="auth.key">API Key (optional)</label><input type="password" id="api-key" placeholder="sk_..." class="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-sm font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-shadow" oninput="onKeyChange()"></div>
+        <div><label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="auth.imgModel">Image Model</label><select id="img-model" class="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-shadow"><option value="flux">Flux Schnell</option><option value="turbo">Turbo</option></select></div>
+        <div><label class="text-[11px] font-medium text-slate-400 uppercase tracking-wider block mb-1.5" data-i18n="auth.translateModel">Translation Model</label><select id="translate-model" class="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-shadow"><option value="openai">GPT-4o-mini</option><option value="deepseek">DeepSeek</option><option value="llama">Llama</option></select></div>
       </div>
     </section>
 
@@ -88,253 +84,177 @@
     <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
       <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4"><svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><span data-i18n="style.title">Avatar Style</span></h2>
       <div class="flex gap-3">
-        <button onclick="setStyle('realistic')" id="btn-realistic" class="chip selected flex-1 p-4 rounded-xl border-2 border-violet-300 bg-violet-50 text-violet-700 font-semibold text-sm transition-all hover:border-violet-400"><span data-i18n="style.realistic">Photorealistic Portrait</span><p class="text-[11px] font-normal text-violet-500 mt-1">shot on 35mm lens, studio lighting</p></button>
-        <button onclick="setStyle('cartoon')" id="btn-cartoon" class="chip flex-1 p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-semibold text-sm transition-all hover:border-slate-300"><span data-i18n="style.cartoon">2D Cartoon Avatar</span><p class="text-[11px] font-normal text-slate-400 mt-1">anime style, flat shading, bold outlines</p></button>
+        <button onclick="setStyle('realistic')" id="btn-realistic" class="chip selected flex-1 p-4 rounded-xl border-2 border-violet-300 bg-violet-50 text-violet-700 font-semibold text-sm transition-all hover:border-violet-400"><span data-i18n="style.realistic">Photorealistic Portrait</span><p class="text-[11px] font-normal text-violet-500 mt-1">shot on 35mm lens</p></button>
+        <button onclick="setStyle('cartoon')" id="btn-cartoon" class="chip flex-1 p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-semibold text-sm transition-all hover:border-slate-300"><span data-i18n="style.cartoon">2D Cartoon Avatar</span><p class="text-[11px] font-normal text-slate-400 mt-1">anime style, flat shading</p></button>
       </div>
     </section>
 
     <!-- Feature Panels -->
     <div id="feature-panels" class="space-y-4">
-      <!-- Gender & Age -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.genderAge">Gender & Age</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="gender" data-val="man">&#x1f468; Male</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="gender" data-val="woman">&#x1f469; Female</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="gender" data-val="person">&#x1f9d1; Neutral</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="age" data-val="young adult">Young</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="age" data-val="middle-aged adult">Middle-aged</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="age" data-val="senior">Senior</button>
-        </div>
-        <div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('genderAge')">+ <span data-i18n="feat.addCustom">Add custom description</span></button></div>
-        <div id="custom-genderAge" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. 25-year-old professional woman"></div>
-      </details></section>
-      <!-- Face -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.face">Face Shape</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="face" data-val="oval face">Oval</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="face" data-val="round face">Round</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="face" data-val="square jaw">Square</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="face" data-val="V-shaped sharp chin face">V-Shaped</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="face" data-val="high cheekbones, chiseled facial features">Chiseled</button>
-        </div>
-        <div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('face')">+ <span data-i18n="feat.addCustom">Add custom description</span></button></div>
-        <div id="custom-face" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. delicate V-shaped face"></div>
-      </details></section>
-      <!-- Eyes -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.eyes">Eyes</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="eyes" data-val="symmetrical double eyelids">Double Eyelids</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="eyes" data-val="monolid eyes">Monolid</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="eyes" data-val="almond-shaped eyes">Almond</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="eyes" data-val="phoenix eyes">Phoenix</button>
-        </div>
-        <div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('eyes')">+ <span data-i18n="feat.addCustom">Add custom description</span></button></div>
-        <div id="custom-eyes" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. large expressive eyes"></div>
-      </details></section>
-      <!-- Eyebrows -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.eyebrows">Eyebrows</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="eyebrows" data-val="natural eyebrow arch">Natural Arch</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="eyebrows" data-val="fluffy texturized bushy eyebrows">Fluffy Bushy</button>
-        </div>
-      </details></section>
-      <!-- Skin -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.skin">Skin Tone</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="skin" data-val="warm ivory skin">Fair Ivory</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="skin" data-val="natural warm yellow skin tone">Warm Yellow</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="skin" data-val="natural tan skin">Natural Tan</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="skin" data-val="rich chocolate dark skin">Deep Chocolate</button>
-        </div>
-      </details></section>
-      <!-- Hair -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.hair">Hairstyle</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="hair" data-val="buzz cut">Buzz Cut</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="hair" data-val="neat side-parted hairstyle">Side Part</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="hair" data-val="slicked-back corporate hairstyle">Slicked Back</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="hair" data-val="neat ponytail with hair tucked behind ears">Ponytail</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="hair" data-val="straight shoulder-length hair">Shoulder-length</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="hair" data-val="bob cut">Bob Cut</button>
-        </div>
-        <div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('hair')">+ <span data-i18n="feat.addCustom">Add custom description</span></button></div>
-        <div id="custom-hair" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. French tousled wavy bob"></div>
-      </details></section>
-      <!-- Beard (realistic only) -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up realistic-only"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.beard">Facial Hair</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="beard" data-val="clean-shaven face">Clean-shaven</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="beard" data-val="subtle five o'clock shadow stubble">Stubble</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="beard" data-val="short neatly trimmed full beard">Trimmed Beard</button>
-        </div>
-      </details></section>
-      <!-- Clothing -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.clothing">Clothing</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip selected px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="clothing" data-val="professional dark blazer and a white collared shirt">Dark Blazer</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="clothing" data-val="casual white shirt">White Shirt</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="clothing" data-val="elegant black turtleneck">Black Turtleneck</button>
-        </div>
-      </details></section>
-      <!-- Glasses -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.glasses">Glasses</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip selected px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="glasses" data-val="no glasses">No Glasses</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="glasses" data-val="classic black-rimmed glasses">Black-rimmed</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="glasses" data-val="retro gold-wired round glasses">Gold Round</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="glasses" data-val="clear prescription glasses with subtle frame">Clear Rx</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="glasses" data-val="elegant silver half-rimmed glasses">Silver Half-rim</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="glasses" data-val="tortoiseshell frame glasses">Tortoiseshell</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="glasses" data-val="aviator glasses with clear lenses">Aviator</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="glasses" data-val="stylish dark sunglasses">Sunglasses</button>
-        </div>
-        <div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('glasses')">+ <span data-i18n="feat.addCustom">Add custom description</span></button></div>
-        <div id="custom-glasses" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. gold-wired round glasses with slight lens reflection"></div>
-      </details></section>
-      <!-- Accessories -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.accessories">Accessories</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip selected px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="accessories" data-val="no accessories">None</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="accessories" data-val="minimalist small silver stud earrings">Silver Studs</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="accessories" data-val="elegant small round pearl earrings">Pearls</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="accessories" data-val="small thin silver hoop earrings">Silver Hoops</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="accessories" data-val="minimalist geometric drop earrings">Geometric Drop</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="accessories" data-val="a very thin subtle silver chain necklace">Chain Necklace</button>
-        </div>
-      </details></section>
-      <!-- Marks -->
-      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="feat.marks">Facial Marks</span></summary>
-        <div class="feature-grid mt-2">
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="marks" data-val="small minimalist geometric tattoo on the left cheek">Tattoo</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="marks" data-val="tiny subtle mole under the right eye">Beauty Mole</button>
-          <button class="chip px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 hover:border-slate-300" data-key="marks" data-val="small faint scar on the left cheek">Faint Scar</button>
-        </div>
-      </details></section>
+      <!-- Each panel: chips have data-val (English, for API) and data-i18n-k (for display label) -->
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.genderAge">Gender & Age</span></summary><div class="feature-grid mt-2" data-feat="genderAge"></div><div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('genderAge')">+ <span data-i18n="f.addCustom">Add custom description</span></button></div><div id="custom-genderAge" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. 25-year-old professional woman"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.face">Face Shape</span></summary><div class="feature-grid mt-2" data-feat="face"></div><div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('face')">+ <span data-i18n="f.addCustom">Add custom description</span></button></div><div id="custom-face" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. delicate V-shaped face"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.eyes">Eyes</span></summary><div class="feature-grid mt-2" data-feat="eyes"></div><div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('eyes')">+ <span data-i18n="f.addCustom">Add custom description</span></button></div><div id="custom-eyes" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. large expressive eyes"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.eyebrows">Eyebrows</span></summary><div class="feature-grid mt-2" data-feat="eyebrows"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.skin">Skin Tone</span></summary><div class="feature-grid mt-2" data-feat="skin"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.hair">Hairstyle</span></summary><div class="feature-grid mt-2" data-feat="hair"></div><div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('hair')">+ <span data-i18n="f.addCustom">Add custom description</span></button></div><div id="custom-hair" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. French tousled wavy bob"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up realistic-only"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.beard">Facial Hair</span></summary><div class="feature-grid mt-2" data-feat="beard"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.clothing">Clothing</span></summary><div class="feature-grid mt-2" data-feat="clothing"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.glasses">Glasses</span></summary><div class="feature-grid mt-2" data-feat="glasses"></div><div class="mt-2"><button class="text-[11px] text-violet-500 hover:text-violet-600" onclick="toggleCustom('glasses')">+ <span data-i18n="f.addCustom">Add custom description</span></button></div><div id="custom-glasses" class="hidden mt-2"><input type="text" class="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400" placeholder="e.g. gold-wired round glasses"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.accessories">Accessories</span></summary><div class="feature-grid mt-2" data-feat="accessories"></div></details></section>
+      <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up"><details open><summary class="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3"><svg class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="f.marks">Facial Marks</span></summary><div class="feature-grid mt-2" data-feat="marks"></div></details></section>
     </div>
 
     <!-- Generate -->
     <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6 animate-slide-up">
       <button id="btn-generate" onclick="generate()" class="w-full rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 px-5 py-4 text-sm font-semibold text-white hover:from-violet-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-violet-400 active:scale-[0.98] transition-all shadow-md shadow-violet-500/20"><span data-i18n="gen.button">Generate Portrait</span></button>
       <div id="progress-area" class="hidden mt-4"><div class="flex items-center gap-3 p-3 rounded-xl bg-violet-50 border border-violet-200"><svg class="w-5 h-5 animate-spin text-violet-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><div><p id="progress-text" class="text-sm font-medium text-violet-700">Working…</p><p id="progress-sub" class="text-[11px] text-violet-500"></p></div></div></div>
-      <div id="result-area" class="hidden mt-4">
-        <div class="rounded-xl overflow-hidden border border-gray-200 bg-slate-100 flex items-center justify-center" style="min-height:300px"><img id="result-img" class="max-w-full h-auto" alt="Generated Portrait" /></div>
-        <div class="mt-3 flex flex-wrap gap-2">
-          <button onclick="downloadImage()" class="px-4 py-2 rounded-xl bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 transition-colors"><span data-i18n="gen.download">Download</span></button>
-          <button onclick="copyPrompt()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition-colors"><span data-i18n="gen.copyPrompt">Copy Prompt</span></button>
-        </div>
-        <details class="mt-3"><summary class="text-[11px] text-slate-400 cursor-pointer hover:text-slate-600" data-i18n="gen.showPrompt">Show assembled prompt</summary><code id="final-prompt" class="block mt-2 text-xs font-mono text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3 break-all whitespace-pre-wrap"></code></details>
-      </div>
+      <div id="result-area" class="hidden mt-4"><div class="rounded-xl overflow-hidden border border-gray-200 bg-slate-100 flex items-center justify-center" style="min-height:300px"><img id="result-img" class="max-w-full h-auto" alt="Generated" /></div><div class="mt-3 flex flex-wrap gap-2"><button onclick="downloadImage()" class="px-4 py-2 rounded-xl bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 transition-colors"><span data-i18n="gen.download">Download</span></button><button onclick="copyPrompt()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition-colors"><span data-i18n="gen.copyPrompt">Copy Prompt</span></button></div><details class="mt-3"><summary class="text-[11px] text-slate-400 cursor-pointer hover:text-slate-600" data-i18n="gen.showPrompt">Show assembled prompt</summary><code id="final-prompt" class="block mt-2 text-xs font-mono text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3 break-all whitespace-pre-wrap"></code></details></div>
     </section>
+
+      </div><!-- /center column -->
+
+      <!-- ============================================================ -->
+      <!--  RIGHT AD  (160×600, lg only)                                 -->
+      <!-- ============================================================ -->
+      <aside id="ad-right" class="hidden lg:flex flex-col items-center lg:col-span-2">
+        <div class="sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden flex items-center justify-center bg-white/60 text-xs text-slate-400 select-none" id="ad-right-container"></div>
+      </aside>
+
+    </div><!-- /grid -->
   </main>
 
   <footer class="border-t border-gray-200 bg-white py-5 mt-4"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500"><p><span data-i18n="footer.powered">Powered by</span> <a href="https://pollinations.ai" target="_blank" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 font-medium">Pollinations.ai</a> <span class="mx-1.5">·</span> <span data-i18n="footer.privacy">Free & open. API key stored locally.</span></p></div></footer>
 
   <script>
   (function(){'use strict';
+
+    /* ================================================================
+     *  FEATURE DEFINITIONS — data-val stays English (API), label uses i18n
+     * ================================================================ */
+    var FEATURES = {
+      genderAge: [
+        {v:'man',k:'f.male'},{v:'woman',k:'f.female'},{v:'person',k:'f.neutral'},
+        {v:'young adult',k:'f.young'},{v:'middle-aged adult',k:'f.middle'},{v:'senior',k:'f.senior'}
+      ],
+      face: [
+        {v:'oval face',k:'f.oval'},{v:'round face',k:'f.round'},{v:'square jaw',k:'f.square'},
+        {v:'V-shaped sharp chin face',k:'f.vshape'},{v:'high cheekbones, chiseled facial features',k:'f.chiseled'}
+      ],
+      eyes: [
+        {v:'symmetrical double eyelids',k:'f.doubleLid'},{v:'monolid eyes',k:'f.monolid'},
+        {v:'almond-shaped eyes',k:'f.almond'},{v:'phoenix eyes',k:'f.phoenix'}
+      ],
+      eyebrows: [
+        {v:'natural eyebrow arch',k:'f.naturalBrow'},{v:'fluffy texturized bushy eyebrows',k:'f.bushyBrow'}
+      ],
+      skin: [
+        {v:'warm ivory skin',k:'f.ivory'},{v:'natural warm yellow skin tone',k:'f.yellow'},
+        {v:'natural tan skin',k:'f.tan'},{v:'rich chocolate dark skin',k:'f.chocolate'}
+      ],
+      hair: [
+        {v:'buzz cut',k:'f.buzz'},{v:'neat side-parted hairstyle',k:'f.sidePart'},
+        {v:'slicked-back corporate hairstyle',k:'f.slicked'},{v:'neat ponytail with hair tucked behind ears',k:'f.ponytail'},
+        {v:'straight shoulder-length hair',k:'f.shoulder'},{v:'bob cut',k:'f.bob'}
+      ],
+      beard: [
+        {v:'clean-shaven face',k:'f.cleanShaven'},{v:"subtle five o'clock shadow stubble",k:'f.stubble'},
+        {v:'short neatly trimmed full beard',k:'f.trimBeard'}
+      ],
+      clothing: [
+        {v:'professional dark blazer and a white collared shirt',k:'f.darkBlazer'},
+        {v:'casual white shirt',k:'f.whiteShirt'},{v:'elegant black turtleneck',k:'f.turtleneck'}
+      ],
+      glasses: [
+        {v:'no glasses',k:'f.noGlasses'},{v:'classic black-rimmed glasses',k:'f.blackRim'},
+        {v:'retro gold-wired round glasses',k:'f.goldRound'},{v:'clear prescription glasses with subtle frame',k:'f.clearRx'},
+        {v:'elegant silver half-rimmed glasses',k:'f.silverHalf'},{v:'tortoiseshell frame glasses',k:'f.tortoise'},
+        {v:'aviator glasses with clear lenses',k:'f.aviator'},{v:'stylish dark sunglasses',k:'f.sunglasses'}
+      ],
+      accessories: [
+        {v:'no accessories',k:'f.noAcc'},{v:'minimalist small silver stud earrings',k:'f.silverStud'},
+        {v:'elegant small round pearl earrings',k:'f.pearl'},{v:'small thin silver hoop earrings',k:'f.silverHoop'},
+        {v:'minimalist geometric drop earrings',k:'f.geoDrop'},{v:'a very thin subtle silver chain necklace',k:'f.chainNeck'}
+      ],
+      marks: [
+        {v:'small minimalist geometric tattoo on the left cheek',k:'f.tattoo'},
+        {v:'tiny subtle mole under the right eye',k:'f.mole'},{v:'small faint scar on the left cheek',k:'f.scar'}
+      ]
+    };
+    var SINGLE_KEYS = ['gender','age','face','eyes','eyebrows','skin','hair','beard','clothing'];
+
+    /* ================================================================
+     *  STATE
+     * ================================================================ */
     var STYLE='realistic',selections={},lastImageUrl='',lastPrompt='';
     selections.clothing=['professional dark blazer and a white collared shirt'];
     selections.glasses=['no glasses'];selections.accessories=['no accessories'];
 
-    var IS_DARK=localStorage.getItem('ai-dark')==='1';if(IS_DARK)document.documentElement.classList.add('dark');
-    window.toggleDark=function(){IS_DARK=!IS_DARK;localStorage.setItem('ai-dark',IS_DARK?'1':'0');location.reload();};
-    window.toggleToolsMenu=function(){var m=document.getElementById('tools-menu');if(m)m.classList.toggle('hidden');};
-    document.addEventListener('click',function(e){var td=document.getElementById('tools-dropdown');if(td&&!td.contains(e.target)){var tm=document.getElementById('tools-menu');if(tm)tm.classList.add('hidden');}});
-
     /* ================================================================
-     *  i18n — 4 languages (en, zh, ja, ko)
+     *  i18n — 12 languages
      * ================================================================ */
-    var LANGS=[{code:'en',label:'English',native:'English',region:'US'},{code:'zh',label:'简体中文',native:'简体中文',region:'CN'},{code:'ja',label:'日本語',native:'日本語',region:'JP'},{code:'ko',label:'한국어',native:'한국어',region:'KR'}];
-    var DICT={en:{'app.title':'AI Portrait Generator','app.subtitle':'Professional ID Photo Creator','nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Portrait Generator','nav.forex':'Currency Converter','auth.title':'API Configuration','auth.optional':'optional — free tier works without key','auth.key':'API Key (optional)','auth.imgModel':'Image Model','auth.translateModel':'Translation Model','style.title':'Avatar Style','style.realistic':'Photorealistic Portrait','style.cartoon':'2D Cartoon Avatar','feat.genderAge':'Gender & Age','feat.face':'Face Shape','feat.eyes':'Eyes','feat.eyebrows':'Eyebrows','feat.skin':'Skin Tone','feat.hair':'Hairstyle','feat.beard':'Facial Hair','feat.clothing':'Clothing','feat.glasses':'Glasses','feat.accessories':'Accessories','feat.marks':'Facial Marks','feat.addCustom':'Add custom description','gen.button':'Generate Portrait','gen.download':'Download','gen.copyPrompt':'Copy Prompt','gen.showPrompt':'Show assembled prompt','footer.powered':'Powered by','footer.privacy':'Free & open. API key stored locally.'},
-      zh:{'app.title':'AI写真生成器','app.subtitle':'专业证件照制作工具','nav.home':'首页','nav.tools':'工具','nav.2fa':'2FA工具','nav.ip':'IP查询','nav.pass':'密码生成器','nav.text':'文本清洗','nav.webp':'图片转换','nav.ico':'ICO图标','nav.ai':'AI写真生成','nav.forex':'汇率换算','auth.title':'API配置','auth.optional':'可选 — 免费版无需Key','auth.key':'API Key（可选）','auth.imgModel':'图像模型','auth.translateModel':'翻译模型','style.title':'头像风格','style.realistic':'以假乱真真人照','style.cartoon':'2D平面卡通照','feat.genderAge':'性别与年龄','feat.face':'脸型','feat.eyes':'眼睛','feat.eyebrows':'眉毛','feat.skin':'肤色','feat.hair':'发型','feat.beard':'胡须','feat.clothing':'服装','feat.glasses':'眼镜','feat.accessories':'配饰','feat.marks':'面部痕迹','feat.addCustom':'添加自定义描述','gen.button':'生成写真','gen.download':'下载','gen.copyPrompt':'复制Prompt','gen.showPrompt':'查看完整Prompt','footer.powered':'技术支持','footer.privacy':'免费开源。API Key仅存储在本地。'},
-      ja:{'app.title':'AI写真生成','app.subtitle':'プロフェッショナル証明写真','nav.home':'ホーム','nav.tools':'ツール','nav.2fa':'2FAツール','nav.ip':'IP検索','nav.pass':'パスワード生成','nav.text':'テキスト整形','nav.webp':'画像変換','nav.ico':'ICO生成','nav.ai':'AI写真生成','nav.forex':'通貨換算','auth.title':'API設定','auth.optional':'オプション — 無料で利用可能','auth.key':'APIキー（任意）','auth.imgModel':'画像モデル','auth.translateModel':'翻訳モデル','style.title':'スタイル','style.realistic':'フォトリアル','style.cartoon':'2Dアニメ風','feat.genderAge':'性別・年齢','feat.face':'顔型','feat.eyes':'目','feat.eyebrows':'眉','feat.skin':'肌色','feat.hair':'髪型','feat.beard':'ひげ','feat.clothing':'服装','feat.glasses':'メガネ','feat.accessories':'アクセサリー','feat.marks':'顔の特徴','feat.addCustom':'カスタム追加','gen.button':'生成','gen.download':'ダウンロード','gen.copyPrompt':'Promptコピー','gen.showPrompt':'Prompt表示','footer.powered':'提供','footer.privacy':'無料＆オープン。APIキーはローカルのみ保存。'},
-      ko:{'app.title':'AI 포트레이트 생성기','app.subtitle':'전문 증명사진 제작','nav.home':'홈','nav.tools':'도구','nav.2fa':'2FA 도구','nav.ip':'IP 조회','nav.pass':'비밀번호 생성','nav.text':'텍스트 정리','nav.webp':'이미지 변환','nav.ico':'ICO 생성','nav.ai':'AI 포트레이트','nav.forex':'환율 변환','auth.title':'API 설정','auth.optional':'선택 — 무료 사용 가능','auth.key':'API 키 (선택)','auth.imgModel':'이미지 모델','auth.translateModel':'번역 모델','style.title':'스타일','style.realistic':'실사형','style.cartoon':'2D 만화형','feat.genderAge':'성별 및 연령','feat.face':'얼굴형','feat.eyes':'눈','feat.eyebrows':'눈썹','feat.skin':'피부톤','feat.hair':'헤어스타일','feat.beard':'수염','feat.clothing':'의상','feat.glasses':'안경','feat.accessories':'액세서리','feat.marks':'얼굴 표식','feat.addCustom':'사용자 정의 추가','gen.button':'생성하기','gen.download':'다운로드','gen.copyPrompt':'프롬프트 복사','gen.showPrompt':'프롬프트 보기','footer.powered':'제공','footer.privacy':'무료 & 오픈. API 키는 로컬에만 저장.'}};
+    var LANGS=[{code:'en',label:'English',native:'English',region:'US'},{code:'zh',label:'简体中文',native:'简体中文',region:'CN'},{code:'ja',label:'日本語',native:'日本語',region:'JP'},{code:'ko',label:'한국어',native:'한국어',region:'KR'},{code:'fr',label:'Français',native:'Français',region:'FR'},{code:'de',label:'Deutsch',native:'Deutsch',region:'DE'},{code:'it',label:'Italiano',native:'Italiano',region:'IT'},{code:'es',label:'Español',native:'Español',region:'ES'},{code:'pt',label:'Português',native:'Português',region:'PT'},{code:'ru',label:'Русский',native:'Русский',region:'RU'},{code:'tr',label:'Türkçe',native:'Türkçe',region:'TR'},{code:'zh-TW',label:'繁體中文',native:'繁體中文',region:'TW'}];
+    var DICT={en:{'app.title':'AI Portrait Generator','app.subtitle':'Professional ID Photo Creator','nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Portrait Generator','nav.forex':'Currency Converter','auth.title':'API Configuration','auth.optional':'optional — free tier works without key','auth.key':'API Key (optional)','auth.imgModel':'Image Model','auth.translateModel':'Translation Model','style.title':'Avatar Style','style.realistic':'Photorealistic Portrait','style.cartoon':'2D Cartoon Avatar','f.genderAge':'Gender & Age','f.face':'Face Shape','f.eyes':'Eyes','f.eyebrows':'Eyebrows','f.skin':'Skin Tone','f.hair':'Hairstyle','f.beard':'Facial Hair','f.clothing':'Clothing','f.glasses':'Glasses','f.accessories':'Accessories','f.marks':'Facial Marks','f.addCustom':'Add custom description','f.male':'Male','f.female':'Female','f.neutral':'Neutral','f.young':'Young','f.middle':'Middle-aged','f.senior':'Senior','f.oval':'Oval','f.round':'Round','f.square':'Square','f.vshape':'V-Shaped','f.chiseled':'Chiseled','f.doubleLid':'Double Eyelids','f.monolid':'Monolid','f.almond':'Almond','f.phoenix':'Phoenix','f.naturalBrow':'Natural Arch','f.bushyBrow':'Fluffy Bushy','f.ivory':'Fair Ivory','f.yellow':'Warm Yellow','f.tan':'Natural Tan','f.chocolate':'Deep Chocolate','f.buzz':'Buzz Cut','f.sidePart':'Side Part','f.slicked':'Slicked Back','f.ponytail':'Ponytail','f.shoulder':'Shoulder-Length','f.bob':'Bob Cut','f.cleanShaven':'Clean-shaven','f.stubble':'Stubble','f.trimBeard':'Trimmed Beard','f.darkBlazer':'Dark Blazer','f.whiteShirt':'White Shirt','f.turtleneck':'Black Turtleneck','f.noGlasses':'No Glasses','f.blackRim':'Black-Rimmed','f.goldRound':'Gold Round','f.clearRx':'Clear Rx','f.silverHalf':'Silver Half-Rim','f.tortoise':'Tortoiseshell','f.aviator':'Aviator','f.sunglasses':'Sunglasses','f.noAcc':'None','f.silverStud':'Silver Studs','f.pearl':'Pearls','f.silverHoop':'Silver Hoops','f.geoDrop':'Geometric Drop','f.chainNeck':'Chain Necklace','f.tattoo':'Geometric Tattoo','f.mole':'Beauty Mole','f.scar':'Faint Scar','gen.button':'Generate Portrait','gen.download':'Download','gen.copyPrompt':'Copy Prompt','gen.showPrompt':'Show Prompt','footer.powered':'Powered by','footer.privacy':'Free & open. API key stored locally.','ad.zoneA':'Advertisement · 728×90','ad.zoneB':'Advertisement<br/>160×600'},
+      zh:{'app.title':'AI写真生成器','app.subtitle':'专业证件照制作','nav.home':'首页','nav.tools':'工具','nav.2fa':'2FA工具','nav.ip':'IP查询','nav.pass':'密码生成器','nav.text':'文本清洗','nav.webp':'图片转换','nav.ico':'ICO图标','nav.ai':'AI写真生成','nav.forex':'汇率换算','auth.title':'API配置','auth.optional':'可选 — 免费版无需Key','auth.key':'API Key（可选）','auth.imgModel':'图像模型','auth.translateModel':'翻译模型','style.title':'头像风格','style.realistic':'以假乱真真人照','style.cartoon':'2D平面卡通照','f.genderAge':'性别与年龄','f.face':'脸型','f.eyes':'眼睛','f.eyebrows':'眉毛','f.skin':'肤色','f.hair':'发型','f.beard':'胡须','f.clothing':'服装','f.glasses':'眼镜','f.accessories':'配饰','f.marks':'面部痕迹','f.addCustom':'添加自定义描述','f.male':'男','f.female':'女','f.neutral':'中性','f.young':'年轻','f.middle':'中年','f.senior':'老年','f.oval':'鹅蛋脸','f.round':'圆脸','f.square':'方脸','f.vshape':'瓜子脸','f.chiseled':'超模脸','f.doubleLid':'双眼皮','f.monolid':'单眼皮','f.almond':'杏眼','f.phoenix':'丹凤眼','f.naturalBrow':'自然眉','f.bushyBrow':'野生毛流眉','f.ivory':'白皙','f.yellow':'亚洲黄','f.tan':'小麦色','f.chocolate':'深黑巧克力','f.buzz':'干练寸头','f.sidePart':'三七分','f.slicked':'商务背头','f.ponytail':'标准马尾','f.shoulder':'齐肩直发','f.bob':'波波头','f.cleanShaven':'面部白净','f.stubble':'成熟胡渣','f.trimBeard':'整齐络腮胡','f.darkBlazer':'深色西装','f.whiteShirt':'白衬衫','f.turtleneck':'黑色高领','f.noGlasses':'不戴眼镜','f.blackRim':'黑框眼镜','f.goldRound':'金丝圆框','f.clearRx':'透明近视镜','f.silverHalf':'银色半框','f.tortoise':'玳瑁镜框','f.aviator':'飞行员镜','f.sunglasses':'时尚墨镜','f.noAcc':'无配饰','f.silverStud':'银色耳钉','f.pearl':'珍珠耳钉','f.silverHoop':'细圆耳圈','f.geoDrop':'几何吊坠','f.chainNeck':'细银素链','f.tattoo':'几何纹身','f.mole':'精致浅痣','f.scar':'细小疤痕','gen.button':'生成写真','gen.download':'下载','gen.copyPrompt':'复制Prompt','gen.showPrompt':'查看Prompt','footer.powered':'技术支持','footer.privacy':'免费开源。API Key仅存储在本地。','ad.zoneA':'广告位 · 728×90','ad.zoneB':'广告位<br/>160×600'},
+      ja:{'app.title':'AI写真生成','app.subtitle':'プロ証明写真作成','nav.home':'ホーム','nav.tools':'ツール','nav.2fa':'2FAツール','nav.ip':'IP検索','nav.pass':'パスワード生成','nav.text':'テキスト整形','nav.webp':'画像変換','nav.ico':'ICO生成','nav.ai':'AI写真生成','nav.forex':'通貨換算','auth.title':'API設定','auth.optional':'オプション','auth.key':'APIキー(任意)','auth.imgModel':'画像モデル','auth.translateModel':'翻訳モデル','style.title':'スタイル','style.realistic':'フォトリアル','style.cartoon':'2Dアニメ風','f.genderAge':'性別・年齢','f.face':'顔型','f.eyes':'目','f.eyebrows':'眉','f.skin':'肌色','f.hair':'髪型','f.beard':'ひげ','f.clothing':'服装','f.glasses':'メガネ','f.accessories':'アクセサリー','f.marks':'顔の特徴','f.addCustom':'カスタム追加','f.male':'男性','f.female':'女性','f.neutral':'中性','f.young':'若年','f.middle':'中年','f.senior':'老年','f.oval':'卵型','f.round':'丸型','f.square':'四角','f.vshape':'V字型','f.chiseled':'彫刻的','f.doubleLid':'二重','f.monolid':'一重','f.almond':'アーモンド','f.phoenix':'フェニックス','f.naturalBrow':'ナチュラル','f.bushyBrow':'ふわふわ','f.ivory':'アイボリー','f.yellow':'イエロー','f.tan':'タン','f.chocolate':'チョコレート','f.buzz':'バズカット','f.sidePart':'サイドパート','f.slicked':'オールバック','f.ponytail':'ポニーテール','f.shoulder':'ショルダー','f.bob':'ボブ','f.cleanShaven':'剃りたて','f.stubble':'無精ひげ','f.trimBeard':'整えられた髭','f.darkBlazer':'ダークブレザー','f.whiteShirt':'白シャツ','f.turtleneck':'タートルネック','f.noGlasses':'眼鏡なし','f.blackRim':'黒縁','f.goldRound':'金縁丸','f.clearRx':'クリア','f.silverHalf':'銀ハーフ','f.tortoise':'べっ甲','f.aviator':'アビエイター','f.sunglasses':'サングラス','f.noAcc':'なし','f.silverStud':'銀スタッド','f.pearl':'パール','f.silverHoop':'銀フープ','f.geoDrop':'ジオメトリ','f.chainNeck':'チェーン','f.tattoo':'タトゥー','f.mole':'ほくろ','f.scar':'傷跡','gen.button':'生成','gen.download':'ダウンロード','gen.copyPrompt':'Promptコピー','gen.showPrompt':'Prompt表示','footer.powered':'提供','footer.privacy':'無料＆オープン。','ad.zoneA':'広告 · 728×90','ad.zoneB':'広告<br/>160×600'},
+      ko:{'app.title':'AI 포트레이트','app.subtitle':'전문 증명사진','nav.home':'홈','nav.tools':'도구','nav.2fa':'2FA도구','nav.ip':'IP조회','nav.pass':'비밀번호','nav.text':'텍스트','nav.webp':'이미지변환','nav.ico':'ICO생성','nav.ai':'AI포트레이트','nav.forex':'환율변환','auth.title':'API설정','auth.optional':'선택 — 무료 사용 가능','auth.key':'API키(선택)','auth.imgModel':'이미지 모델','auth.translateModel':'번역 모델','style.title':'스타일','style.realistic':'실사형','style.cartoon':'2D만화형','f.genderAge':'성별/연령','f.face':'얼굴형','f.eyes':'눈','f.eyebrows':'눈썹','f.skin':'피부톤','f.hair':'헤어','f.beard':'수염','f.clothing':'의상','f.glasses':'안경','f.accessories':'액세서리','f.marks':'표식','f.addCustom':'사용자 정의 추가','f.male':'남성','f.female':'여성','f.neutral':'중성','f.young':'젊음','f.middle':'중년','f.senior':'노년','f.oval':'계란형','f.round':'둥근형','f.square':'사각형','f.vshape':'V자형','f.chiseled':'조각형','f.doubleLid':'쌍꺼풀','f.monolid':'외꺼풀','f.almond':'아몬드','f.phoenix':'봉황','f.naturalBrow':'자연눈썹','f.bushyBrow':'풍성눈썹','f.ivory':'아이보리','f.yellow':'황색','f.tan':'태닝','f.chocolate':'초콜릿','f.buzz':'버즈컷','f.sidePart':'사이드파트','f.slicked':'올백','f.ponytail':'포니테일','f.shoulder':'어깨길이','f.bob':'보브','f.cleanShaven':'면도','f.stubble':'수염자국','f.trimBeard':'정리된턱수염','f.darkBlazer':'다크블레이저','f.whiteShirt':'흰셔츠','f.turtleneck':'터틀넥','f.noGlasses':'안경없음','f.blackRim':'검은테','f.goldRound':'금테원형','f.clearRx':'투명','f.silverHalf':'은반테','f.tortoise':'거북이','f.aviator':'비행사','f.sunglasses':'선글라스','f.noAcc':'없음','f.silverStud':'은스터드','f.pearl':'진주','f.silverHoop':'은후프','f.geoDrop':'기하학','f.chainNeck':'체인','f.tattoo':'타투','f.mole':'점','f.scar':'흉터','gen.button':'생성','gen.download':'다운로드','gen.copyPrompt':'프롬프트복사','gen.showPrompt':'프롬프트보기','footer.powered':'제공','footer.privacy':'무료&오픈.','ad.zoneA':'광고 · 728×90','ad.zoneB':'광고<br/>160×600'}};
+
     var currentLang=localStorage.getItem('ai-lang')||'en';
     function t(k){var d=DICT[currentLang];return(d&&d[k])||DICT.en[k]||k;}
-    function updateUI(){document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(k)el.innerHTML=t(k);});}
+
+    function updateUI(){document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(k)el.innerHTML=t(k);});renderAllChips();}
     function updateLangBtn(){var f=LANGS.find(function(L){return L.code===currentLang});var l=document.getElementById('btn-lang-label');if(l&&f)l.textContent=f.label;}
     function buildLangMenu(){var m=document.getElementById('lang-menu');if(!m)return;var h='';LANGS.forEach(function(L){var a=L.code===currentLang?' bg-cyan-50':'';h+='<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3'+a+'" onclick="switchLang(\''+L.code+'\')"><span class="text-[11px] font-bold text-gray-400 w-7">'+L.region+'</span><span class="text-slate-700">'+L.native+'</span></button>';});m.innerHTML=h;}
     window.switchLang=function(l){currentLang=l;localStorage.setItem('ai-lang',l);updateLangBtn();buildLangMenu();updateUI();};
     window.toggleLangMenu=function(){buildLangMenu();var m=document.getElementById('lang-menu');if(m)m.classList.toggle('hidden');};
 
     /* ================================================================
+     *  DARK MODE
+     * ================================================================ */
+    var IS_DARK=localStorage.getItem('ai-dark')==='1';if(IS_DARK)document.documentElement.classList.add('dark');
+    window.toggleDark=function(){IS_DARK=!IS_DARK;localStorage.setItem('ai-dark',IS_DARK?'1':'0');location.reload();};
+    window.toggleToolsMenu=function(){var m=document.getElementById('tools-menu');if(m)m.classList.toggle('hidden');};
+    document.addEventListener('click',function(e){var td=document.getElementById('tools-dropdown');if(td&&!td.contains(e.target)){var tm=document.getElementById('tools-menu');if(tm)tm.classList.add('hidden');}var dd=document.getElementById('lang-dropdown');if(dd&&!dd.contains(e.target)){var lm=document.getElementById('lang-menu');if(lm)lm.classList.add('hidden');}});
+
+    /* ── Render Ad slots ───────────────────────────────────────── */
+    async function renderAds(){var left=document.getElementById('ad-left-container'),right=document.getElementById('ad-right-container'),topEl=document.getElementById('ad-top-container');var adTop='',adSky='';try{var res=await fetch('/api/ads');if(res.ok){var d=await res.json();adTop=d.top||'';adSky=d.sky||'';}}catch(_){}function fill(el,code,labelKey,isSide){if(!el)return;var p=!code;if(!p){if(isSide)el.className='sticky top-24 w-[160px] h-[600px] rounded-xl overflow-hidden';else el.className='w-[728px] max-w-full h-[90px] rounded-xl overflow-hidden mx-auto bg-white';el.innerHTML='';if(isSide&&el.parentElement){el.parentElement.classList.remove('hidden');el.parentElement.classList.add('lg:flex');}var f=document.createElement('iframe');f.setAttribute('scrolling','no');f.setAttribute('frameborder','0');f.setAttribute('marginwidth','0');f.setAttribute('marginheight','0');f.style.cssText='width:100%;height:100%;border:none;display:block;overflow:hidden;';f.setAttribute('sandbox','allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation');f.setAttribute('srcdoc','<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;}</style></head><body>'+code+'</body></html>');el.appendChild(f);}else{el.innerHTML='<span data-i18n="'+labelKey+'">Advertisement</span>';if(el.className.indexOf('border-dashed')===-1)el.className+=' border-2 border-dashed border-slate-200';if(isSide&&el.parentElement){el.parentElement.classList.remove('hidden');el.parentElement.classList.add('lg:flex');}}var els=el.querySelectorAll('[data-i18n]');for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-i18n');if(k)els[i].innerHTML=t(k);}}fill(left,adSky,'ad.zoneB',true);fill(right,adSky,'ad.zoneB',true);if(topEl)fill(topEl,adTop,'ad.zoneA',false);}
+
+    /* ================================================================
+     *  RENDER FEATURE CHIPS (rebuilt on language switch)
+     * ================================================================ */
+    function renderAllChips(){Object.keys(FEATURES).forEach(function(feat){var el=document.querySelector('[data-feat="'+feat+'"]');if(!el)return;el.innerHTML='';FEATURES[feat].forEach(function(item){var isSel=selections[feat]&&selections[feat].indexOf(item.v)>-1;var cls='chip px-3 py-2 rounded-lg border text-xs transition-all '+(isSel?'selected border-violet-300 bg-violet-50 text-violet-700':'border-slate-200 bg-white text-slate-600 hover:border-slate-300');el.innerHTML+='<button class="'+cls+'" data-key="'+feat+'" data-val="'+item.v.replace(/"/g,'&quot;')+'">'+t(item.k)+'</button>';});});}
+
+    /* ================================================================
      *  API KEY
      * ================================================================ */
-    var apiKeyEl=document.getElementById('api-key');
-    apiKeyEl.value=localStorage.getItem('pollinations-key')||'';
+    var apiKeyEl=document.getElementById('api-key');apiKeyEl.value=localStorage.getItem('pollinations-key')||'';
     window.onKeyChange=function(){localStorage.setItem('pollinations-key',apiKeyEl.value);};
 
     /* ================================================================
      *  STYLE
      * ================================================================ */
-    window.setStyle=function(s){STYLE=s;
-      document.getElementById('btn-realistic').className=s==='realistic'?'chip selected flex-1 p-4 rounded-xl border-2 border-violet-300 bg-violet-50 text-violet-700 font-semibold text-sm transition-all':'chip flex-1 p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-semibold text-sm transition-all hover:border-slate-300';
-      document.getElementById('btn-cartoon').className=s==='cartoon'?'chip selected flex-1 p-4 rounded-xl border-2 border-violet-300 bg-violet-50 text-violet-700 font-semibold text-sm transition-all':'chip flex-1 p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-semibold text-sm transition-all hover:border-slate-300';
-      document.getElementById('feature-panels').className=s==='cartoon'?'space-y-4 style-cartoon':'space-y-4';};
+    window.setStyle=function(s){STYLE=s;document.getElementById('btn-realistic').className=s==='realistic'?'chip selected flex-1 p-4 rounded-xl border-2 border-violet-300 bg-violet-50 text-violet-700 font-semibold text-sm transition-all':'chip flex-1 p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-semibold text-sm transition-all hover:border-slate-300';document.getElementById('btn-cartoon').className=s==='cartoon'?'chip selected flex-1 p-4 rounded-xl border-2 border-violet-300 bg-violet-50 text-violet-700 font-semibold text-sm transition-all':'chip flex-1 p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-semibold text-sm transition-all hover:border-slate-300';document.getElementById('feature-panels').className=s==='cartoon'?'space-y-4 style-cartoon':'space-y-4';};
 
     /* ================================================================
-     *  CHIPS
+     *  CHIP CLICK — data-val is English, label is i18n
      * ================================================================ */
-    document.addEventListener('click',function(e){var chip=e.target.closest('.chip');if(!chip||!chip.dataset.key)return;var k=chip.dataset.key,v=chip.dataset.val;if(!selections[k])selections[k]=[];var idx=selections[k].indexOf(v);if(idx>-1){selections[k].splice(idx,1);chip.classList.remove('selected')}else{if(['gender','age','face','eyes','eyebrows','skin','hair','beard','clothing'].indexOf(k)>-1){selections[k]=[];chip.parentElement.querySelectorAll('.chip[data-key="'+k+'"]').forEach(function(s){s.classList.remove('selected')})}selections[k].push(v);chip.classList.add('selected')}});
+    document.addEventListener('click',function(e){var chip=e.target.closest('.chip');if(!chip||!chip.dataset.key)return;var k=chip.dataset.key,v=chip.dataset.val;if(!selections[k])selections[k]=[];var idx=selections[k].indexOf(v);if(idx>-1){selections[k].splice(idx,1);}else{if(SINGLE_KEYS.indexOf(k)>-1)selections[k]=[];selections[k].push(v);}renderAllChips();});
 
     window.toggleCustom=function(id){var el=document.getElementById('custom-'+id);if(el)el.classList.toggle('hidden');};
 
     /* ================================================================
-     *  API: Translate via Pollinations text API
+     *  API
      * ================================================================ */
-    async function translateInputs(texts){if(texts.length===0)return[];var model=document.getElementById('translate-model').value;var key=apiKeyEl.value;
-      var body={model:model,messages:[{role:'system',content:"You are a precise translator for AI image generation. Translate to concise English keywords. Return ONLY keywords separated by commas, no explanation."},{role:'user',content:texts.join(' | ')}],temperature:0.3,max_tokens:200};
-      var headers={'Content-Type':'application/json'};if(key)headers['Authorization']='Bearer '+key;
-      try{var res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:headers,body:JSON.stringify(body)});
-        if(res.ok){var d=await res.json();var t=d.choices&&d.choices[0]?d.choices[0].message.content.trim():'';if(t)return t.split(',').map(function(s){return s.trim()}).filter(Boolean);}
-      }catch(_){}
-      return texts;}
+    async function translateInputs(texts){if(texts.length===0)return[];var model=document.getElementById('translate-model').value;var key=apiKeyEl.value;var body={model:model,messages:[{role:'system',content:"You are a precise translator for AI image generation. Translate to concise English keywords. Return ONLY keywords separated by commas, no explanation."},{role:'user',content:texts.join(' | ')}],temperature:0.3};var headers={'Content-Type':'application/json'};if(key)headers['Authorization']='Bearer '+key;try{var res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:headers,body:JSON.stringify(body)});if(res.ok){var d=await res.json();var txt=d.choices&&d.choices[0]?d.choices[0].message.content.trim():'';if(txt)return txt.split(',').map(function(s){return s.trim();}).filter(Boolean);}}catch(_){}return texts;}
 
-    /* ================================================================
-     *  PROMPT ASSEMBLY
-     * ================================================================ */
-    function assemble(translated){
-      var gv=function(k){return selections[k]&&selections[k].length>0?selections[k]:[];};
-      var gender=gv('gender').join(', ')||'person',age=gv('age').join(', ')||'young adult',face=gv('face').join(', ')||'oval face';
-      var eyes=gv('eyes').join(', ')||'almond-shaped eyes, dark brown irises',eyebrows=gv('eyebrows').join(', ')||'natural eyebrow arch';
-      var skin=gv('skin').join(', ')||'warm ivory skin',hair=gv('hair').join(', '),beard=gv('beard').join(', ');
-      var clothing=gv('clothing').join(', ')||'professional dark blazer and a white collared shirt';
-      var glasses=gv('glasses').filter(function(v){return v!=='no glasses';});
-      var accessories=gv('accessories').filter(function(v){return v!=='no accessories';});
-      var marks=gv('marks').join(', ');
-      var cFace=(document.getElementById('custom-face').querySelector('input').value||'').trim();
-      var cEyes=(document.getElementById('custom-eyes').querySelector('input').value||'').trim();
-      var cHair=(document.getElementById('custom-hair').querySelector('input').value||'').trim();
-      var cGlasses=(document.getElementById('custom-glasses').querySelector('input').value||'').trim();
-      var cGA=(document.getElementById('custom-genderAge').querySelector('input').value||'').trim();
-      if(translated.length>0)cHair=cHair?cHair+', '+translated.join(', '):translated.join(', ');
-      var pd=[];pd.push(age+' '+gender);pd.push(face+(cFace?', '+cFace:''));if(cGA)pd.push(cGA);pd.push(eyebrows);pd.push(eyes+(cEyes?', '+cEyes:''));pd.push(skin);
-      if(hair||cHair)pd.push(hair+(cHair?(hair?', ':'')+cHair:''));if(STYLE==='realistic'&&beard)pd.push(beard);
-      if(glasses.length>0)pd.push(glasses.join(', '));if(cGlasses)pd.push(cGlasses);if(accessories.length>0)pd.push(accessories.join(', '));if(marks)pd.push(marks);
-      if(STYLE==='realistic')pd.push('with realistic skin texture, subtle pores and tiny imperfections');
-      if(STYLE==='realistic')return('A professional passport photo, frontal view, centered composition, shoulder-up shot. Of a '+pd.join(', ')+'. Neutral expression, subtle confident smile. Wearing a '+clothing+'. balanced frontal studio lighting, soft shadows, shot on 35mm lens, photorealistic, sharp focus on the face.').replace(/\s+/g,' ').trim();
-      return('A 2D vector illustration ID photo, anime style portrait, flat shading, clean line art. Of a '+pd.join(', ')+'. Neutral expression, subtle smile. Wearing a '+clothing+'. minimalist art style, bold outlines, soft color palette.').replace(/\s+/g,' ').trim();}
+    function assemble(translated){function gv(k){return selections[k]&&selections[k].length>0?selections[k]:[];}var gender=gv('genderAge').join(', ')||'person',age='';var face=gv('face').join(', ')||'oval face',eyes=gv('eyes').join(', ')||'almond-shaped eyes, dark brown irises',eyebrows=gv('eyebrows').join(', ')||'natural eyebrow arch',skin=gv('skin').join(', ')||'warm ivory skin';var hair=gv('hair').join(', '),beard=gv('beard').join(', '),clothing=gv('clothing').join(', ')||'professional dark blazer and a white collared shirt';var glasses=gv('glasses').filter(function(v){return v!=='no glasses';}),accessories=gv('accessories').filter(function(v){return v!=='no accessories';}),marks=gv('marks').join(', ');var cFace=(document.getElementById('custom-face').querySelector('input').value||'').trim(),cEyes=(document.getElementById('custom-eyes').querySelector('input').value||'').trim(),cHair=(document.getElementById('custom-hair').querySelector('input').value||'').trim(),cGlasses=(document.getElementById('custom-glasses').querySelector('input').value||'').trim(),cGA=(document.getElementById('custom-genderAge').querySelector('input').value||'').trim();if(translated.length>0)cHair=cHair?cHair+', '+translated.join(', '):translated.join(', ');var pd=[];if(cGA)pd.push(cGA);else pd.push(gender);pd.push(face+(cFace?', '+cFace:''));pd.push(eyebrows);pd.push(eyes+(cEyes?', '+cEyes:''));pd.push(skin);if(hair||cHair)pd.push(hair+(cHair?(hair?', ':'')+cHair:''));if(STYLE==='realistic'&&beard)pd.push(beard);if(glasses.length>0)pd.push(glasses.join(', '));if(cGlasses)pd.push(cGlasses);if(accessories.length>0)pd.push(accessories.join(', '));if(marks)pd.push(marks);if(STYLE==='realistic')pd.push('with realistic skin texture, subtle pores and tiny imperfections');if(STYLE==='realistic')return('A professional passport photo, frontal view, centered composition, shoulder-up shot. Of a '+pd.join(', ')+'. Neutral expression, subtle confident smile. Wearing a '+clothing+'. balanced frontal studio lighting, soft shadows, shot on 35mm lens, photorealistic, sharp focus on the face.').replace(/\s+/g,' ').trim();return('A 2D vector illustration ID photo, anime style portrait, flat shading, clean line art. Of a '+pd.join(', ')+'. Neutral expression, subtle smile. Wearing a '+clothing+'. minimalist art style, bold outlines, soft color palette.').replace(/\s+/g,' ').trim();}
 
-    /* ================================================================
-     *  GENERATE — Pollinations.ai free image API
-     * ================================================================ */
-    window.generate=async function(){var btn=document.getElementById('btn-generate'),pa=document.getElementById('progress-area'),ra=document.getElementById('result-area'),pt=document.getElementById('progress-text'),ps=document.getElementById('progress-sub');
-      btn.disabled=true;pa.classList.remove('hidden');ra.classList.add('hidden');
-      try{var ct=getCustomTexts(),tr=[];if(ct.length>0){pt.textContent='Translating…';ps.textContent=ct.length+' input(s)';tr=await translateInputs(ct);if(tr.length>0)ps.textContent='Translated: '+tr.slice(0,3).join(', ')+(tr.length>3?'…':'');}
-        pt.textContent='Assembling prompt…';lastPrompt=assemble(tr);ps.textContent='Chars: '+lastPrompt.length;
-        pt.textContent='Generating…';ps.textContent='Model: '+document.getElementById('img-model').value;
-        var model=document.getElementById('img-model').value;var key=apiKeyEl.value;
-        var url='https://image.pollinations.ai/prompt/'+encodeURIComponent(lastPrompt)+'?model='+model+'&nologo=true&width=768&height=1024'+(key?'&key='+key:'');
-        lastImageUrl=url;document.getElementById('result-img').src=url;document.getElementById('final-prompt').textContent=lastPrompt;ra.classList.remove('hidden');
-      }catch(e){console.error(e);alert('Generation failed: '+(e.message||'Unknown error'));}
-      pa.classList.add('hidden');btn.disabled=false;};
-
-    function getCustomTexts(){var r=[];document.querySelectorAll('[id^="custom-"] input').forEach(function(i){var v=i.value.trim();if(v)r.push(v);});return r;}
-
+    window.generate=async function(){var btn=document.getElementById('btn-generate'),pa=document.getElementById('progress-area'),ra=document.getElementById('result-area'),pt=document.getElementById('progress-text'),ps=document.getElementById('progress-sub');btn.disabled=true;pa.classList.remove('hidden');ra.classList.add('hidden');try{var ct=[];document.querySelectorAll('[id^="custom-"] input').forEach(function(i){var v=i.value.trim();if(v)ct.push(v);});var tr=[];if(ct.length>0){pt.textContent='Translating…';ps.textContent=ct.length+' input(s)';tr=await translateInputs(ct);}pt.textContent='Assembling prompt…';lastPrompt=assemble(tr);ps.textContent='Chars: '+lastPrompt.length;pt.textContent='Generating…';var key=apiKeyEl.value;var url='https://image.pollinations.ai/prompt/'+encodeURIComponent(lastPrompt)+'?model='+document.getElementById('img-model').value+'&nologo=true&width=768&height=1024'+(key?'&key='+key:'');lastImageUrl=url;document.getElementById('result-img').src=url;document.getElementById('final-prompt').textContent=lastPrompt;ra.classList.remove('hidden');}catch(e){console.error(e);alert('Failed: '+(e.message||'Unknown error'));}pa.classList.add('hidden');btn.disabled=false;};
     window.downloadImage=function(){if(!lastImageUrl)return;var a=document.createElement('a');a.href=lastImageUrl;a.download='portrait-'+Date.now()+'.jpg';a.click();};
-    window.copyPrompt=function(){if(!lastPrompt)return;navigator.clipboard.writeText(lastPrompt).then(function(){var b=document.querySelectorAll('button');b.forEach(function(btn){if(btn.textContent.indexOf('Copy Prompt')>-1){btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy Prompt';},1500)}});});};
+    window.copyPrompt=function(){if(!lastPrompt)return;navigator.clipboard.writeText(lastPrompt);};
 
     /* INIT */
-    updateLangBtn();buildLangMenu();updateUI();
+    updateLangBtn();buildLangMenu();updateUI();renderAds();
     console.log('%c🎨 AI Portrait Generator ready','font-weight:bold;');
   })();
   </script>
