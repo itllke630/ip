@@ -232,7 +232,7 @@
     function updateGenBtn(){document.getElementById('btn-generate').disabled=!apiKeyEl.value.trim();}
     updateGenBtn();
     function fillSelect(selId, url, defaultOpts){var sel=document.getElementById(selId);var key=apiKeyEl.value.trim();if(!key){sel.innerHTML=defaultOpts;return;}sel.innerHTML='<option value="">Loading…</option>';fetch(url,{headers:{'Authorization':'Bearer '+key}}).then(function(r){return r.ok?r.json():null;}).then(function(models){if(models&&models.length>0){sel.innerHTML='';models.forEach(function(m){var name=typeof m==='string'?m:(m.name||m.id||m);var label=name;if(m.description)label=name+' ('+m.description.slice(0,30)+')';sel.innerHTML+='<option value="'+name+'">'+label+'</option>';});}else{sel.innerHTML=defaultOpts;}}).catch(function(){sel.innerHTML=defaultOpts;});}
-    function fetchModels(){fillSelect('img-model','https://image.pollinations.ai/models','<option value="sana">sana</option>');fillSelect('translate-model','https://text.pollinations.ai/models','<option value="openai">openai (GPT-OSS)</option>');}
+    function fetchModels(){fillSelect('img-model','https://gen.pollinations.ai/image/models','<option value="sana">sana</option>');fillSelect('translate-model','https://gen.pollinations.ai/text/models','<option value="openai">openai (GPT-OSS)</option>');}
     fetchModels();
 
     /* ================================================================
