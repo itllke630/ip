@@ -73,7 +73,7 @@
             <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">📝 <span data-i18n="nav.text">Text Cleaner</span></a>
             <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🖼 <span data-i18n="nav.webp">Image Converter</span></a>
             <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🎨 <span data-i18n="nav.ico">ICO Icon Generator</span></a>
-            <a href="avatarai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">✨ <span data-i18n="nav.ai">AI Portrait Generator</span></a>
+            <a href="avatarai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">✨ <span data-i18n="nav.ai">AI Avatar Generator</span></a>
           </div>
         </div>
         <button id="btn-dark" onclick="toggleDark()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
@@ -323,7 +323,7 @@
     var DICT = {
       en: {
         'app.title':'Password Generator','app.subtitle':'Cryptographically-Random & Customizable',
-        'nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.forex':'Currency Converter','nav.ai':'AI Portrait Generator','common.copy':'Copy','common.copied':'Copied!',
+        'nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.forex':'Currency Converter','nav.ai':'AI Avatar Generator','common.copy':'Copy','common.copied':'Copied!',
         'gen.title':'Random Password Generator','gen.charsets':'Character Sets',
         'gen.no_set_selected':'Please select at least one character set.',
         'gen.exclude_title':'Exclude Ambiguous Characters',
@@ -346,7 +346,7 @@
       },
       zh: {
         'app.title':'密码生成器','app.subtitle':'加密随机 · 高度可定制',
-        'nav.home':'首页','nav.tools':'工具','nav.2fa':'2FA 工具','nav.ip':'IP 查询','nav.pass':'密码生成器','nav.text':'文本清洗器','nav.webp':'图片转换器','nav.ico':'ICO 图标生成器','nav.ai':'AI 写真生成器','common.copy':'复制','common.copied':'已复制！',
+        'nav.home':'首页','nav.tools':'工具','nav.2fa':'2FA 工具','nav.ip':'IP 查询','nav.pass':'密码生成器','nav.text':'文本清洗器','nav.webp':'图片转换器','nav.ico':'ICO 图标生成器','nav.ai':'AI 头像生成器','common.copy':'复制','common.copied':'已复制！',
         'gen.title':'随机密码生成器','gen.charsets':'字符集',
         'gen.no_set_selected':'请至少选择一个字符集。',
         'gen.exclude_title':'排除易混淆字符',
@@ -392,7 +392,7 @@
       },
       ko: {
         'app.title':'비밀번호 생성기','app.subtitle':'암호학적 난수 · 사용자 정의 가능',
-        'nav.home':'홈','nav.tools':'도구','nav.2fa':'2FA 도구','nav.ip':'IP 조회','nav.pass':'비밀번호 생성기','nav.text':'텍스트 클리너','nav.webp':'이미지 변환기','nav.ico':'ICO 아이콘 생성기','nav.ai':'AI 포트레이트 생성기','common.copy':'복사','common.copied':'복사 완료!',
+        'nav.home':'홈','nav.tools':'도구','nav.2fa':'2FA 도구','nav.ip':'IP 조회','nav.pass':'비밀번호 생성기','nav.text':'텍스트 클리너','nav.webp':'이미지 변환기','nav.ico':'ICO 아이콘 생성기','nav.ai':'AI 아바타 생성기','common.copy':'복사','common.copied':'복사 완료!',
         'gen.title':'랜덤 비밀번호 생성기','gen.charsets':'문자 집합',
         'gen.no_set_selected':'최소 하나 이상의 문자 집합을 선택하세요.',
         'gen.exclude_title':'모호한 문자 제외',
@@ -554,7 +554,7 @@
       },
       tr: {
         'app.title':'Şifre Oluşturucu','app.subtitle':'Kriptografik Rastgele ve Özelleştirilebilir',
-        'nav.home':'Ana Sayfa','nav.tools':'Araçlar','nav.2fa':'2FA Araçları','nav.ip':'IP Sorgulama','nav.pass':'Şifre Oluşturucu','nav.text':'Metin Temizleyici','nav.webp':'Görüntü Dönüştürücü','nav.ico':'ICO Oluşturucu','nav.ai':'AI Portre Oluşturucu','common.copy':'Kopyala','common.copied':'Kopyalandı!',
+        'nav.home':'Ana Sayfa','nav.tools':'Araçlar','nav.2fa':'2FA Araçları','nav.ip':'IP Sorgulama','nav.pass':'Şifre Oluşturucu','nav.text':'Metin Temizleyici','nav.webp':'Görüntü Dönüştürücü','nav.ico':'ICO Oluşturucu','nav.ai':'AI Avatar Oluşturucu','common.copy':'Kopyala','common.copied':'Kopyalandı!',
         'gen.title':'Rastgele Şifre Oluşturucu','gen.charsets':'Karakter Setleri',
         'gen.no_set_selected':'Lütfen en az bir karakter seti seçin.',
         'gen.exclude_title':'Belirsiz Karakterleri Hariç Tut',
