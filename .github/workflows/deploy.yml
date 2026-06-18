@@ -38,6 +38,9 @@ jobs:
         with: { node-version: '20' }
       - run: npm install
 
+      - name: Inject Google AdSense
+        run: sed -i "s/GOOGLE_ADSENSE_ID/${{ secrets.GOOGLE_ADSENSE }}/g" public/*.html
+
       - name: Deploy Worker
         run: npx wrangler deploy
         env:
@@ -67,6 +70,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - run: npm install
+
+      - name: Inject Google AdSense
+        run: sed -i "s/GOOGLE_ADSENSE_ID/${{ secrets.GOOGLE_ADSENSE }}/g" public/*.html
 
       - name: Deploy Pages
         run: npx wrangler pages deploy public/ --project-name=linkozen --branch=main --commit-dirty=true
