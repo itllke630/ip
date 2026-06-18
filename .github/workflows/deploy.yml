@@ -47,7 +47,7 @@ jobs:
           const dir = 'public';
           fs.readdirSync(dir).filter(f => f.endsWith('.html')).forEach(f => {
             const p = path.join(dir, f);
-            const c = fs.readFileSync(p, 'utf8').split('GOOGLE_ADSENSE').join(secret);
+            const c = fs.readFileSync(p, 'utf8').split('<!-- GOOGLE_ADSENSE -->').join(secret);
             fs.writeFileSync(p, c);
           });
           "
@@ -93,7 +93,7 @@ jobs:
           const dir = 'public';
           fs.readdirSync(dir).filter(f => f.endsWith('.html')).forEach(f => {
             const p = path.join(dir, f);
-            const c = fs.readFileSync(p, 'utf8').split('GOOGLE_ADSENSE').join(secret);
+            const c = fs.readFileSync(p, 'utf8').split('<!-- GOOGLE_ADSENSE -->').join(secret);
             fs.writeFileSync(p, c);
           });
           "
