@@ -39,7 +39,20 @@ jobs:
       - run: npm install
 
       - name: Inject Google AdSense
-        run: sed -i "s|GOOGLE_ADSENSE|${{ secrets.GOOGLE_ADSENSE }}|g" public/*.html
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const secret = process.env.GOOGLE_ADSENSE;
+          const dir = 'public';
+          fs.readdirSync(dir).filter(f => f.endsWith('.html')).forEach(f => {
+            const p = path.join(dir, f);
+            const c = fs.readFileSync(p, 'utf8').split('GOOGLE_ADSENSE').join(secret);
+            fs.writeFileSync(p, c);
+          });
+          "
+        env:
+          GOOGLE_ADSENSE: ${{ secrets.GOOGLE_ADSENSE }}
 
       - name: Deploy Worker
         run: npx wrangler deploy
@@ -72,7 +85,20 @@ jobs:
       - run: npm install
 
       - name: Inject Google AdSense
-        run: sed -i "s|GOOGLE_ADSENSE|${{ secrets.GOOGLE_ADSENSE }}|g" public/*.html
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const secret = process.env.GOOGLE_ADSENSE;
+          const dir = 'public';
+          fs.readdirSync(dir).filter(f => f.endsWith('.html')).forEach(f => {
+            const p = path.join(dir, f);
+            const c = fs.readFileSync(p, 'utf8').split('GOOGLE_ADSENSE').join(secret);
+            fs.writeFileSync(p, c);
+          });
+          "
+        env:
+          GOOGLE_ADSENSE: ${{ secrets.GOOGLE_ADSENSE }}
 
       - name: Deploy Pages
         run: npx wrangler pages deploy public/ --project-name=linkozen --branch=main --commit-dirty=true
