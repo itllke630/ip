@@ -1,0 +1,36 @@
+[
+  {
+    "slug": "001-first-post",
+    "title": {
+      "en": "Building Linkozen: My Indie Dev Journey Begins",
+      "zh": "Linkozen 开发手记：独立开发之旅启程",
+      "ja": "Linkozen開発記：個人開発の旅が始まる",
+      "ko": "Linkozen 개발 일지: 개인 개발 여정의 시작",
+      "fr": "Création de Linkozen : mon aventure de développeur indépendant",
+      "de": "Linkozen aufbauen: Meine Indie-Dev-Reise beginnt",
+      "it": "Creare Linkozen: Il mio viaggio da sviluppatore indipendente",
+      "es": "Creando Linkozen: Mi viaje como desarrollador independiente",
+      "pt": "Construindo o Linkozen: Minha jornada de desenvolvedor independente",
+      "ru": "Создание Linkozen: моё путешествие в инди-разработке",
+      "tr": "Linkozen'i Geliştirmek: Bağımsız Geliştirici Yolculuğum",
+      "zh-TW": "Linkozen 開發手記：獨立開發之旅啟程"
+    },
+    "summary": {
+      "en": "Why I started Linkozen — the philosophy behind privacy-first tools, pure client-side computing, and building an open-source utility platform from scratch.",
+      "zh": "为什么要做 Linkozen —— 隐私优先工具背后的理念、纯客户端计算的坚持，以及从零搭建一个开源工具平台的历程。",
+      "ja": "なぜLinkozenを始めたのか——プライバシーファーストツールの背景、純粋なクライアントサイド計算、そしてオープンソースのユーティリティプラットフォームをゼロから構築するまで。",
+      "ko": "Linkozen을 시작한 이유 — 개인정보 보호 우선 도구의 철학, 순수 클라이언트 측 컴퓨팅, 그리고 오픈소스 유틸리티 플랫폼을 처음부터 구축한 과정.",
+      "fr": "Pourquoi j'ai lancé Linkozen — la philosophie derrière les outils axés sur la confidentialité, le calcul côté client pur, et la construction d'une plateforme open-source à partir de zéro.",
+      "de": "Warum ich Linkozen gestartet habe — die Philosophie hinter datenschutzfreundlichen Tools, reiner clientseitiger Berechnung und dem Aufbau einer Open-Source-Plattform von Grund auf.",
+      "it": "Perché ho creato Linkozen — la filosofia dietro gli strumenti privacy-first, il computing puramente lato client e la costruzione di una piattaforma open-source da zero.",
+      "es": "Por qué comencé Linkozen — la filosofía detrás de las herramientas centradas en la privacidad, la computación puramente del lado del cliente y la construcción de una plataforma de utilidades de código abierto.",
+      "pt": "Por que comecei o Linkozen — a filosofia por trás das ferramentas focadas em privacidade, computação puramente no lado do cliente e a construção de uma plataforma de utilitários open-source.",
+      "ru": "Почему я запустил Linkozen — философия инструментов, ориентированных на конфиденциальность, чистые вычисления на стороне клиента и создание опенсорсной платформы с нуля.",
+      "tr": "Linkozen'i neden başlattım — gizlilik öncelikli araçların arkasındaki felsefe, tamamen istemci tarafı hesaplama ve açık kaynaklı bir yardımcı platformu sıfırdan oluşturma.",
+      "zh-TW": "為什麼要做 Linkozen —— 隱私優先工具背後的理念、純用戶端運算的堅持，以及從零搭建一個開源工具平台的歷程。"
+    },
+    "date": "2026-06-21",
+    "category": "design-idea",
+    "readTime": 5
+  }
+]

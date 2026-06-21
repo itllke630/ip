@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Linkozen DevLog — Article" />
+  <title data-i18n="page.title">Linkozen DevLog</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Urbanist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Cascadia Code"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'fade-in':  'fadeIn 0.4s ease-out',
+            'slide-up': 'slideUp 0.35s ease-out',
+          },
+          keyframes: {
+            fadeIn:  { '0%':{opacity:'0'}, '100%':{opacity:'1'} },
+            slideUp: { '0%':{opacity:'0',transform:'translateY(12px)'}, '100%':{opacity:'1',transform:'translateY(0)'} },
+          },
+        },
+      },
+    };
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.0/marked.min.js"></script>
+  <link rel="stylesheet" href="../common.css" />
+  <style>
+    #post-content h1, #post-content h2, #post-content h3 { color: #f1f5f9; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    #post-content h2 { font-size: 1.5rem; font-weight: 700; border-bottom: 1px solid #334155; padding-bottom: 0.25rem; }
+    #post-content h3 { font-size: 1.25rem; font-weight: 600; }
+    #post-content p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+    #post-content a { color: #22d3ee; text-decoration: underline; }
+    #post-content code { background: #1e293b; color: #cbd5e1; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875em; }
+    #post-content pre { background: #1e293b; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; }
+    #post-content pre code { background: none; padding: 0; }
+    #post-content ul, #post-content ol { color: #cbd5e1; padding-left: 1.5rem; margin-bottom: 1rem; }
+    #post-content li { margin-bottom: 0.25rem; }
+    #post-content blockquote { border-left: 3px solid #06b6d4; padding-left: 1rem; color: #94a3b8; margin: 1rem 0; }
+    #post-content img { border-radius: 0.5rem; max-width: 100%; }
+    #post-content hr { border-color: #334155; }
+    #post-content strong { color: #f8fafc; }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="../index.html" class="flex items-center gap-3 no-underline">
+        <div class="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">LZ</div>
+        <div>
+          <h1 class="text-lg font-semibold text-slate-100 leading-tight">LinkoZen</h1>
+          <p class="text-xs text-slate-400 leading-tight">DevLog</p>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-300 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
+
+        <div id="tools-dropdown" class="relative">
+          <button id="btn-tools-toggle" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-300 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors" onclick="toggleToolsMenu()">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span data-i18n="nav.tools">Tools</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="tools-menu" class="hidden absolute right-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-xl border border-slate-700 z-[60] py-1.5 overflow-hidden">
+            <a href="../2fa.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">🔐 <span data-i18n="nav.2fa">2FA Tools</span></a>
+            <a href="../forex.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">💱 <span data-i18n="nav.forex">Currency Converter</span></a>
+            <a href="../ip.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">🌐 <span data-i18n="nav.ip">IP Lookup</span></a>
+            <a href="../pass.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">🔒 <span data-i18n="nav.pass">Password Generator</span></a>
+            <a href="../text.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">📝 <span data-i18n="nav.text">Text Cleaner</span></a>
+            <a href="../webp.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">🖼 <span data-i18n="nav.webp">Image Converter</span></a>
+            <a href="../ico.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">🎨 <span data-i18n="nav.ico">ICO Icon Generator</span></a>
+            <a href="../avatarai.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">✨ <span data-i18n="nav.ai">AI Avatar Generator</span></a>
+            <a href="../dedupli.html" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700 transition-colors">🧪 <span data-i18n="nav.dedupli">Image Blender</span></a>
+          </div>
+        </div>
+
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle"
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-slate-600 transition-all text-sm"
+                  onclick="toggleLangMenu()" aria-label="Switch language">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-300 font-medium">English</span>
+            <svg class="w-3 h-3 text-slate-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-xl border border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- POST HEADER (populated by JS) -->
+  <div id="post-header" class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-4">
+    <a href="index.html" class="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200 transition-colors mb-4" data-i18n="blog.back_to_blog">← Back to Blog</a>
+    <div id="post-meta" class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 mb-3"></div>
+    <h1 id="post-title" class="text-2xl md:text-3xl font-extrabold text-white mb-4"></h1>
+  </div>
+
+  <!-- POST CONTENT -->
+  <main id="post-content" class="max-w-3xl mx-auto px-4 sm:px-6 pb-12 flex-1">
+    <div id="post-loading" class="text-center py-16 text-slate-500">
+      <p data-i18n="blog.loading">Loading post...</p>
+    </div>
+    <div id="post-error" class="hidden text-center py-16 text-slate-500">
+      <p class="text-lg" data-i18n="blog.post_not_found">Post not found.</p>
+      <a href="index.html" class="inline-block mt-4 text-cyan-400 hover:text-cyan-300" data-i18n="blog.back_to_blog">← Back to Blog</a>
+    </div>
+    <div id="post-body" class="hidden"></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 bg-slate-900 py-5 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+      <p class="text-xs text-slate-500" data-i18n="blog.footer">© 2026 Linkozen DevLog · Powered by Cloudflare</p>
+    </div>
+  </footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // ==========================================================================
+  //  i18n (same as blog/index.html)
+  // ==========================================================================
+  var LANGS = [
+    { code:'en', label:'English',    native:'English',    region:'US' },
+    { code:'zh', label:'简体中文',    native:'简体中文',    region:'CN' },
+    { code:'ja', label:'日本語',      native:'日本語',      region:'JP' },
+    { code:'ko', label:'한국어',      native:'한국어',      region:'KR' },
+    { code:'fr', label:'Français',   native:'Français',   region:'FR' },
+    { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
+    { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+    { code:'es', label:'Español',    native:'Español',    region:'ES' },
+    { code:'pt', label:'Português',  native:'Português',  region:'BR' },
+    { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
+    { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
+    { code:'zh-TW', label:'繁體中文',  native:'繁體中文',    region:'TW' },
+  ];
+
+  var DICT = {
+    en: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'Home','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.forex':'Currency Converter','nav.ip':'IP Lookup','nav.pass':'Password Generator','nav.text':'Text Cleaner','nav.webp':'Image Converter','nav.ico':'ICO Icon Generator','nav.ai':'AI Avatar Generator','nav.dedupli':'Image Blender',
+      'blog.back_to_blog':'← Back to Blog','blog.loading':'Loading post...','blog.post_not_found':'Post not found.','blog.min_read':'{n} min read',
+      'blog.footer':'© 2026 Linkozen DevLog · Powered by Cloudflare',
+    },
+    zh: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'首页','nav.tools':'工具','nav.2fa':'2FA 工具','nav.forex':'汇率换算','nav.ip':'IP 查询','nav.pass':'密码生成器','nav.text':'文本清洗器','nav.webp':'图片转换器','nav.ico':'ICO 图标生成器','nav.ai':'AI 头像生成器','nav.dedupli':'图片去重工具',
+      'blog.back_to_blog':'← 返回博客','blog.loading':'加载文章中...','blog.post_not_found':'文章未找到。','blog.min_read':'{n} 分钟阅读',
+      'blog.footer':'© 2026 Linkozen DevLog · Powered by Cloudflare',
+    },
+    ja: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'ホーム','nav.tools':'ツール','nav.2fa':'2FA ツール','nav.forex':'通貨換算','nav.ip':'IP 検索','nav.pass':'パスワード生成','nav.text':'テキスト整形','nav.webp':'画像変換','nav.ico':'ICO アイコン生成','nav.ai':'AI アバター生成','nav.dedupli':'画像ブレンダー',
+      'blog.back_to_blog':'← ブログに戻る','blog.loading':'記事を読み込み中...','blog.post_not_found':'記事が見つかりません。','blog.min_read':'{n} 分で読めます',
+      'blog.footer':'© 2026 Linkozen DevLog · Powered by Cloudflare',
+    },
+    ko: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'홈','nav.tools':'도구','nav.2fa':'2FA 도구','nav.forex':'환율 변환','nav.ip':'IP 조회','nav.pass':'비밀번호 생성기','nav.text':'텍스트 클리너','nav.webp':'이미지 변환기','nav.ico':'ICO 아이콘 생성기','nav.ai':'AI 아바타 생성기','nav.dedupli':'이미지 블렌더',
+      'blog.back_to_blog':'← 블로그로 돌아가기','blog.loading':'글을 불러오는 중...','blog.post_not_found':'게시글을 찾을 수 없습니다.','blog.min_read':'{n}분 읽기',
+      'blog.footer':'© 2026 Linkozen DevLog · Powered by Cloudflare',
+    },
+    fr: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'Accueil','nav.tools':'Outils','nav.2fa':'Outils 2FA','nav.forex':'Convertisseur','nav.ip':'Recherche IP','nav.pass':'Générateur MDP','nav.text':'Nettoyeur texte','nav.webp':'Convertisseur image','nav.ico':'Générateur ICO','nav.ai':'Générateur avatar IA','nav.dedupli':'Mélangeur d\'images',
+      'blog.back_to_blog':'← Retour au blog','blog.loading':'Chargement de l\'article...','blog.post_not_found':'Article introuvable.','blog.min_read':'{n} min de lecture',
+      'blog.footer':'© 2026 Linkozen DevLog · Propulsé par Cloudflare',
+    },
+    de: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'Startseite','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.forex':'Währungsumrechner','nav.ip':'IP-Abfrage','nav.pass':'Passwort-Generator','nav.text':'Textreiniger','nav.webp':'Bildkonverter','nav.ico':'ICO Generator','nav.ai':'KI-Avatar Generator','nav.dedupli':'Image Blender',
+      'blog.back_to_blog':'← Zurück zum Blog','blog.loading':'Beitrag wird geladen...','blog.post_not_found':'Beitrag nicht gefunden.','blog.min_read':'{n} Min. Lesezeit',
+      'blog.footer':'© 2026 Linkozen DevLog · Bereitgestellt von Cloudflare',
+    },
+    it: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'Home','nav.tools':'Strumenti','nav.2fa':'Strumenti 2FA','nav.forex':'Convertitore valuta','nav.ip':'Ricerca IP','nav.pass':'Generatore password','nav.text':'Pulitore testo','nav.webp':'Convertitore immagini','nav.ico':'Generatore ICO','nav.ai':'Generatore avatar IA','nav.dedupli':'Image Blender',
+      'blog.back_to_blog':'← Torna al blog','blog.loading':'Caricamento articolo...','blog.post_not_found':'Articolo non trovato.','blog.min_read':'{n} min di lettura',
+      'blog.footer':'© 2026 Linkozen DevLog · Offerto da Cloudflare',
+    },
+    es: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'Inicio','nav.tools':'Herramientas','nav.2fa':'2FA Herramientas','nav.forex':'Conversor divisas','nav.ip':'Búsqueda IP','nav.pass':'Generador contraseñas','nav.text':'Limpiador texto','nav.webp':'Conversor imágenes','nav.ico':'Generador ICO','nav.ai':'Generador avatar IA','nav.dedupli':'Image Blender',
+      'blog.back_to_blog':'← Volver al blog','blog.loading':'Cargando artículo...','blog.post_not_found':'Artículo no encontrado.','blog.min_read':'{n} min de lectura',
+      'blog.footer':'© 2026 Linkozen DevLog · Desarrollado por Cloudflare',
+    },
+    pt: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'Início','nav.tools':'Ferramentas','nav.2fa':'2FA Ferramentas','nav.forex':'Conversor moedas','nav.ip':'Busca IP','nav.pass':'Gerador senhas','nav.text':'Limpador texto','nav.webp':'Conversor imagens','nav.ico':'Gerador ICO','nav.ai':'Gerador avatar IA','nav.dedupli':'Image Blender',
+      'blog.back_to_blog':'← Voltar ao blog','blog.loading':'Carregando artigo...','blog.post_not_found':'Artigo não encontrado.','blog.min_read':'{n} min de leitura',
+      'blog.footer':'© 2026 Linkozen DevLog · Fornecido por Cloudflare',
+    },
+    ru: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'Главная','nav.tools':'Инструменты','nav.2fa':'2FA Инструменты','nav.forex':'Конвертер валют','nav.ip':'Поиск IP','nav.pass':'Генератор паролей','nav.text':'Очиститель текста','nav.webp':'Конвертер изображений','nav.ico':'Генератор ICO','nav.ai':'Генератор аватаров AI','nav.dedupli':'Image Blender',
+      'blog.back_to_blog':'← Назад в блог','blog.loading':'Загрузка статьи...','blog.post_not_found':'Статья не найдена.','blog.min_read':'{n} мин. чтения',
+      'blog.footer':'© 2026 Linkozen DevLog · Работает на Cloudflare',
+    },
+    tr: {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'Ana Sayfa','nav.tools':'Araçlar','nav.2fa':'2FA Araçları','nav.forex':'Döviz Çevirici','nav.ip':'IP Sorgulama','nav.pass':'Şifre Oluşturucu','nav.text':'Metin Temizleyici','nav.webp':'Görüntü Dönüştürücü','nav.ico':'ICO Simge Oluşturucu','nav.ai':'AI Avatar Oluşturucu','nav.dedupli':'Image Blender',
+      'blog.back_to_blog':'← Bloga Dön','blog.loading':'Yazı yükleniyor...','blog.post_not_found':'Yazı bulunamadı.','blog.min_read':'{n} dk okuma',
+      'blog.footer':'© 2026 Linkozen DevLog · Cloudflare Tarafından Desteklenmektedir',
+    },
+    'zh-TW': {
+      'page.title':'Linkozen DevLog',
+      'nav.home':'首頁','nav.tools':'工具','nav.2fa':'2FA 工具','nav.forex':'匯率換算','nav.ip':'IP 查詢','nav.pass':'密碼產生器','nav.text':'文字清洗器','nav.webp':'圖片轉換器','nav.ico':'ICO 圖示產生器','nav.ai':'AI 頭像產生器','nav.dedupli':'圖片去重工具',
+      'blog.back_to_blog':'← 返回部落格','blog.loading':'載入文章中...','blog.post_not_found':'文章未找到。','blog.min_read':'{n} 分鐘閱讀',
+      'blog.footer':'© 2026 Linkozen DevLog · Powered by Cloudflare',
+    },
+  };
+
+  var currentLang = localStorage.getItem('blog-lang') || 'zh';
+  function t(key) {
+    var d = DICT[currentLang] || DICT['zh'];
+    return d[key] != null ? d[key] : ((DICT['zh'][key] != null) ? DICT['zh'][key] : ((DICT['en'][key] != null) ? DICT['en'][key] : key));
+  }
+
+  function updateLanguageUI() {
+    var els = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < els.length; i++) {
+      var k = els[i].getAttribute('data-i18n');
+      if (k) els[i].innerHTML = t(k);
+    }
+    document.title = t('page.title');
+    var htmlEl = document.documentElement;
+    htmlEl.lang = (currentLang === 'zh') ? 'zh-CN' : (currentLang === 'zh-TW') ? 'zh-TW' : currentLang;
+    // Re-render post header with new language
+    if (window._postData) renderPostMeta(window._postData);
+  }
+
+  function updateLangButton() {
+    var btn = document.getElementById('btn-lang-label');
+    var lang = LANGS.find(function(l) { return l.code === currentLang; });
+    if (btn && lang) btn.textContent = lang.native;
+  }
+
+  function buildLangMenu() {
+    var menu = document.getElementById('lang-menu');
+    if (!menu) return;
+    var html = '';
+    for (var i = 0; i < LANGS.length; i++) {
+      var L = LANGS[i];
+      var active = L.code === currentLang ? ' bg-cyan-900/30' : '';
+      html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-700 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+        '<span class="text-[11px] font-bold text-slate-500 w-7">' + L.region + '</span>' +
+        '<span class="text-slate-300">' + L.native + '</span>' +
+        '</button>';
+    }
+    menu.innerHTML = html;
+  }
+
+  window.switchLanguage = function(lang) {
+    currentLang = lang;
+    localStorage.setItem('blog-lang', lang);
+    updateLangButton();
+    buildLangMenu();
+    updateLanguageUI();
+  };
+
+  window.toggleLangMenu = function() {
+    var menu = document.getElementById('lang-menu');
+    if (!menu) return;
+    buildLangMenu();
+    menu.classList.toggle('hidden');
+  };
+  window.closeLangMenu = function() {
+    var menu = document.getElementById('lang-menu');
+    if (menu) menu.classList.add('hidden');
+  };
+
+  window.toggleToolsMenu = function () {
+    var menu = document.getElementById('tools-menu');
+    if (menu) menu.classList.toggle('hidden');
+  };
+  window.closeToolsMenu = function () {
+    var menu = document.getElementById('tools-menu');
+    if (menu) menu.classList.add('hidden');
+  };
+
+  document.addEventListener('click', function(e) {
+    var dd = document.getElementById('lang-dropdown');
+    if (dd && !dd.contains(e.target)) {
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.add('hidden');
+    }
+    var td = document.getElementById('tools-dropdown');
+    if (td && !td.contains(e.target)) {
+      var tmenu = document.getElementById('tools-menu');
+      if (tmenu) tmenu.classList.add('hidden');
+    }
+  });
+
+  // ==========================================================================
+  //  POST LOGIC
+  // ==========================================================================
+  var CATEGORIES = [
+    { key: 'all', i18n: 'blog.filter_all' },
+    { key: 'design-idea', i18n: 'blog.filter_design' },
+    { key: 'tech-implementation', i18n: 'blog.filter_tech' },
+    { key: 'feature-update', i18n: 'blog.filter_update' },
+  ];
+
+  function getLocalized(field) {
+    if (!field) return '';
+    if (typeof field === 'string') return field;
+    return field[currentLang] || field['zh'] || field['en'] || Object.values(field)[0] || '';
+  }
+
+  function getCategoryLabel(catKey) {
+    for (var j = 0; j < CATEGORIES.length; j++) {
+      if (CATEGORIES[j].key === catKey) return t(CATEGORIES[j].i18n);
+    }
+    return catKey;
+  }
+
+  function renderPostMeta(postData) {
+    window._postData = postData;
+    var title = getLocalized(postData.title);
+    var readTime = (t('blog.min_read')).replace('{n}', postData.readTime);
+    var catLabel = getCategoryLabel(postData.category);
+
+    document.getElementById('post-title').textContent = title;
+    document.title = title + ' — Linkozen DevLog';
+    document.getElementById('post-meta').innerHTML =
+      '<time datetime="' + postData.date + '" class="text-slate-400">' + postData.date + '</time>' +
+      '<span>·</span><span>' + readTime + '</span><span>·</span>' +
+      '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-900/40 text-cyan-300 border border-cyan-800">' + catLabel + '</span>';
+  }
+
+  function loadPost() {
+    var slug = new URLSearchParams(location.search).get('slug');
+    if (!slug) {
+      document.getElementById('post-loading').classList.add('hidden');
+      document.getElementById('post-error').classList.remove('hidden');
+      return;
+    }
+
+    // Fetch manifest to get metadata
+    fetch('posts/posts.json')
+      .then(function(r) { return r.json(); })
+      .then(function(posts) {
+        var post = null;
+        for (var i = 0; i < posts.length; i++) {
+          if (posts[i].slug === slug) { post = posts[i]; break; }
+        }
+        if (!post) throw new Error('not found');
+        return post;
+      })
+      .then(function(post) {
+        renderPostMeta(post);
+        // Fetch markdown content
+        return fetch('posts/' + post.slug + '.md').then(function(r) {
+          if (!r.ok) throw new Error('md not found');
+          return r.text();
+        }).then(function(md) {
+          document.getElementById('post-loading').classList.add('hidden');
+          document.getElementById('post-body').classList.remove('hidden');
+          if (typeof marked !== 'undefined') {
+            marked.setOptions({ breaks: true, gfm: true });
+            document.getElementById('post-body').innerHTML = marked.parse(md);
+          } else {
+            document.getElementById('post-body').innerHTML = '<pre>' + md.replace(/</g, '&lt;') + '</pre>';
+          }
+        });
+      })
+      .catch(function() {
+        document.getElementById('post-loading').classList.add('hidden');
+        document.getElementById('post-error').classList.remove('hidden');
+      });
+  }
+
+  // ==========================================================================
+  //  INIT
+  // ==========================================================================
+  updateLangButton();
+  buildLangMenu();
+  updateLanguageUI();
+  loadPost();
+
+})();
+</script>
+</body>
+</html>
