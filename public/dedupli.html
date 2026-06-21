@@ -4,8 +4,8 @@
   <!-- GOOGLE_ADSENSE -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Facebook Ad Image Smart De-Duplication Tool — 100% browser-side edge computing. Pixel-level variation with zero image upload, protecting your ad creative privacy." />
-  <title>FB Image Blender — Ad Image De-Duplication Tool | LinkoZen</title>
+  <meta name="description" content="Ad Image Smart De-Duplication Tool — 100% browser-side edge computing. Pixel-level variation with zero image upload, protecting your ad creative privacy." />
+  <title data-i18n="page.title">Image Blender — Ad Image De-Duplication Tool | LinkoZen</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,7 +24,6 @@
           animation: {
             'fade-in':  'fadeIn 0.4s ease-out',
             'slide-up': 'slideUp 0.35s ease-out',
-            'pulse-slow': 'pulse 3s ease-in-out infinite',
           },
           keyframes: {
             fadeIn:  { '0%':{opacity:'0'}, '100%':{opacity:'1'} },
@@ -45,10 +44,12 @@
   <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-3 no-underline">
-        <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">FB</div>
+        <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+        </div>
         <div>
-          <h1 class="text-lg font-semibold text-slate-800 leading-tight">FB Image Blender</h1>
-          <p class="text-xs text-gray-500 leading-tight">Ad Image De-Duplication Tool</p>
+          <h1 class="text-lg font-semibold text-slate-800 leading-tight" data-i18n="app.title">Image Blender</h1>
+          <p class="text-xs text-gray-500 leading-tight" data-i18n="app.subtitle">Ad Image De-Duplication Tool</p>
         </div>
       </a>
       <div class="flex items-center gap-2">
@@ -59,9 +60,20 @@
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </button>
+        <!-- Language dropdown -->
+        <div id="lang-dropdown" class="relative">
+          <button id="btn-lang-toggle"
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm"
+                  onclick="toggleLangMenu()" aria-label="Switch language">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span id="btn-lang-label" class="text-slate-700 font-medium">English</span>
+            <svg class="w-3 h-3 text-gray-400 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="lang-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden"></div>
+        </div>
         <a href="index.html" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          Home
+          <span data-i18n="nav.home">Home</span>
         </a>
       </div>
     </div>
@@ -72,13 +84,13 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-center">
       <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold mb-4 animate-fade-in">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
-        100% Browser-Side Edge Computing · Zero Upload · Absolute Privacy
+        <span data-i18n="hero.badge">100% Browser-Side Edge Computing · Zero Upload · Absolute Privacy</span>
       </div>
-      <h2 class="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight animate-slide-up">
-        Facebook Ad Image Smart De-Duplication
+      <h2 class="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight animate-slide-up" data-i18n="hero.title">
+        Ad Image Smart De-Duplication
       </h2>
-      <p class="mt-3 max-w-2xl mx-auto text-sm md:text-base text-slate-500 leading-relaxed animate-slide-up">
-        Break through Facebook's pHash, EXIF tracking and CNN detection. All processing runs locally in your browser — your creative assets never leave your device.
+      <p class="mt-3 max-w-2xl mx-auto text-sm md:text-base text-slate-500 leading-relaxed animate-slide-up" data-i18n="hero.desc">
+        All processing runs locally in your browser — your creative assets never leave your device.
       </p>
     </div>
   </section>
@@ -87,38 +99,36 @@
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
     <div class="flex flex-col lg:flex-row gap-6">
 
-      <!-- ============================================================ -->
-      <!--  LEFT PANEL — Controls (40%)                                  -->
-      <!-- ============================================================ -->
+      <!-- LEFT PANEL — Controls (40%) -->
       <div class="lg:w-[40%] space-y-4">
 
         <!-- Module A: Preset Cards -->
         <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
           <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
             <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            Quick Presets
+            <span data-i18n="presets.heading">Quick Presets</span>
           </h3>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button onclick="applyPreset('quick')" id="preset-quick"
-                    class="preset-btn p-3 rounded-xl border-2 border-gray-200 hover:border-cyan-400 hover:bg-cyan-50/50 transition-all text-left group">
+                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group">
               <div class="text-lg mb-0.5">⚡</div>
-              <div class="text-xs font-bold text-slate-700 group-hover:text-cyan-700">Quick Dedup</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight">MD5 + EXIF + 0.5% crop</div>
+              <div class="text-xs font-bold text-slate-700" data-i18n="presets.quick.name">Quick Dedup</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.quick.desc">MD5 + EXIF + 0.5% crop</div>
             </button>
             <button onclick="applyPreset('deep')" id="preset-deep"
-                    class="preset-btn p-3 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all text-left group">
+                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group">
               <div class="text-lg mb-0.5">🔥</div>
-              <div class="text-xs font-bold text-slate-700 group-hover:text-orange-700">Deep Dedup</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight">Full mutation · revive spent assets</div>
+              <div class="text-xs font-bold text-slate-700" data-i18n="presets.deep.name">Deep Dedup</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.deep.desc">Full mutation · revive spent assets</div>
             </button>
             <button onclick="applyPreset('mirror')" id="preset-mirror"
-                    class="preset-btn p-3 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all text-left group">
+                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group">
               <div class="text-lg mb-0.5">🔄</div>
-              <div class="text-xs font-bold text-slate-700 group-hover:text-blue-700">Mirror Dedup</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight">Flip + quick/deep base</div>
+              <div class="text-xs font-bold text-slate-700" data-i18n="presets.mirror.name">Mirror Dedup</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.mirror.desc">Flip + quick/deep base</div>
             </button>
           </div>
-          <div id="preset-warning" class="hidden mt-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 leading-relaxed">
+          <div id="preset-warning" class="hidden mt-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 leading-relaxed" data-i18n="presets.mirror.warn">
             ⚠️ Only use Mirror mode on images WITHOUT text, logos, or directional elements — mirrored text will cause ad rejection!
           </div>
         </div>
@@ -128,14 +138,14 @@
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
               <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-              Base Layer · File-Level
+              <span data-i18n="layer.base">Base Layer · File-Level</span>
             </h3>
           </div>
           <div class="space-y-2 text-xs text-slate-600 bg-slate-50 rounded-xl p-3">
-            <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> MD5 mutation (append random EOF bytes)</div>
-            <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> EXIF metadata removal (canvas re-render)</div>
+            <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> <span data-i18n="layer.base.md5">MD5 mutation (append random EOF bytes)</span></div>
+            <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> <span data-i18n="layer.base.exif">EXIF metadata removal (canvas re-render)</span></div>
           </div>
-          <p class="text-[10px] text-slate-400 mt-2">Always active · Zero visual quality loss</p>
+          <p class="text-[10px] text-slate-400 mt-2" data-i18n="layer.base.note">Always active · Zero visual quality loss</p>
         </div>
 
         <!-- Module C: Pixel Layer -->
@@ -143,7 +153,7 @@
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
               <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-              Pixel Layer · pHash Evasion
+              <span data-i18n="layer.pixel">Pixel Layer · pHash Evasion</span>
             </h3>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="pixel-enabled" class="sr-only peer" onchange="syncUI()" checked>
@@ -151,33 +161,30 @@
             </label>
           </div>
           <div id="pixel-controls" class="space-y-3">
-            <!-- Crop slider -->
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600">Micro-crop &amp; stretch</label>
+                <label class="text-xs font-medium text-slate-600" data-i18n="slider.crop">Micro-crop &amp; stretch</label>
                 <div class="flex items-center gap-1">
-                  <span id="crop-val" class="text-xs font-mono text-slate-500">1.0%</span>
+                  <span id="crop-val" class="text-xs font-mono text-slate-500">0.5%</span>
                   <button onclick="randomizeParam('crop')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
                 </div>
               </div>
-              <input type="range" id="crop-slider" min="0.2" max="2.0" step="0.1" value="1.0" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
+              <input type="range" id="crop-slider" min="0.2" max="2.0" step="0.1" value="0.5" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
               <div class="flex justify-between text-[10px] text-slate-400"><span>0.2%</span><span>2.0%</span></div>
             </div>
-            <!-- Noise slider -->
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600">Noise injection</label>
+                <label class="text-xs font-medium text-slate-600" data-i18n="slider.noise">Noise injection</label>
                 <div class="flex items-center gap-1">
-                  <span id="noise-val" class="text-xs font-mono text-slate-500">0.8%</span>
+                  <span id="noise-val" class="text-xs font-mono text-slate-500">0%</span>
                   <button onclick="randomizeParam('noise')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
                 </div>
               </div>
-              <input type="range" id="noise-slider" min="0" max="2.0" step="0.1" value="0.8" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
+              <input type="range" id="noise-slider" min="0" max="2.0" step="0.1" value="0" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
               <div class="flex justify-between text-[10px] text-slate-400"><span>0%</span><span>2.0%</span></div>
             </div>
-            <!-- Mirror toggle -->
             <div class="flex items-center justify-between">
-              <span class="text-xs font-medium text-slate-600">Mirror flip (L↔R)</span>
+              <span class="text-xs font-medium text-slate-600" data-i18n="slider.mirror">Mirror flip (L↔R)</span>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" id="mirror-enabled" class="sr-only peer" onchange="syncUI()">
                 <div class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
@@ -191,7 +198,7 @@
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
               <svg class="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-              Color &amp; Lighting · CNN Evasion
+              <span data-i18n="layer.color">Color &amp; Lighting · CNN Evasion</span>
             </h3>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="color-enabled" class="sr-only peer" onchange="syncUI()" checked>
@@ -199,10 +206,9 @@
             </label>
           </div>
           <div id="color-controls" class="space-y-3">
-            <!-- Brightness -->
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600">Brightness shift</label>
+                <label class="text-xs font-medium text-slate-600" data-i18n="slider.brightness">Brightness shift</label>
                 <div class="flex items-center gap-1">
                   <span id="brightness-val" class="text-xs font-mono text-slate-500">+0.5%</span>
                   <button onclick="randomizeParam('brightness')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
@@ -211,10 +217,9 @@
               <input type="range" id="brightness-slider" min="-2.0" max="2.0" step="0.1" value="0.5" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
               <div class="flex justify-between text-[10px] text-slate-400"><span>-2%</span><span>0</span><span>+2%</span></div>
             </div>
-            <!-- Saturation -->
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600">Saturation shift</label>
+                <label class="text-xs font-medium text-slate-600" data-i18n="slider.saturation">Saturation shift</label>
                 <div class="flex items-center gap-1">
                   <span id="saturation-val" class="text-xs font-mono text-slate-500">0%</span>
                   <button onclick="randomizeParam('saturation')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
@@ -223,10 +228,9 @@
               <input type="range" id="saturation-slider" min="-2.0" max="2.0" step="0.1" value="0" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
               <div class="flex justify-between text-[10px] text-slate-400"><span>-2%</span><span>0</span><span>+2%</span></div>
             </div>
-            <!-- Contrast -->
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600">Contrast shift</label>
+                <label class="text-xs font-medium text-slate-600" data-i18n="slider.contrast">Contrast shift</label>
                 <div class="flex items-center gap-1">
                   <span id="contrast-val" class="text-xs font-mono text-slate-500">0%</span>
                   <button onclick="randomizeParam('contrast')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
@@ -235,20 +239,18 @@
               <input type="range" id="contrast-slider" min="-2.0" max="2.0" step="0.1" value="0" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
               <div class="flex justify-between text-[10px] text-slate-400"><span>-2%</span><span>0</span><span>+2%</span></div>
             </div>
-            <!-- Gamma -->
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600">Gamma curve</label>
+                <label class="text-xs font-medium text-slate-600" data-i18n="slider.gamma">Gamma curve</label>
                 <span id="gamma-val" class="text-xs font-mono text-slate-500">1.00</span>
               </div>
               <input type="range" id="gamma-slider" min="0.98" max="1.02" step="0.005" value="1.00" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
               <div class="flex justify-between text-[10px] text-slate-400"><span>0.98</span><span>1.00</span><span>1.02</span></div>
             </div>
-            <!-- Mask overlay -->
             <div class="flex items-center justify-between">
               <div>
-                <span class="text-xs font-medium text-slate-600">Semi-transparent mask</span>
-                <p class="text-[10px] text-slate-400">Overlays a color veil to disrupt CNN color-space</p>
+                <span class="text-xs font-medium text-slate-600" data-i18n="slider.mask">Semi-transparent mask</span>
+                <p class="text-[10px] text-slate-400" data-i18n="slider.mask.hint">Overlays a color veil to disrupt CNN color-space</p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" id="mask-enabled" class="sr-only peer" onchange="syncUI()">
@@ -259,7 +261,7 @@
               <input type="color" id="mask-color" value="#ffffff" class="w-full h-8 rounded cursor-pointer border border-gray-200" />
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-[10px] text-slate-400">Mask opacity</span>
+                  <span class="text-[10px] text-slate-400" data-i18n="slider.mask.opacity">Mask opacity</span>
                   <span id="mask-opacity-val" class="text-[10px] font-mono text-slate-500">0.5%</span>
                 </div>
                 <input type="range" id="mask-opacity" min="0.1" max="1.0" step="0.1" value="0.5" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
@@ -270,14 +272,12 @@
 
         <!-- Randomize All -->
         <button onclick="randomizeAll()"
-                class="w-full py-2.5 rounded-xl border-2 border-dashed border-violet-300 text-violet-600 hover:bg-violet-50 text-xs font-semibold transition-colors flex items-center justify-center gap-2">
-          🎲 Randomize All Active Parameters
+                class="w-full py-2.5 rounded-xl border-2 border-violet-300 text-violet-600 hover:bg-violet-50 text-xs font-semibold transition-colors flex items-center justify-center gap-2">
+          🎲 <span data-i18n="btn.randomize">Randomize All Active Parameters</span>
         </button>
       </div>
 
-      <!-- ============================================================ -->
-      <!--  RIGHT PANEL — Preview & Actions (60%)                        -->
-      <!-- ============================================================ -->
+      <!-- RIGHT PANEL — Preview & Actions (60%) -->
       <div class="lg:w-[60%] space-y-4">
 
         <!-- Module E: Dropzone -->
@@ -286,50 +286,46 @@
              ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="document.getElementById('file-input').click()">
           <input type="file" id="file-input" class="hidden" accept="image/png,image/jpeg,image/webp" multiple onchange="handleFileSelect(event)" />
           <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-          <p class="text-sm font-medium text-slate-600">Click or drag &amp; drop ad images here</p>
-          <p class="text-xs text-slate-400 mt-1">Supports PNG, JPG, WEBP · Multi-file batch · ZIP input</p>
+          <p class="text-sm font-medium text-slate-600" data-i18n="dropzone.title">Click or drag &amp; drop ad images here</p>
+          <p class="text-xs text-slate-400 mt-1" data-i18n="dropzone.hint">Supports PNG, JPG, WEBP · Multi-file batch · ZIP input</p>
         </div>
 
         <!-- File list -->
         <div id="file-list" class="hidden bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
           <h4 class="text-xs font-bold text-slate-600 mb-2 flex items-center gap-2">
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
-            Loaded Files (<span id="file-count">0</span>)
+            <span data-i18n="files.loaded">Loaded Files</span> (<span id="file-count">0</span>)
           </h4>
           <div id="file-items" class="max-h-40 overflow-y-auto space-y-1"></div>
         </div>
 
         <!-- Module F: Comparison Preview -->
         <div id="preview-zone" class="hidden bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
-          <h4 class="text-xs font-bold text-slate-600 mb-3">Live Preview · Before / After</h4>
+          <h4 class="text-xs font-bold text-slate-600 mb-3" data-i18n="preview.title">Live Preview · Before / After</h4>
           <div class="relative overflow-hidden rounded-xl bg-gray-100 border border-gray-200" style="min-height:200px;">
             <div id="compare-container" class="relative w-full" style="display:none;">
-              <!-- After image (underneath) -->
               <canvas id="preview-after" class="w-full block rounded-xl"></canvas>
-              <!-- Before image (overlaid, clipped by slider) -->
               <div id="preview-before-clip" class="absolute inset-0 overflow-hidden" style="width:50%;">
                 <img id="preview-before" class="absolute top-0 left-0 w-full h-auto max-w-none rounded-xl" style="display:block;" alt="Original" />
               </div>
-              <!-- Slider handle -->
               <div id="compare-handle" class="absolute top-0 bottom-0 w-1 bg-white shadow-lg cursor-ew-resize z-10" style="left:50%;">
                 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-md border-2 border-violet-300 flex items-center justify-center">
                   <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
                 </div>
               </div>
             </div>
-            <div id="preview-placeholder" class="flex items-center justify-center py-16 text-sm text-slate-400">
+            <div id="preview-placeholder" class="flex items-center justify-center py-16 text-sm text-slate-400" data-i18n="preview.placeholder">
               Select an image from the file list to preview
             </div>
           </div>
-          <!-- File selector for preview -->
           <div id="preview-selector" class="mt-2 flex flex-wrap gap-1.5"></div>
         </div>
 
-        <!-- Processing status (hidden until processing) -->
+        <!-- Processing status -->
         <div id="processing-status" class="hidden bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
           <div class="flex items-center gap-2 mb-2">
             <div class="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
-            <span class="text-xs font-medium text-slate-600">Processing... <span id="progress-text">0/0</span></span>
+            <span class="text-xs font-medium text-slate-600"><span data-i18n="status.processing">Processing...</span> <span id="progress-text">0/0</span></span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div id="progress-bar" class="bg-gradient-to-r from-violet-500 to-purple-600 h-2 rounded-full transition-all duration-300" style="width:0%;"></div>
@@ -339,12 +335,14 @@
         <!-- Module G: Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-3">
           <button id="btn-process" onclick="processAll()"
-                  class="flex-1 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-sm hover:from-violet-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                  class="flex-1 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-sm hover:from-violet-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  data-i18n="btn.process">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
             🚀 Start Batch Processing
           </button>
           <button id="btn-download" onclick="downloadZip()" disabled
-                  class="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                  class="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  data-i18n="btn.download">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
             📦 Download ZIP
           </button>
@@ -354,600 +352,971 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="bg-white border-t border-gray-200 mt-12 py-4 text-center text-[11px] text-slate-400">
-    All image processing runs entirely in your browser. No files are ever uploaded, stored, or transmitted.
+  <footer class="border-t border-gray-200 bg-white py-5 mt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+      <p>
+        <span data-i18n="footer.powered">Powered by</span>
+        <a href="/" class="text-cyan-500 hover:text-cyan-600 underline underline-offset-2 ml-1 font-medium">LinkoZen</a>
+        <span class="mx-1.5">·</span>
+        <span data-i18n="footer.privacy">No logs. No tracking. All image processing runs in your browser — no files are ever uploaded or stored.</span>
+      </p>
+    </div>
   </footer>
 
 <script>
-// ============================================================================
-//  STATE
-// ============================================================================
-const state = {
-  files: [],        // { name, file, blob, url, width, height }
-  results: [],      // { name, blob, url } after processing
-  selectedIdx: 0,
-  isProcessing: false,
-};
+(function () {
+  'use strict';
 
-// ============================================================================
-//  CONFIG from UI controls
-// ============================================================================
-function getConfig() {
-  return {
-    baseLayer: { enabled: true }, // always on
-    pixelLayer: {
-      enabled: document.getElementById('pixel-enabled').checked,
-      cropRate: parseFloat(document.getElementById('crop-slider').value) / 100,
-      noiseRate: parseFloat(document.getElementById('noise-slider').value) / 100,
-      noiseEnabled: parseFloat(document.getElementById('noise-slider').value) > 0,
-      mirrorEnabled: document.getElementById('mirror-enabled').checked,
+  // ==========================================================================
+  //  i18n
+  // ==========================================================================
+  var LANGS = [
+    { code:'en', label:'English',    native:'English',    region:'US' },
+    { code:'zh', label:'简体中文',    native:'简体中文',    region:'CN' },
+    { code:'ja', label:'日本語',      native:'日本語',      region:'JP' },
+    { code:'ko', label:'한국어',      native:'한국어',      region:'KR' },
+    { code:'fr', label:'Français',   native:'Français',   region:'FR' },
+    { code:'de', label:'Deutsch',    native:'Deutsch',    region:'DE' },
+    { code:'it', label:'Italiano',   native:'Italiano',   region:'IT' },
+    { code:'es', label:'Español',    native:'Español',    region:'ES' },
+    { code:'pt', label:'Português',  native:'Português',  region:'BR' },
+    { code:'ru', label:'Русский',    native:'Русский',    region:'RU' },
+    { code:'tr', label:'Türkçe',     native:'Türkçe',     region:'TR' },
+    { code:'zh-TW', label:'繁體中文',  native:'繁體中文',    region:'TW' },
+  ];
+
+  var DICT = {
+    en: {
+      'page.title':'Image Blender — Ad Image De-Duplication Tool | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'Ad Image De-Duplication Tool',
+      'nav.home':'Home',
+      'hero.badge':'100% Browser-Side Edge Computing · Zero Upload · Absolute Privacy',
+      'hero.title':'Ad Image Smart De-Duplication',
+      'hero.desc':'All processing runs locally in your browser — your creative assets never leave your device.',
+      'presets.heading':'Quick Presets',
+      'presets.quick.name':'Quick Dedup','presets.quick.desc':'MD5 + EXIF + 0.5% crop',
+      'presets.deep.name':'Deep Dedup','presets.deep.desc':'Full mutation · revive spent assets',
+      'presets.mirror.name':'Mirror Dedup','presets.mirror.desc':'Flip + quick/deep base',
+      'presets.mirror.warn':'⚠️ Only use Mirror mode on images WITHOUT text, logos, or directional elements — mirrored text will cause ad rejection!',
+      'presets.deep.warn':'⚠️ Deep mode applies aggressive mutation. Please visually verify output before uploading — text/logos may be affected.',
+      'layer.base':'Base Layer · File-Level','layer.base.md5':'MD5 mutation (append random EOF bytes)','layer.base.exif':'EXIF metadata removal (canvas re-render)','layer.base.note':'Always active · Zero visual quality loss',
+      'layer.pixel':'Pixel Layer · pHash Evasion',
+      'layer.color':'Color & Lighting · CNN Evasion',
+      'slider.crop':'Micro-crop & stretch','slider.noise':'Noise injection','slider.mirror':'Mirror flip (L↔R)',
+      'slider.brightness':'Brightness shift','slider.saturation':'Saturation shift','slider.contrast':'Contrast shift',
+      'slider.gamma':'Gamma curve','slider.mask':'Semi-transparent mask','slider.mask.hint':'Overlays a color veil to disrupt CNN color-space','slider.mask.opacity':'Mask opacity',
+      'btn.randomize':'Randomize All Active Parameters',
+      'dropzone.title':'Click or drag & drop ad images here','dropzone.hint':'Supports PNG, JPG, WEBP · Multi-file batch · ZIP input',
+      'files.loaded':'Loaded Files',
+      'preview.title':'Live Preview · Before / After','preview.placeholder':'Select an image from the file list to preview',
+      'status.processing':'Processing...','status.complete':'Complete',
+      'btn.process':'🚀 Start Batch Processing','btn.download':'📦 Download ZIP',
+      'footer.powered':'Powered by','footer.privacy':'No logs. No tracking. All image processing runs in your browser — no files are ever uploaded or stored.',
     },
-    colorLayer: {
-      enabled: document.getElementById('color-enabled').checked,
-      brightnessDelta: parseFloat(document.getElementById('brightness-slider').value) * 2.55,
-      saturationDelta: parseFloat(document.getElementById('saturation-slider').value) / 100,
-      contrastDelta: 1 + parseFloat(document.getElementById('contrast-slider').value) / 100,
-      gamma: parseFloat(document.getElementById('gamma-slider').value),
-      maskEnabled: document.getElementById('mask-enabled').checked,
-      maskColor: document.getElementById('mask-color').value,
-      maskOpacity: parseFloat(document.getElementById('mask-opacity').value) / 100,
+    zh: {
+      'page.title':'Image Blender — 广告图片去重工具 | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'广告图片智能去重工具',
+      'nav.home':'首页',
+      'hero.badge':'100% 浏览器边缘计算 · 零上传 · 绝对隐私',
+      'hero.title':'广告图片智能去重',
+      'hero.desc':'所有处理均在浏览器本地运行 — 您的创意素材绝不会离开您的设备。',
+      'presets.heading':'快捷预设',
+      'presets.quick.name':'快速去重','presets.quick.desc':'MD5 + EXIF + 0.5% 裁剪',
+      'presets.deep.name':'深度去重','presets.deep.desc':'全面变异 · 挽救已跑烂素材',
+      'presets.mirror.name':'镜像去重','presets.mirror.desc':'翻转 + 快速/深度基础',
+      'presets.mirror.warn':'⚠️ 仅在图片不含文字、Logo 或方向性元素时使用镜像模式 — 翻转后的反字会导致广告拒审！',
+      'presets.deep.warn':'⚠️ 深度模式会施加激进变异。请在上传前仔细检查输出 — 文字/Logo 可能受影响。',
+      'layer.base':'基础层 · 文件级','layer.base.md5':'MD5 篡改（EOF 追加随机字节）','layer.base.exif':'EXIF 元数据抹除（Canvas 重绘）','layer.base.note':'始终启用 · 零视觉质量损失',
+      'layer.pixel':'像素层 · pHash 对抗',
+      'layer.color':'色彩与光影层 · CNN 对抗',
+      'slider.crop':'微幅裁剪与拉伸','slider.noise':'噪点注入','slider.mirror':'镜像翻转 (L↔R)',
+      'slider.brightness':'亮度偏移','slider.saturation':'饱和度偏移','slider.contrast':'对比度偏移',
+      'slider.gamma':'伽马曲线','slider.mask':'半透明掩膜','slider.mask.hint':'叠加颜色面纱以破坏 CNN 色彩空间','slider.mask.opacity':'掩膜透明度',
+      'btn.randomize':'随机化所有激活参数',
+      'dropzone.title':'点击或将广告图片拖拽至此处','dropzone.hint':'支持 PNG、JPG、WEBP · 批量处理 · ZIP 导入',
+      'files.loaded':'已加载文件',
+      'preview.title':'实时预览 · 处理前/后','preview.placeholder':'从文件列表中选择一张图片预览',
+      'status.processing':'处理中...','status.complete':'完成',
+      'btn.process':'🚀 开始批量处理','btn.download':'📦 下载 ZIP',
+      'footer.powered':'由','footer.privacy':'无日志 · 无追踪。所有图片处理均在浏览器中完成 — 不会上传或存储任何文件。',
+    },
+    ja: {
+      'page.title':'Image Blender — 広告画像重複排除ツール | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'広告画像 重複排除ツール',
+      'nav.home':'ホーム',
+      'hero.badge':'100% ブラウザエッジコンピューティング · ゼロアップロード · 完全プライバシー',
+      'hero.title':'広告画像スマート重複排除',
+      'hero.desc':'すべての処理はブラウザ内でローカル実行 — クリエイティブ資産がデバイスから出ることはありません。',
+      'presets.heading':'クイックプリセット',
+      'presets.quick.name':'高速重複排除','presets.quick.desc':'MD5 + EXIF + 0.5% クロップ',
+      'presets.deep.name':'深度重複排除','presets.deep.desc':'完全変異 · 使用済み素材の復活',
+      'presets.mirror.name':'ミラー重複排除','presets.mirror.desc':'反転 + 高速/深度ベース',
+      'presets.mirror.warn':'⚠️ 文字、ロゴ、方向性のある要素を含まない画像にのみミラーモードを使用してください — 反転した文字は広告拒否の原因になります！',
+      'presets.deep.warn':'⚠️ 深度モードは強力な変異を適用します。アップロード前に出力を目視確認してください — 文字/ロゴが影響を受ける可能性があります。',
+      'layer.base':'基本層 · ファイルレベル','layer.base.md5':'MD5 変異（EOF にランダムバイト追加）','layer.base.exif':'EXIF メタデータ除去（Canvas 再描画）','layer.base.note':'常時有効 · 視覚的品質損失ゼロ',
+      'layer.pixel':'ピクセル層 · pHash 回避',
+      'layer.color':'色彩・光量層 · CNN 回避',
+      'slider.crop':'微小クロップとストレッチ','slider.noise':'ノイズ注入','slider.mirror':'ミラー反転 (L↔R)',
+      'slider.brightness':'明度シフト','slider.saturation':'彩度シフト','slider.contrast':'コントラストシフト',
+      'slider.gamma':'ガンマ曲線','slider.mask':'半透明マスク','slider.mask.hint':'CNN 色空間を乱すカラーベールを重ねる','slider.mask.opacity':'マスク不透明度',
+      'btn.randomize':'全アクティブパラメータをランダム化',
+      'dropzone.title':'ここをクリックまたは広告画像をドラッグ＆ドロップ','dropzone.hint':'PNG、JPG、WEBP対応 · バッチ処理 · ZIP入力',
+      'files.loaded':'読み込み済みファイル',
+      'preview.title':'ライブプレビュー · 処理前 / 後','preview.placeholder':'ファイルリストから画像を選択してプレビュー',
+      'status.processing':'処理中...','status.complete':'完了',
+      'btn.process':'🚀 バッチ処理を開始','btn.download':'📦 ZIPをダウンロード',
+      'footer.powered':'提供','footer.privacy':'ログなし・追跡なし。すべての画像処理はブラウザ内で行われ — ファイルのアップロードや保存は一切ありません。',
+    },
+    ko: {
+      'page.title':'Image Blender — 광고 이미지 중복 제거 도구 | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'광고 이미지 중복 제거 도구',
+      'nav.home':'홈',
+      'hero.badge':'100% 브라우저 엣지 컴퓨팅 · 제로 업로드 · 완벽한 개인정보',
+      'hero.title':'광고 이미지 스마트 중복 제거',
+      'hero.desc':'모든 처리가 브라우저에서 로컬로 실행 — 크리에이티브 자산이 기기를 떠나지 않습니다.',
+      'presets.heading':'빠른 프리셋',
+      'presets.quick.name':'빠른 중복 제거','presets.quick.desc':'MD5 + EXIF + 0.5% 크롭',
+      'presets.deep.name':'심층 중복 제거','presets.deep.desc':'전체 변이 · 소진된 소재 복구',
+      'presets.mirror.name':'미러 중복 제거','presets.mirror.desc':'뒤집기 + 빠른/심층 기반',
+      'presets.mirror.warn':'⚠️ 텍스트, 로고 또는 방향성 요소가 없는 이미지에만 미러 모드를 사용하세요 — 뒤집힌 텍스트는 광고 거부 사유가 됩니다!',
+      'presets.deep.warn':'⚠️ 심층 모드는 강력한 변이를 적용합니다. 업로드 전에 출력을 육안으로 확인하세요 — 텍스트/로고가 영향받을 수 있습니다.',
+      'layer.base':'기본 레이어 · 파일 레벨','layer.base.md5':'MD5 변이 (EOF에 랜덤 바이트 추가)','layer.base.exif':'EXIF 메타데이터 제거 (캔버스 재렌더링)','layer.base.note':'항상 활성 · 시각적 품질 손실 없음',
+      'layer.pixel':'픽셀 레이어 · pHash 회피',
+      'layer.color':'색상 및 조명 레이어 · CNN 회피',
+      'slider.crop':'미세 크롭 및 스트레치','slider.noise':'노이즈 주입','slider.mirror':'좌우 반전 (L↔R)',
+      'slider.brightness':'밝기 조정','slider.saturation':'채도 조정','slider.contrast':'대비 조정',
+      'slider.gamma':'감마 곡선','slider.mask':'반투명 마스크','slider.mask.hint':'CNN 색공간을 교란하는 색상 베일 오버레이','slider.mask.opacity':'마스크 불투명도',
+      'btn.randomize':'모든 활성 매개변수 무작위화',
+      'dropzone.title':'여기를 클릭하거나 광고 이미지를 드래그 앤 드롭','dropzone.hint':'PNG, JPG, WEBP 지원 · 배치 처리 · ZIP 입력',
+      'files.loaded':'로드된 파일',
+      'preview.title':'실시간 미리보기 · 처리 전/후','preview.placeholder':'파일 목록에서 이미지를 선택하여 미리보기',
+      'status.processing':'처리 중...','status.complete':'완료',
+      'btn.process':'🚀 배치 처리 시작','btn.download':'📦 ZIP 다운로드',
+      'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음. 모든 이미지 처리는 브라우저에서 수행되며 — 파일이 업로드되거나 저장되지 않습니다.',
+    },
+    fr: {
+      'page.title':'Image Blender — Outil de déduplication d\'images publicitaires | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'Outil de déduplication d\'images pub',
+      'nav.home':'Accueil',
+      'hero.badge':'100% Calcul en périphérie navigateur · Zéro téléversement · Confidentialité absolue',
+      'hero.title':'Déduplication intelligente d\'images publicitaires',
+      'hero.desc':'Tout le traitement s\'exécute localement dans votre navigateur — vos créations ne quittent jamais votre appareil.',
+      'presets.heading':'Présélections rapides',
+      'presets.quick.name':'Dédup rapide','presets.quick.desc':'MD5 + EXIF + recadrage 0,5%',
+      'presets.deep.name':'Dédup profond','presets.deep.desc':'Mutation complète · faire revivre les anciens visuels',
+      'presets.mirror.name':'Dédup miroir','presets.mirror.desc':'Retournement + base rapide/profonde',
+      'presets.mirror.warn':'⚠️ Utilisez le mode Miroir UNIQUEMENT sur des images SANS texte, logo ou éléments directionnels — un texte inversé entraînera un rejet de l\'annonce !',
+      'presets.deep.warn':'⚠️ Le mode profond applique des mutations agressives. Vérifiez visuellement le résultat avant de publier — le texte/logos peuvent être affectés.',
+      'layer.base':'Couche de base · Niveau fichier','layer.base.md5':'Mutation MD5 (ajout d\'octets aléatoires en EOF)','layer.base.exif':'Suppression des métadonnées EXIF (re-rendu Canvas)','layer.base.note':'Toujours actif · Aucune perte de qualité visuelle',
+      'layer.pixel':'Couche pixel · Évitement pHash',
+      'layer.color':'Couche couleur et luminosité · Évitement CNN',
+      'slider.crop':'Micro-recadrage et étirement','slider.noise':'Injection de bruit','slider.mirror':'Retournement miroir (G↔D)',
+      'slider.brightness':'Décalage de luminosité','slider.saturation':'Décalage de saturation','slider.contrast':'Décalage de contraste',
+      'slider.gamma':'Courbe gamma','slider.mask':'Masque semi-transparent','slider.mask.hint':'Superpose un voile de couleur pour perturber l\'espace colorimétrique CNN','slider.mask.opacity':'Opacité du masque',
+      'btn.randomize':'Aléatoiriser tous les paramètres actifs',
+      'dropzone.title':'Cliquez ou glissez-déposez vos images publicitaires ici','dropzone.hint':'Prend en charge PNG, JPG, WEBP · Traitement par lot · Entrée ZIP',
+      'files.loaded':'Fichiers chargés',
+      'preview.title':'Aperçu en direct · Avant / Après','preview.placeholder':'Sélectionnez une image dans la liste pour prévisualiser',
+      'status.processing':'Traitement en cours...','status.complete':'Terminé',
+      'btn.process':'🚀 Lancer le traitement par lot','btn.download':'📦 Télécharger ZIP',
+      'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Tout le traitement d\'image s\'exécute dans votre navigateur — aucun fichier n\'est jamais téléversé ni stocké.',
+    },
+    de: {
+      'page.title':'Image Blender — Tool zur Deduplizierung von Werbebildern | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'Werbebild-Deduplizierungstool',
+      'nav.home':'Startseite',
+      'hero.badge':'100% Browser-Edge-Computing · Kein Upload · Absolute Privatsphäre',
+      'hero.title':'Intelligente Werbebild-Deduplizierung',
+      'hero.desc':'Die gesamte Verarbeitung erfolgt lokal in Ihrem Browser — Ihre kreativen Assets verlassen niemals Ihr Gerät.',
+      'presets.heading':'Schnellvorlagen',
+      'presets.quick.name':'Schnelle Dedup','presets.quick.desc':'MD5 + EXIF + 0,5% Zuschnitt',
+      'presets.deep.name':'Tiefen-Dedup','presets.deep.desc':'Vollständige Mutation · verbrauchte Assets wiederbeleben',
+      'presets.mirror.name':'Spiegel-Dedup','presets.mirror.desc':'Spiegelung + Schnell-/Tiefenbasis',
+      'presets.mirror.warn':'⚠️ Verwenden Sie den Spiegelmodus NUR bei Bildern OHNE Text, Logos oder Richtungselemente — gespiegelter Text führt zur Ablehnung der Anzeige!',
+      'presets.deep.warn':'⚠️ Der Tiefenmodus wendet aggressive Mutationen an. Bitte überprüfen Sie die Ausgabe visuell vor dem Hochladen — Text/Logos können betroffen sein.',
+      'layer.base':'Basisebene · Dateiebene','layer.base.md5':'MD5-Mutation (Zufallsbytes am EOF anhängen)','layer.base.exif':'EXIF-Metadatenentfernung (Canvas-Neuzeichnung)','layer.base.note':'Immer aktiv · Kein visueller Qualitätsverlust',
+      'layer.pixel':'Pixelebene · pHash-Vermeidung',
+      'layer.color':'Farb- und Beleuchtungsebene · CNN-Vermeidung',
+      'slider.crop':'Mikrozuschnitt und Streckung','slider.noise':'Rauschinjektion','slider.mirror':'Spiegelung (L↔R)',
+      'slider.brightness':'Helligkeitsverschiebung','slider.saturation':'Sättigungsverschiebung','slider.contrast':'Kontrastverschiebung',
+      'slider.gamma':'Gamma-Kurve','slider.mask':'Halbtransparente Maske','slider.mask.hint':'Überlagert einen Farbschleier zur Störung des CNN-Farbraums','slider.mask.opacity':'Maskendeckkraft',
+      'btn.randomize':'Alle aktiven Parameter zufällig setzen',
+      'dropzone.title':'Hier klicken oder Werbebilder per Drag & Drop ablegen','dropzone.hint':'Unterstützt PNG, JPG, WEBP · Stapelverarbeitung · ZIP-Eingabe',
+      'files.loaded':'Geladene Dateien',
+      'preview.title':'Live-Vorschau · Vorher / Nachher','preview.placeholder':'Wählen Sie ein Bild aus der Dateiliste zur Vorschau',
+      'status.processing':'Verarbeitung...','status.complete':'Abgeschlossen',
+      'btn.process':'🚀 Stapelverarbeitung starten','btn.download':'📦 ZIP herunterladen',
+      'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Die gesamte Bildverarbeitung erfolgt in Ihrem Browser — keine Dateien werden jemals hochgeladen oder gespeichert.',
+    },
+    it: {
+      'page.title':'Image Blender — Strumento di deduplica immagini pubblicitarie | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'Strumento di deduplica immagini pub',
+      'nav.home':'Home',
+      'hero.badge':'100% Elaborazione lato browser · Zero upload · Privacy assoluta',
+      'hero.title':'Deduplica intelligente immagini pubblicitarie',
+      'hero.desc':'Tutta l\'elaborazione avviene localmente nel browser — i tuoi asset creativi non lasciano mai il dispositivo.',
+      'presets.heading':'Preimpostazioni rapide',
+      'presets.quick.name':'Dedup rapida','presets.quick.desc':'MD5 + EXIF + ritaglio 0,5%',
+      'presets.deep.name':'Dedup profonda','presets.deep.desc':'Mutazione completa · rivitalizza asset esauriti',
+      'presets.mirror.name':'Dedup speculare','presets.mirror.desc':'Riflessione + base rapida/profonda',
+      'presets.mirror.warn':'⚠️ Usa la modalità Specchio SOLO su immagini SENZA testo, logo o elementi direzionali — il testo specchiato causerà il rifiuto dell\'annuncio!',
+      'presets.deep.warn':'⚠️ La modalità profonda applica mutazioni aggressive. Verifica visivamente l\'output prima di caricare — testo/loghi potrebbero essere influenzati.',
+      'layer.base':'Livello base · Livello file','layer.base.md5':'Mutazione MD5 (aggiunta byte casuali in EOF)','layer.base.exif':'Rimozione metadati EXIF (re-rendering Canvas)','layer.base.note':'Sempre attivo · Nessuna perdita di qualità visiva',
+      'layer.pixel':'Livello pixel · Elusione pHash',
+      'layer.color':'Livello colore e illuminazione · Elusione CNN',
+      'slider.crop':'Micro-ritaglio e stiramento','slider.noise':'Iniezione rumore','slider.mirror':'Riflessione speculare (S↔D)',
+      'slider.brightness':'Variazione luminosità','slider.saturation':'Variazione saturazione','slider.contrast':'Variazione contrasto',
+      'slider.gamma':'Curva gamma','slider.mask':'Maschera semitrasparente','slider.mask.hint':'Sovrappone un velo di colore per disturbare lo spazio colore CNN','slider.mask.opacity':'Opacità maschera',
+      'btn.randomize':'Randomizza tutti i parametri attivi',
+      'dropzone.title':'Clicca o trascina qui le immagini pubblicitarie','dropzone.hint':'Supporta PNG, JPG, WEBP · Elaborazione batch · Input ZIP',
+      'files.loaded':'File caricati',
+      'preview.title':'Anteprima dal vivo · Prima / Dopo','preview.placeholder':'Seleziona un\'immagine dall\'elenco per l\'anteprima',
+      'status.processing':'Elaborazione...','status.complete':'Completato',
+      'btn.process':'🚀 Avvia elaborazione batch','btn.download':'📦 Scarica ZIP',
+      'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. Tutta l\'elaborazione delle immagini avviene nel browser — nessun file viene mai caricato o archiviato.',
+    },
+    es: {
+      'page.title':'Image Blender — Herramienta de deduplicación de imágenes publicitarias | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'Herramienta de deduplicación de imágenes',
+      'nav.home':'Inicio',
+      'hero.badge':'100% Computación en el borde del navegador · Cero subida · Privacidad absoluta',
+      'hero.title':'Deduplicación inteligente de imágenes publicitarias',
+      'hero.desc':'Todo el procesamiento se ejecuta localmente en su navegador — sus activos creativos nunca abandonan su dispositivo.',
+      'presets.heading':'Preajustes rápidos',
+      'presets.quick.name':'Dedup rápido','presets.quick.desc':'MD5 + EXIF + recorte 0,5%',
+      'presets.deep.name':'Dedup profundo','presets.deep.desc':'Mutación completa · revivir activos gastados',
+      'presets.mirror.name':'Dedup espejo','presets.mirror.desc':'Volteo + base rápida/profunda',
+      'presets.mirror.warn':'⚠️ ¡Use el modo Espejo SOLO en imágenes SIN texto, logotipos o elementos direccionales — el texto espejado causará el rechazo del anuncio!',
+      'presets.deep.warn':'⚠️ El modo profundo aplica mutaciones agresivas. Verifique visualmente la salida antes de subir — el texto/logotipos pueden verse afectados.',
+      'layer.base':'Capa base · Nivel de archivo','layer.base.md5':'Mutación MD5 (añadir bytes aleatorios al EOF)','layer.base.exif':'Eliminación de metadatos EXIF (redibujado Canvas)','layer.base.note':'Siempre activo · Sin pérdida de calidad visual',
+      'layer.pixel':'Capa de píxeles · Evasión pHash',
+      'layer.color':'Capa de color e iluminación · Evasión CNN',
+      'slider.crop':'Micro-recorte y estiramiento','slider.noise':'Inyección de ruido','slider.mirror':'Volteo espejo (I↔D)',
+      'slider.brightness':'Desplazamiento de brillo','slider.saturation':'Desplazamiento de saturación','slider.contrast':'Desplazamiento de contraste',
+      'slider.gamma':'Curva gamma','slider.mask':'Máscara semitransparente','slider.mask.hint':'Superpone un velo de color para perturbar el espacio de color CNN','slider.mask.opacity':'Opacidad de máscara',
+      'btn.randomize':'Aleatorizar todos los parámetros activos',
+      'dropzone.title':'Haga clic o arrastre imágenes publicitarias aquí','dropzone.hint':'Compatible con PNG, JPG, WEBP · Procesamiento por lotes · Entrada ZIP',
+      'files.loaded':'Archivos cargados',
+      'preview.title':'Vista previa en vivo · Antes / Después','preview.placeholder':'Seleccione una imagen de la lista para previsualizar',
+      'status.processing':'Procesando...','status.complete':'Completado',
+      'btn.process':'🚀 Iniciar procesamiento por lotes','btn.download':'📦 Descargar ZIP',
+      'footer.powered':'Desarrollado por','footer.privacy':'Sin registros. Sin seguimiento. Todo el procesamiento de imágenes se ejecuta en su navegador — ningún archivo se sube o almacena.',
+    },
+    pt: {
+      'page.title':'Image Blender — Ferramenta de deduplicação de imagens publicitárias | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'Ferramenta de deduplicação de imagens',
+      'nav.home':'Início',
+      'hero.badge':'100% Computação de borda no navegador · Zero upload · Privacidade absoluta',
+      'hero.title':'Deduplicação inteligente de imagens publicitárias',
+      'hero.desc':'Todo o processamento é executado localmente no seu navegador — seus ativos criativos nunca saem do seu dispositivo.',
+      'presets.heading':'Predefinições rápidas',
+      'presets.quick.name':'Dedup rápido','presets.quick.desc':'MD5 + EXIF + corte 0,5%',
+      'presets.deep.name':'Dedup profundo','presets.deep.desc':'Mutação completa · reviver ativos esgotados',
+      'presets.mirror.name':'Dedup espelho','presets.mirror.desc':'Espelhamento + base rápida/profunda',
+      'presets.mirror.warn':'⚠️ Use o modo Espelho APENAS em imagens SEM texto, logotipos ou elementos direcionais — texto espelhado causará rejeição do anúncio!',
+      'presets.deep.warn':'⚠️ O modo profundo aplica mutações agressivas. Verifique visualmente a saída antes de enviar — texto/logotipos podem ser afetados.',
+      'layer.base':'Camada base · Nível de arquivo','layer.base.md5':'Mutação MD5 (anexar bytes aleatórios ao EOF)','layer.base.exif':'Remoção de metadados EXIF (re-renderização Canvas)','layer.base.note':'Sempre ativo · Zero perda de qualidade visual',
+      'layer.pixel':'Camada de pixels · Evasão pHash',
+      'layer.color':'Camada de cor e iluminação · Evasão CNN',
+      'slider.crop':'Micro-corte e estiramento','slider.noise':'Injeção de ruído','slider.mirror':'Espelhamento (E↔D)',
+      'slider.brightness':'Deslocamento de brilho','slider.saturation':'Deslocamento de saturação','slider.contrast':'Deslocamento de contraste',
+      'slider.gamma':'Curva gama','slider.mask':'Máscara semitransparente','slider.mask.hint':'Sobrepõe um véu de cor para perturbar o espaço de cor CNN','slider.mask.opacity':'Opacidade da máscara',
+      'btn.randomize':'Aleatorizar todos os parâmetros ativos',
+      'dropzone.title':'Clique ou arraste imagens publicitárias aqui','dropzone.hint':'Suporta PNG, JPG, WEBP · Processamento em lote · Entrada ZIP',
+      'files.loaded':'Arquivos carregados',
+      'preview.title':'Pré-visualização ao vivo · Antes / Depois','preview.placeholder':'Selecione uma imagem da lista para pré-visualizar',
+      'status.processing':'Processando...','status.complete':'Concluído',
+      'btn.process':'🚀 Iniciar processamento em lote','btn.download':'📦 Baixar ZIP',
+      'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Todo o processamento de imagens é executado no seu navegador — nenhum arquivo é enviado ou armazenado.',
+    },
+    ru: {
+      'page.title':'Image Blender — Инструмент дедупликации рекламных изображений | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'Инструмент дедупликации изображений',
+      'nav.home':'Главная',
+      'hero.badge':'100% Вычисления на стороне браузера · Без загрузки · Полная конфиденциальность',
+      'hero.title':'Умная дедупликация рекламных изображений',
+      'hero.desc':'Вся обработка выполняется локально в вашем браузере — ваши креативные материалы никогда не покидают ваше устройство.',
+      'presets.heading':'Быстрые пресеты',
+      'presets.quick.name':'Быстрая дедупликация','presets.quick.desc':'MD5 + EXIF + обрезка 0,5%',
+      'presets.deep.name':'Глубокая дедупликация','presets.deep.desc':'Полная мутация · оживление старых креативов',
+      'presets.mirror.name':'Зеркальная дедупликация','presets.mirror.desc':'Отражение + быстрая/глубокая основа',
+      'presets.mirror.warn':'⚠️ Используйте зеркальный режим ТОЛЬКО для изображений БЕЗ текста, логотипов или направленных элементов — зеркальный текст приведёт к отклонению объявления!',
+      'presets.deep.warn':'⚠️ Глубокий режим применяет агрессивные мутации. Визуально проверьте результат перед загрузкой — текст/логотипы могут пострадать.',
+      'layer.base':'Базовый слой · Уровень файла','layer.base.md5':'Мутация MD5 (добавление случайных байтов в EOF)','layer.base.exif':'Удаление метаданных EXIF (перерисовка Canvas)','layer.base.note':'Всегда активно · Нулевая потеря визуального качества',
+      'layer.pixel':'Пиксельный слой · Обход pHash',
+      'layer.color':'Слой цвета и освещения · Обход CNN',
+      'slider.crop':'Микро-обрезка и растяжение','slider.noise':'Внесение шума','slider.mirror':'Зеркальное отражение (Л↔П)',
+      'slider.brightness':'Сдвиг яркости','slider.saturation':'Сдвиг насыщенности','slider.contrast':'Сдвиг контрастности',
+      'slider.gamma':'Гамма-кривая','slider.mask':'Полупрозрачная маска','slider.mask.hint':'Накладывает цветную вуаль для нарушения цветового пространства CNN','slider.mask.opacity':'Непрозрачность маски',
+      'btn.randomize':'Рандомизировать все активные параметры',
+      'dropzone.title':'Нажмите или перетащите рекламные изображения сюда','dropzone.hint':'Поддерживает PNG, JPG, WEBP · Пакетная обработка · ZIP-ввод',
+      'files.loaded':'Загруженные файлы',
+      'preview.title':'Предпросмотр · До / После','preview.placeholder':'Выберите изображение из списка для предпросмотра',
+      'status.processing':'Обработка...','status.complete':'Завершено',
+      'btn.process':'🚀 Начать пакетную обработку','btn.download':'📦 Скачать ZIP',
+      'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Вся обработка изображений выполняется в вашем браузере — файлы никогда не загружаются и не сохраняются.',
+    },
+    tr: {
+      'page.title':'Image Blender — Reklam Görseli Benzersizleştirme Aracı | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'Reklam Görseli Benzersizleştirme Aracı',
+      'nav.home':'Ana Sayfa',
+      'hero.badge':'%100 Tarayıcı Uç Bilişimi · Sıfır Yükleme · Mutlak Gizlilik',
+      'hero.title':'Akıllı Reklam Görseli Benzersizleştirme',
+      'hero.desc':'Tüm işlemler tarayıcınızda yerel olarak çalışır — yaratıcı varlıklarınız asla cihazınızdan çıkmaz.',
+      'presets.heading':'Hızlı Ön Ayarlar',
+      'presets.quick.name':'Hızlı Benzersizleştirme','presets.quick.desc':'MD5 + EXIF + %0,5 kırpma',
+      'presets.deep.name':'Derin Benzersizleştirme','presets.deep.desc':'Tam mutasyon · tükenmiş varlıkları canlandırma',
+      'presets.mirror.name':'Ayna Benzersizleştirme','presets.mirror.desc':'Çevirme + hızlı/derin temel',
+      'presets.mirror.warn':'⚠️ Ayna modunu YALNIZCA metin, logo veya yönlü öğeler OLMAYAN görsellerde kullanın — aynalanmış metin reklam reddine neden olur!',
+      'presets.deep.warn':'⚠️ Derin mod agresif mutasyonlar uygular. Yüklemeden önce çıktıyı görsel olarak kontrol edin — metin/logolar etkilenebilir.',
+      'layer.base':'Temel Katman · Dosya Düzeyi','layer.base.md5':'MD5 mutasyonu (EOF\'a rastgele bayt ekleme)','layer.base.exif':'EXIF meta verisi kaldırma (Canvas yeniden çizimi)','layer.base.note':'Her zaman aktif · Sıfır görsel kalite kaybı',
+      'layer.pixel':'Piksel Katmanı · pHash Atlatma',
+      'layer.color':'Renk ve Işık Katmanı · CNN Atlatma',
+      'slider.crop':'Mikro kırpma ve germe','slider.noise':'Gürültü enjeksiyonu','slider.mirror':'Ayna çevirme (S↔Sa)',
+      'slider.brightness':'Parlaklık kaydırma','slider.saturation':'Doygunluk kaydırma','slider.contrast':'Kontrast kaydırma',
+      'slider.gamma':'Gama eğrisi','slider.mask':'Yarı saydam maske','slider.mask.hint':'CNN renk uzayını bozmak için renk perdesi kaplar','slider.mask.opacity':'Maske opaklığı',
+      'btn.randomize':'Tüm Aktif Parametreleri Rastgele Belirle',
+      'dropzone.title':'Buraya tıklayın veya reklam görsellerini sürükleyip bırakın','dropzone.hint':'PNG, JPG, WEBP destekler · Toplu işlem · ZIP girişi',
+      'files.loaded':'Yüklenen Dosyalar',
+      'preview.title':'Canlı Önizleme · Önce / Sonra','preview.placeholder':'Önizlemek için dosya listesinden bir görsel seçin',
+      'status.processing':'İşleniyor...','status.complete':'Tamamlandı',
+      'btn.process':'🚀 Toplu İşlemi Başlat','btn.download':'📦 ZIP İndir',
+      'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Tüm görüntü işleme tarayıcınızda çalışır — hiçbir dosya yüklenmez veya saklanmaz.',
+    },
+    'zh-TW': {
+      'page.title':'Image Blender — 廣告圖片去重工具 | LinkoZen',
+      'app.title':'Image Blender','app.subtitle':'廣告圖片智慧去重工具',
+      'nav.home':'首頁',
+      'hero.badge':'100% 瀏覽器邊緣運算 · 零上傳 · 絕對隱私',
+      'hero.title':'廣告圖片智慧去重',
+      'hero.desc':'所有處理均在瀏覽器本機執行 — 您的創意素材絕不會離開您的裝置。',
+      'presets.heading':'快速預設',
+      'presets.quick.name':'快速去重','presets.quick.desc':'MD5 + EXIF + 0.5% 裁剪',
+      'presets.deep.name':'深度去重','presets.deep.desc':'全面變異 · 挽救已跑爛素材',
+      'presets.mirror.name':'鏡像去重','presets.mirror.desc':'翻轉 + 快速/深度基礎',
+      'presets.mirror.warn':'⚠️ 僅在圖片不含文字、Logo 或方向性元素時使用鏡像模式 — 翻轉後的反字會導致廣告拒審！',
+      'presets.deep.warn':'⚠️ 深度模式會施加激進變異。請在上傳前仔細檢查輸出 — 文字/Logo 可能受影響。',
+      'layer.base':'基礎層 · 檔案級','layer.base.md5':'MD5 篡改（EOF 追加隨機位元組）','layer.base.exif':'EXIF 中繼資料抹除（Canvas 重繪）','layer.base.note':'始終啟用 · 零視覺品質損失',
+      'layer.pixel':'像素層 · pHash 對抗',
+      'layer.color':'色彩與光影層 · CNN 對抗',
+      'slider.crop':'微幅裁剪與拉伸','slider.noise':'噪點注入','slider.mirror':'鏡像翻轉 (L↔R)',
+      'slider.brightness':'亮度偏移','slider.saturation':'飽和度偏移','slider.contrast':'對比度偏移',
+      'slider.gamma':'伽馬曲線','slider.mask':'半透明遮罩','slider.mask.hint':'疊加顏色面紗以破壞 CNN 色彩空間','slider.mask.opacity':'遮罩不透明度',
+      'btn.randomize':'隨機化所有啟用參數',
+      'dropzone.title':'點擊或將廣告圖片拖曳至此處','dropzone.hint':'支援 PNG、JPG、WEBP · 批次處理 · ZIP 匯入',
+      'files.loaded':'已載入檔案',
+      'preview.title':'即時預覽 · 處理前/後','preview.placeholder':'從檔案列表中選擇一張圖片預覽',
+      'status.processing':'處理中...','status.complete':'完成',
+      'btn.process':'🚀 開始批次處理','btn.download':'📦 下載 ZIP',
+      'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤。所有圖片處理均在瀏覽器中完成 — 不會上傳或儲存任何檔案。',
     },
   };
-}
 
-// ============================================================================
-//  PRESETS
-// ============================================================================
-function applyPreset(type) {
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('border-violet-400', 'bg-violet-50'));
-  const warn = document.getElementById('preset-warning');
+  var currentLang = localStorage.getItem('dedupli-lang') || 'en';
 
-  if (type === 'quick') {
-    document.getElementById('preset-quick').classList.add('border-violet-400', 'bg-violet-50');
-    document.getElementById('pixel-enabled').checked = true;
-    document.getElementById('crop-slider').value = 0.5;
-    document.getElementById('noise-slider').value = 0;
-    document.getElementById('mirror-enabled').checked = false;
-    document.getElementById('color-enabled').checked = true;
-    document.getElementById('brightness-slider').value = 0.5;
-    document.getElementById('saturation-slider').value = 0;
-    document.getElementById('contrast-slider').value = 0;
-    document.getElementById('gamma-slider').value = 1.00;
-    document.getElementById('mask-enabled').checked = false;
-    warn.classList.add('hidden');
-  } else if (type === 'deep') {
-    document.getElementById('preset-deep').classList.add('border-violet-400', 'bg-violet-50');
-    document.getElementById('pixel-enabled').checked = true;
-    document.getElementById('crop-slider').value = 1.2;
-    document.getElementById('noise-slider').value = 0.8;
-    document.getElementById('mirror-enabled').checked = false;
-    document.getElementById('color-enabled').checked = true;
-    document.getElementById('brightness-slider').value = 1.5;
-    document.getElementById('saturation-slider').value = 1.0;
-    document.getElementById('contrast-slider').value = 1.0;
-    document.getElementById('gamma-slider').value = 1.00;
-    document.getElementById('mask-enabled').checked = true;
-    document.getElementById('mask-opacity').value = 0.5;
-    warn.classList.remove('hidden');
-    // Show a slightly different warning for Deep mode
-    warn.innerHTML = '⚠️ Deep mode applies aggressive mutation. Please visually verify output before uploading — text/logos may be affected.';
-  } else if (type === 'mirror') {
-    document.getElementById('preset-mirror').classList.add('border-violet-400', 'bg-violet-50');
-    document.getElementById('pixel-enabled').checked = true;
-    document.getElementById('mirror-enabled').checked = true;
-    warn.classList.remove('hidden');
-    warn.innerHTML = '⚠️ Only enable Mirror on images WITHOUT text, brand logos, or directional elements — mirrored text will cause ad rejection!';
+  function t(key) {
+    var d = DICT[currentLang] || DICT['en'];
+    return d[key] != null ? d[key] : (DICT['en'][key] != null ? DICT['en'][key] : key);
   }
-  syncUI();
-}
 
-// ============================================================================
-//  UI Sync — update all display values
-// ============================================================================
-function syncUI() {
-  // Pixel controls
-  const pixEnabled = document.getElementById('pixel-enabled').checked;
-  document.getElementById('pixel-controls').style.opacity = pixEnabled ? '1' : '0.4';
-  document.getElementById('pixel-controls').style.pointerEvents = pixEnabled ? 'auto' : 'none';
-
-  // Color controls
-  const colEnabled = document.getElementById('color-enabled').checked;
-  document.getElementById('color-controls').style.opacity = colEnabled ? '1' : '0.4';
-  document.getElementById('color-controls').style.pointerEvents = colEnabled ? 'auto' : 'none';
-
-  // Mask controls
-  const maskOn = document.getElementById('mask-enabled').checked && colEnabled;
-  document.getElementById('mask-controls').classList.toggle('hidden', !maskOn);
-
-  // Update display values
-  document.getElementById('crop-val').textContent = document.getElementById('crop-slider').value + '%';
-  document.getElementById('noise-val').textContent = document.getElementById('noise-slider').value + '%';
-  document.getElementById('brightness-val').textContent = formatSigned(document.getElementById('brightness-slider').value, '%');
-  document.getElementById('saturation-val').textContent = formatSigned(document.getElementById('saturation-slider').value, '%');
-  document.getElementById('contrast-val').textContent = formatSigned(document.getElementById('contrast-slider').value, '%');
-  document.getElementById('gamma-val').textContent = parseFloat(document.getElementById('gamma-slider').value).toFixed(2);
-  document.getElementById('mask-opacity-val').textContent = document.getElementById('mask-opacity').value + '%';
-
-  // Deselect any preset
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('border-violet-400', 'bg-violet-50'));
-
-  // Update preview if we have a selected file
-  if (state.files.length > 0 && state.selectedIdx < state.files.length) {
-    updatePreview();
-  }
-}
-
-function formatSigned(val, suffix) {
-  const n = parseFloat(val);
-  return (n >= 0 ? '+' : '') + n.toFixed(1) + suffix;
-}
-
-// ============================================================================
-//  RANDOMIZE
-// ============================================================================
-function randomizeParam(param) {
-  switch (param) {
-    case 'crop':
-      document.getElementById('crop-slider').value = randomRange(0.2, 2.0, 0.1);
-      break;
-    case 'noise':
-      document.getElementById('noise-slider').value = randomRange(0, 2.0, 0.1);
-      break;
-    case 'brightness':
-      document.getElementById('brightness-slider').value = randomRange(-2.0, 2.0, 0.1);
-      break;
-    case 'saturation':
-      document.getElementById('saturation-slider').value = randomRange(-2.0, 2.0, 0.1);
-      break;
-    case 'contrast':
-      document.getElementById('contrast-slider').value = randomRange(-2.0, 2.0, 0.1);
-      break;
-  }
-  syncUI();
-}
-
-function randomRange(min, max, step) {
-  const steps = Math.round((max - min) / step);
-  return (min + Math.floor(Math.random() * (steps + 1)) * step).toFixed(1);
-}
-
-function randomizeAll() {
-  document.getElementById('crop-slider').value = randomRange(0.2, 2.0, 0.1);
-  document.getElementById('noise-slider').value = randomRange(0, 2.0, 0.1);
-  document.getElementById('brightness-slider').value = randomRange(-2.0, 2.0, 0.1);
-  document.getElementById('saturation-slider').value = randomRange(-2.0, 2.0, 0.1);
-  document.getElementById('contrast-slider').value = randomRange(-2.0, 2.0, 0.1);
-  document.getElementById('gamma-slider').value = (0.98 + Math.random() * 0.04).toFixed(3);
-  if (document.getElementById('mask-enabled').checked) {
-    document.getElementById('mask-opacity').value = randomRange(0.1, 1.0, 0.1);
-  }
-  syncUI();
-}
-
-// ============================================================================
-//  FILE HANDLING
-// ============================================================================
-function handleDragOver(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  document.getElementById('dropzone').classList.add('border-violet-400', 'bg-violet-50');
-}
-
-function handleDragLeave(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  document.getElementById('dropzone').classList.remove('border-violet-400', 'bg-violet-50');
-}
-
-function handleDrop(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  document.getElementById('dropzone').classList.remove('border-violet-400', 'bg-violet-50');
-  const dt = e.dataTransfer;
-  if (dt.files.length > 0) {
-    addFiles(Array.from(dt.files));
-  }
-  // Handle ZIP from drag
-  if (dt.items) {
-    for (let i = 0; i < dt.items.length; i++) {
-      if (dt.items[i].type === 'application/zip' || dt.items[i].name?.endsWith('.zip')) {
-        handleZip(dt.items[i].getAsFile());
-        return;
-      }
+  function updateLanguageUI() {
+    var els = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < els.length; i++) {
+      var k = els[i].getAttribute('data-i18n');
+      if (k) els[i].innerHTML = t(k);
     }
-  }
-}
-
-function handleFileSelect(e) {
-  if (e.target.files.length > 0) {
-    addFiles(Array.from(e.target.files));
-  }
-}
-
-function addFiles(fileList) {
-  const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
-  let added = 0;
-  fileList.forEach(file => {
-    if (validTypes.includes(file.type) || file.name.match(/\.(png|jpe?g|webp)$/i)) {
-      state.files.push({ name: file.name, file, blob: null, url: URL.createObjectURL(file), width: 0, height: 0 });
-      added++;
-    } else if (file.name.endsWith('.zip') || file.type === 'application/zip') {
-      handleZip(file);
-    }
-  });
-  if (added > 0) {
-    state.selectedIdx = state.results.length; // reset to first new file, but keep old results
-    updateFileList();
-    updatePreview();
+    document.title = t('page.title');
+    var htmlEl = document.documentElement;
+    htmlEl.lang = (currentLang === 'zh') ? 'zh-CN' : (currentLang === 'zh-TW') ? 'zh-TW' : currentLang;
+    // Re-apply dynamic button content
     updateButtons();
   }
-  document.getElementById('file-input').value = '';
-}
 
-function handleZip(zipFile) {
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const zip = await JSZip.loadAsync(e.target.result);
-      const imageFiles = [];
-      for (const [name, entry] of Object.entries(zip.files)) {
-        if (!entry.dir && name.match(/\.(png|jpe?g|webp)$/i)) {
-          const blob = await entry.async('blob');
-          const file = new File([blob], name.split('/').pop(), { type: blob.type });
-          imageFiles.push(file);
-        }
-      }
-      if (imageFiles.length > 0) {
-        addFiles(imageFiles);
-      }
-    } catch (err) {
-      alert('Failed to read ZIP file: ' + err.message);
-    }
-  };
-  reader.readAsArrayBuffer(zipFile);
-}
-
-function updateFileList() {
-  const container = document.getElementById('file-list');
-  const items = document.getElementById('file-items');
-  const count = document.getElementById('file-count');
-
-  if (state.files.length === 0) {
-    container.classList.add('hidden');
-    return;
-  }
-  container.classList.remove('hidden');
-  count.textContent = state.files.length;
-
-  items.innerHTML = state.files.map((f, i) => `
-    <div onclick="selectFile(${i})" class="file-row flex items-center gap-2 p-1.5 rounded-lg cursor-pointer hover:bg-gray-50 text-xs ${state.selectedIdx === i ? 'bg-violet-50 ring-1 ring-violet-200' : ''}">
-      <img src="${f.url}" class="w-8 h-8 object-cover rounded-md border border-gray-200 flex-shrink-0" alt="" />
-      <span class="truncate flex-1 text-slate-700">${f.name}</span>
-      ${state.results[i] ? '<span class="text-emerald-500 font-bold text-[10px]">✓ Done</span>' : ''}
-    </div>
-  `).join('');
-}
-
-function selectFile(idx) {
-  state.selectedIdx = idx;
-  updateFileList();
-  updatePreview();
-}
-
-function updatePreview() {
-  const zone = document.getElementById('preview-zone');
-  const container = document.getElementById('compare-container');
-  const placeholder = document.getElementById('preview-placeholder');
-  const selector = document.getElementById('preview-selector');
-  const before = document.getElementById('preview-before');
-  const after = document.getElementById('preview-after');
-
-  if (state.files.length === 0) {
-    zone.classList.add('hidden');
-    return;
+  function updateLangButton() {
+    var btn = document.getElementById('btn-lang-label');
+    var lang = LANGS.find(function(l) { return l.code === currentLang; });
+    if (btn && lang) btn.textContent = lang.native;
   }
 
-  zone.classList.remove('hidden');
-  const file = state.files[state.selectedIdx];
-  if (!file) return;
-
-  // Render preview selector chips
-  selector.innerHTML = state.files.map((f, i) => `
-    <button onclick="selectFile(${i})" class="px-2 py-1 rounded-lg text-[10px] font-medium transition-colors ${state.selectedIdx === i ? 'bg-violet-100 text-violet-700' : 'bg-gray-100 text-slate-500 hover:bg-gray-200'}">
-      ${f.name.length > 18 ? f.name.substring(0, 16) + '..' : f.name}
-    </button>
-  `).join('');
-
-  container.style.display = 'block';
-  placeholder.style.display = 'none';
-
-  before.src = state.results[state.selectedIdx] ? state.results[state.selectedIdx].url : file.url;
-
-  // Render a quick preview on the canvas
-  const img = new Image();
-  img.onload = () => {
-    const canvas = after;
-    const maxW = container.parentElement.clientWidth;
-    const scale = Math.min(1, maxW / img.width);
-    canvas.width = img.width * scale;
-    canvas.height = img.height * scale;
-    const ctx = canvas.getContext('2d');
-    // Apply a subtle preview render
-    if (state.results[state.selectedIdx]) {
-      const resultImg = new Image();
-      resultImg.onload = () => { ctx.drawImage(resultImg, 0, 0, canvas.width, canvas.height); };
-      resultImg.src = state.results[state.selectedIdx].url;
-    } else {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  function buildLangMenu() {
+    var menu = document.getElementById('lang-menu');
+    if (!menu) return;
+    var html = '';
+    for (var i = 0; i < LANGS.length; i++) {
+      var L = LANGS[i];
+      var active = L.code === currentLang ? ' bg-cyan-50' : '';
+      html += '<button class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3' + active + '" onclick="switchLanguage(\'' + L.code + '\');closeLangMenu()">' +
+        '<span class="text-[11px] font-bold text-gray-400 w-7">' + L.region + '</span>' +
+        '<span class="text-slate-700">' + L.native + '</span>' +
+        '</button>';
     }
+    menu.innerHTML = html;
+  }
+
+  window.switchLanguage = function(lang) {
+    currentLang = lang;
+    localStorage.setItem('dedupli-lang', lang);
+    updateLangButton();
+    buildLangMenu();
+    updateLanguageUI();
+    // Refresh preview with translated labels
+    if (state.files.length > 0) { updateFileList(); updatePreview(); }
   };
-  img.src = file.url;
-}
 
-// ============================================================================
-//  COMPARISON SLIDER
-// ============================================================================
-function initCompareSlider() {
-  const handle = document.getElementById('compare-handle');
-  const clip = document.getElementById('preview-before-clip');
-  if (!handle || !clip) return;
-
-  let dragging = false;
-
-  handle.addEventListener('mousedown', (e) => { dragging = true; e.preventDefault(); });
-  document.addEventListener('mouseup', () => { dragging = false; });
-  document.addEventListener('mousemove', (e) => {
-    if (!dragging) return;
-    const container = document.getElementById('compare-container');
-    const rect = container.getBoundingClientRect();
-    let pct = ((e.clientX - rect.left) / rect.width) * 100;
-    pct = Math.max(5, Math.min(95, pct));
-    clip.style.width = pct + '%';
-    handle.style.left = pct + '%';
+  window.toggleLangMenu = function() {
+    var menu = document.getElementById('lang-menu');
+    if (!menu) return;
+    buildLangMenu();
+    menu.classList.toggle('hidden');
+  };
+  window.closeLangMenu = function() {
+    var menu = document.getElementById('lang-menu');
+    if (menu) menu.classList.add('hidden');
+  };
+  document.addEventListener('click', function(e) {
+    var dd = document.getElementById('lang-dropdown');
+    if (dd && !dd.contains(e.target)) {
+      var menu = document.getElementById('lang-menu');
+      if (menu) menu.classList.add('hidden');
+    }
   });
 
-  // Touch support
-  handle.addEventListener('touchstart', (e) => { dragging = true; e.preventDefault(); });
-  document.addEventListener('touchend', () => { dragging = false; });
-  document.addEventListener('touchmove', (e) => {
-    if (!dragging) return;
-    const container = document.getElementById('compare-container');
-    const rect = container.getBoundingClientRect();
-    let pct = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
-    pct = Math.max(5, Math.min(95, pct));
-    clip.style.width = pct + '%';
-    handle.style.left = pct + '%';
-  });
-}
+  updateLangButton();
+  buildLangMenu();
+  updateLanguageUI();
 
-// ============================================================================
-//  CORE: Image Processing (from PRD pseudo-code)
-// ============================================================================
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return { r, g, b };
-}
+  // ==========================================================================
+  //  DARK MODE
+  // ==========================================================================
+  var IS_DARK = localStorage.getItem('dedupli-dark') === '1';
+  function applyTheme() {
+    if (IS_DARK) document.documentElement.classList.add('dark');
+  }
+  window.toggleDark = function() {
+    IS_DARK = !IS_DARK;
+    localStorage.setItem('dedupli-dark', IS_DARK ? '1' : '0');
+    location.reload();
+  };
+  applyTheme();
 
-async function processImage(file, config) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        let targetWidth = img.width;
-        let targetHeight = img.height;
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
-        ctx.clearRect(0, 0, targetWidth, targetHeight);
-        ctx.save();
+  // ==========================================================================
+  //  STATE
+  // ==========================================================================
+  var state = {
+    files: [],
+    results: [],
+    selectedIdx: 0,
+    isProcessing: false,
+  };
 
-        // 1. Pixel Layer: Mirror flip
-        if (config.pixelLayer.enabled && config.pixelLayer.mirrorEnabled) {
-          ctx.translate(targetWidth, 0);
-          ctx.scale(-1, 1);
-        }
-
-        // 2. Pixel Layer: Micro-crop & stretch (pHash evasion)
-        let sourceX = 0, sourceY = 0;
-        let sourceWidth = img.width;
-        let sourceHeight = img.height;
-        if (config.pixelLayer.enabled && config.pixelLayer.cropRate > 0) {
-          const factor = config.pixelLayer.cropRate;
-          sourceX = img.width * factor;
-          sourceY = img.height * factor;
-          sourceWidth = img.width - (sourceX * 2);
-          sourceHeight = img.height - (sourceY * 2);
-        }
-        ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
-        ctx.restore();
-
-        // 3. Color & Lighting Layer + Noise
-        if (config.colorLayer.enabled || (config.pixelLayer.enabled && config.pixelLayer.noiseEnabled)) {
-          const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
-          const pixels = imgData.data;
-
-          for (let i = 0; i < pixels.length; i += 4) {
-            // Brightness & contrast (linear/non-linear)
-            if (config.colorLayer.enabled) {
-              const bDelta = config.colorLayer.brightnessDelta;
-              const cDelta = config.colorLayer.contrastDelta;
-              pixels[i]     = Math.min(255, Math.max(0, (pixels[i] - 128) * cDelta + 128 + bDelta));
-              pixels[i + 1] = Math.min(255, Math.max(0, (pixels[i + 1] - 128) * cDelta + 128 + bDelta));
-              pixels[i + 2] = Math.min(255, Math.max(0, (pixels[i + 2] - 128) * cDelta + 128 + bDelta));
-
-              // Gamma correction
-              const gamma = config.colorLayer.gamma;
-              if (gamma !== 1.0) {
-                pixels[i]     = Math.round(255 * Math.pow(pixels[i] / 255, gamma));
-                pixels[i + 1] = Math.round(255 * Math.pow(pixels[i + 1] / 255, gamma));
-                pixels[i + 2] = Math.round(255 * Math.pow(pixels[i + 2] / 255, gamma));
-              }
-
-              // Saturation adjustment (simple RGB average shift)
-              const satDelta = config.colorLayer.saturationDelta;
-              if (satDelta !== 0) {
-                const avg = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
-                pixels[i]     = Math.min(255, Math.max(0, pixels[i]     + (pixels[i] - avg)     * satDelta * 10));
-                pixels[i + 1] = Math.min(255, Math.max(0, pixels[i + 1] + (pixels[i + 1] - avg) * satDelta * 10));
-                pixels[i + 2] = Math.min(255, Math.max(0, pixels[i + 2] + (pixels[i + 2] - avg) * satDelta * 10));
-              }
-            }
-
-            // Noise injection
-            if (config.pixelLayer.enabled && config.pixelLayer.noiseEnabled && Math.random() < config.pixelLayer.noiseRate) {
-              const noise = (Math.random() - 0.5) * 3;
-              pixels[i]     = Math.min(255, Math.max(0, pixels[i] + noise));
-              pixels[i + 1] = Math.min(255, Math.max(0, pixels[i + 1] + noise));
-              pixels[i + 2] = Math.min(255, Math.max(0, pixels[i + 2] + noise));
-            }
-          }
-          ctx.putImageData(imgData, 0, 0);
-        }
-
-        // 4. Semi-transparent mask (CNN color-space disruption)
-        if (config.colorLayer.enabled && config.colorLayer.maskEnabled) {
-          const { r, g, b } = hexToRgb(config.colorLayer.maskColor);
-          ctx.fillStyle = `rgba(${r},${g},${b},${config.colorLayer.maskOpacity})`;
-          ctx.fillRect(0, 0, targetWidth, targetHeight);
-        }
-
-        // 5. Export & MD5 salt injection (Canvas re-render auto-strips EXIF)
-        canvas.toBlob((baseBlob) => {
-          if (!baseBlob) return reject(new Error('Canvas export failed'));
-
-          // Append random salt bytes at EOF to mutate MD5/SHA256
-          const encoder = new TextEncoder();
-          const randomSalt = '\n//FB_BLENDER_SALT_' + Math.random().toString(36).slice(2) + '_' + Date.now();
-          const saltBuffer = encoder.encode(randomSalt);
-
-          const finalBlob = new Blob([baseBlob, saltBuffer], { type: file.type || 'image/png' });
-          resolve(finalBlob);
-        }, file.type || 'image/png', 0.96);
-      };
-      img.src = e.target.result;
+  // ==========================================================================
+  //  CONFIG from UI controls
+  // ==========================================================================
+  function getConfig() {
+    return {
+      baseLayer: { enabled: true },
+      pixelLayer: {
+        enabled: document.getElementById('pixel-enabled').checked,
+        cropRate: parseFloat(document.getElementById('crop-slider').value) / 100,
+        noiseRate: parseFloat(document.getElementById('noise-slider').value) / 100,
+        noiseEnabled: parseFloat(document.getElementById('noise-slider').value) > 0,
+        mirrorEnabled: document.getElementById('mirror-enabled').checked,
+      },
+      colorLayer: {
+        enabled: document.getElementById('color-enabled').checked,
+        brightnessDelta: parseFloat(document.getElementById('brightness-slider').value) * 2.55,
+        saturationDelta: parseFloat(document.getElementById('saturation-slider').value) / 100,
+        contrastDelta: 1 + parseFloat(document.getElementById('contrast-slider').value) / 100,
+        gamma: parseFloat(document.getElementById('gamma-slider').value),
+        maskEnabled: document.getElementById('mask-enabled').checked,
+        maskColor: document.getElementById('mask-color').value,
+        maskOpacity: parseFloat(document.getElementById('mask-opacity').value) / 100,
+      },
     };
-    reader.readAsDataURL(file);
-  });
-}
+  }
 
-// ============================================================================
-//  BATCH PROCESSING
-// ============================================================================
-async function processAll() {
-  if (state.isProcessing || state.files.length === 0) return;
-  state.isProcessing = true;
+  // ==========================================================================
+  //  PRESETS (with default Quick selected)
+  // ==========================================================================
+  function applyPreset(type) {
+    var btns = document.querySelectorAll('.preset-btn');
+    btns.forEach(function(b) {
+      b.classList.remove('border-violet-400', 'bg-violet-50');
+      b.classList.add('border-gray-200');
+    });
+    var warn = document.getElementById('preset-warning');
 
-  const config = getConfig();
-  const statusDiv = document.getElementById('processing-status');
-  const progressText = document.getElementById('progress-text');
-  const progressBar = document.getElementById('progress-bar');
-  const btnProcess = document.getElementById('btn-process');
-  const btnDownload = document.getElementById('btn-download');
+    if (type === 'quick') {
+      document.getElementById('preset-quick').classList.add('border-violet-400', 'bg-violet-50');
+      document.getElementById('preset-quick').classList.remove('border-gray-200');
+      document.getElementById('pixel-enabled').checked = true;
+      document.getElementById('crop-slider').value = 0.5;
+      document.getElementById('noise-slider').value = 0;
+      document.getElementById('mirror-enabled').checked = false;
+      document.getElementById('color-enabled').checked = true;
+      document.getElementById('brightness-slider').value = 0.5;
+      document.getElementById('saturation-slider').value = 0;
+      document.getElementById('contrast-slider').value = 0;
+      document.getElementById('gamma-slider').value = 1.00;
+      document.getElementById('mask-enabled').checked = false;
+      warn.classList.add('hidden');
+    } else if (type === 'deep') {
+      document.getElementById('preset-deep').classList.add('border-violet-400', 'bg-violet-50');
+      document.getElementById('preset-deep').classList.remove('border-gray-200');
+      document.getElementById('pixel-enabled').checked = true;
+      document.getElementById('crop-slider').value = 1.2;
+      document.getElementById('noise-slider').value = 0.8;
+      document.getElementById('mirror-enabled').checked = false;
+      document.getElementById('color-enabled').checked = true;
+      document.getElementById('brightness-slider').value = 1.5;
+      document.getElementById('saturation-slider').value = 1.0;
+      document.getElementById('contrast-slider').value = 1.0;
+      document.getElementById('gamma-slider').value = 1.00;
+      document.getElementById('mask-enabled').checked = true;
+      document.getElementById('mask-opacity').value = 0.5;
+      warn.classList.remove('hidden');
+      warn.innerHTML = t('presets.deep.warn') || warn.textContent;
+    } else if (type === 'mirror') {
+      document.getElementById('preset-mirror').classList.add('border-violet-400', 'bg-violet-50');
+      document.getElementById('preset-mirror').classList.remove('border-gray-200');
+      document.getElementById('pixel-enabled').checked = true;
+      document.getElementById('mirror-enabled').checked = true;
+      warn.classList.remove('hidden');
+      warn.innerHTML = t('presets.mirror.warn') || warn.textContent;
+    }
+    syncUI();
+  }
 
-  statusDiv.classList.remove('hidden');
-  btnProcess.disabled = true;
-  btnDownload.disabled = true;
+  // ==========================================================================
+  //  UI Sync
+  // ==========================================================================
+  function syncUI() {
+    var pixEnabled = document.getElementById('pixel-enabled').checked;
+    document.getElementById('pixel-controls').style.opacity = pixEnabled ? '1' : '0.4';
+    document.getElementById('pixel-controls').style.pointerEvents = pixEnabled ? 'auto' : 'none';
 
-  const total = state.files.length;
-  state.results = new Array(total).fill(null);
+    var colEnabled = document.getElementById('color-enabled').checked;
+    document.getElementById('color-controls').style.opacity = colEnabled ? '1' : '0.4';
+    document.getElementById('color-controls').style.pointerEvents = colEnabled ? 'auto' : 'none';
 
-  for (let i = 0; i < total; i++) {
-    const file = state.files[i];
-    progressText.textContent = `${i + 1}/${total} — ${file.name}`;
-    progressBar.style.width = ((i / total) * 100) + '%';
+    var maskOn = document.getElementById('mask-enabled').checked && colEnabled;
+    document.getElementById('mask-controls').classList.toggle('hidden', !maskOn);
 
-    try {
-      const processedBlob = await processImage(file.file || file.blob, config);
-      const url = URL.createObjectURL(processedBlob);
-      state.results[i] = { name: file.name, blob: processedBlob, url };
-    } catch (err) {
-      console.error('Processing failed for', file.name, err);
-      // Keep null for failed images
+    document.getElementById('crop-val').textContent = document.getElementById('crop-slider').value + '%';
+    document.getElementById('noise-val').textContent = document.getElementById('noise-slider').value + '%';
+    document.getElementById('brightness-val').textContent = formatSigned(document.getElementById('brightness-slider').value, '%');
+    document.getElementById('saturation-val').textContent = formatSigned(document.getElementById('saturation-slider').value, '%');
+    document.getElementById('contrast-val').textContent = formatSigned(document.getElementById('contrast-slider').value, '%');
+    document.getElementById('gamma-val').textContent = parseFloat(document.getElementById('gamma-slider').value).toFixed(2);
+    document.getElementById('mask-opacity-val').textContent = document.getElementById('mask-opacity').value + '%';
+
+    if (state.files.length > 0 && state.selectedIdx < state.files.length) {
+      updatePreview();
     }
   }
 
-  progressText.textContent = `${total}/${total} — Complete`;
-  progressBar.style.width = '100%';
-
-  // Re-enable UI
-  state.isProcessing = false;
-  btnProcess.disabled = false;
-  if (state.results.filter(Boolean).length > 0) {
-    btnDownload.disabled = false;
+  function formatSigned(val, suffix) {
+    var n = parseFloat(val);
+    return (n >= 0 ? '+' : '') + n.toFixed(1) + suffix;
   }
-  updateFileList();
-  updatePreview();
 
-  // Hide status after a short delay
-  setTimeout(() => { statusDiv.classList.add('hidden'); }, 2000);
-}
+  // ==========================================================================
+  //  RANDOMIZE
+  // ==========================================================================
+  function randomizeParam(param) {
+    switch (param) {
+      case 'crop': document.getElementById('crop-slider').value = randomRange(0.2, 2.0, 0.1); break;
+      case 'noise': document.getElementById('noise-slider').value = randomRange(0, 2.0, 0.1); break;
+      case 'brightness': document.getElementById('brightness-slider').value = randomRange(-2.0, 2.0, 0.1); break;
+      case 'saturation': document.getElementById('saturation-slider').value = randomRange(-2.0, 2.0, 0.1); break;
+      case 'contrast': document.getElementById('contrast-slider').value = randomRange(-2.0, 2.0, 0.1); break;
+    }
+    syncUI();
+  }
 
-// ============================================================================
-//  ZIP DOWNLOAD
-// ============================================================================
-async function downloadZip() {
-  const results = state.results.filter(Boolean);
-  if (results.length === 0) return;
+  function randomRange(min, max, step) {
+    var steps = Math.round((max - min) / step);
+    return (min + Math.floor(Math.random() * (steps + 1)) * step).toFixed(1);
+  }
 
-  const zip = new JSZip();
-  const folder = zip.folder('fb_blender_output');
+  function randomizeAll() {
+    document.getElementById('crop-slider').value = randomRange(0.2, 2.0, 0.1);
+    document.getElementById('noise-slider').value = randomRange(0, 2.0, 0.1);
+    document.getElementById('brightness-slider').value = randomRange(-2.0, 2.0, 0.1);
+    document.getElementById('saturation-slider').value = randomRange(-2.0, 2.0, 0.1);
+    document.getElementById('contrast-slider').value = randomRange(-2.0, 2.0, 0.1);
+    document.getElementById('gamma-slider').value = (0.98 + Math.random() * 0.04).toFixed(3);
+    if (document.getElementById('mask-enabled').checked) {
+      document.getElementById('mask-opacity').value = randomRange(0.1, 1.0, 0.1);
+    }
+    syncUI();
+  }
 
-  results.forEach((r, i) => {
-    // Change extension to indicate processed
-    const nameParts = r.name.split('.');
-    const ext = nameParts.pop();
-    const base = nameParts.join('.');
-    folder.file(base + '_blended.' + ext, r.blob);
+  // ==========================================================================
+  //  FILE HANDLING
+  // ==========================================================================
+  function handleDragOver(e) {
+    e.preventDefault(); e.stopPropagation();
+    document.getElementById('dropzone').classList.add('border-violet-400', 'bg-violet-50');
+  }
+  function handleDragLeave(e) {
+    e.preventDefault(); e.stopPropagation();
+    document.getElementById('dropzone').classList.remove('border-violet-400', 'bg-violet-50');
+  }
+  function handleDrop(e) {
+    e.preventDefault(); e.stopPropagation();
+    document.getElementById('dropzone').classList.remove('border-violet-400', 'bg-violet-50');
+    var dt = e.dataTransfer;
+    if (dt.files.length > 0) addFiles(Array.from(dt.files));
+    if (dt.items) {
+      for (var i = 0; i < dt.items.length; i++) {
+        if (dt.items[i].type === 'application/zip' || (dt.items[i].name && dt.items[i].name.endsWith('.zip'))) {
+          handleZip(dt.items[i].getAsFile());
+          return;
+        }
+      }
+    }
+  }
+
+  function handleFileSelect(e) {
+    if (e.target.files.length > 0) addFiles(Array.from(e.target.files));
+  }
+
+  function addFiles(fileList) {
+    var validTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    var added = 0;
+    fileList.forEach(function(file) {
+      if (validTypes.indexOf(file.type) !== -1 || file.name.match(/\.(png|jpe?g|webp)$/i)) {
+        state.files.push({ name: file.name, file: file, blob: null, url: URL.createObjectURL(file), width: 0, height: 0 });
+        added++;
+      } else if (file.name.endsWith('.zip') || file.type === 'application/zip') {
+        handleZip(file);
+      }
+    });
+    if (added > 0) {
+      state.selectedIdx = state.results.length > 0 ? state.results.length - 1 : 0;
+      updateFileList();
+      updatePreview();
+      updateButtons();
+    }
+    document.getElementById('file-input').value = '';
+  }
+
+  function handleZip(zipFile) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      JSZip.loadAsync(e.target.result).then(function(zip) {
+        var imageFiles = [];
+        var promises = [];
+        for (var name in zip.files) {
+          if (!zip.files[name].dir && name.match(/\.(png|jpe?g|webp)$/i)) {
+            promises.push(zip.files[name].async('blob').then(function(blob) {
+              var fname = name.split('/').pop();
+              var file = new File([blob], fname, { type: blob.type });
+              imageFiles.push(file);
+            }));
+          }
+        }
+        return Promise.all(promises).then(function() { return imageFiles; });
+      }).then(function(imageFiles) {
+        if (imageFiles.length > 0) addFiles(imageFiles);
+      }).catch(function(err) { alert('Failed to read ZIP: ' + err.message); });
+    };
+    reader.readAsArrayBuffer(zipFile);
+  }
+
+  function updateFileList() {
+    var container = document.getElementById('file-list');
+    var items = document.getElementById('file-items');
+    var count = document.getElementById('file-count');
+    if (state.files.length === 0) { container.classList.add('hidden'); return; }
+    container.classList.remove('hidden');
+    count.textContent = state.files.length;
+    items.innerHTML = state.files.map(function(f, i) {
+      return '<div onclick="selectFile(' + i + ')" class="file-row flex items-center gap-2 p-1.5 rounded-lg cursor-pointer hover:bg-gray-50 text-xs' + (state.selectedIdx === i ? ' bg-violet-50 ring-1 ring-violet-200' : '') + '">' +
+        '<img src="' + f.url + '" class="w-8 h-8 object-cover rounded-md border border-gray-200 flex-shrink-0" alt="" />' +
+        '<span class="truncate flex-1 text-slate-700">' + f.name + '</span>' +
+        (state.results[i] ? '<span class="text-emerald-500 font-bold text-[10px]">✓ ' + (t('status.complete') || 'Done') + '</span>' : '') +
+        '</div>';
+    }).join('');
+    updateButtons();
+  }
+
+  function updatePreview() {
+    var zone = document.getElementById('preview-zone');
+    var container = document.getElementById('compare-container');
+    var placeholder = document.getElementById('preview-placeholder');
+    var selector = document.getElementById('preview-selector');
+    var before = document.getElementById('preview-before');
+    var after = document.getElementById('preview-after');
+
+    if (state.files.length === 0) { zone.classList.add('hidden'); return; }
+    zone.classList.remove('hidden');
+    var file = state.files[state.selectedIdx];
+    if (!file) return;
+
+    selector.innerHTML = state.files.map(function(f, i) {
+      var name = f.name.length > 18 ? f.name.substring(0, 16) + '..' : f.name;
+      return '<button onclick="selectFile(' + i + ')" class="px-2 py-1 rounded-lg text-[10px] font-medium transition-colors' + (state.selectedIdx === i ? ' bg-violet-100 text-violet-700' : ' bg-gray-100 text-slate-500 hover:bg-gray-200') + '">' + name + '</button>';
+    }).join('');
+
+    container.style.display = 'block';
+    placeholder.style.display = 'none';
+    before.src = state.results[state.selectedIdx] ? state.results[state.selectedIdx].url : file.url;
+
+    var img = new Image();
+    img.onload = function() {
+      var canvas = after;
+      var maxW = container.parentElement.clientWidth;
+      var scale = Math.min(1, maxW / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      var ctx = canvas.getContext('2d');
+      if (state.results[state.selectedIdx]) {
+        var resultImg = new Image();
+        resultImg.onload = function() { ctx.drawImage(resultImg, 0, 0, canvas.width, canvas.height); };
+        resultImg.src = state.results[state.selectedIdx].url;
+      } else {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+    };
+    img.src = file.url;
+  }
+
+  // ==========================================================================
+  //  COMPARISON SLIDER
+  // ==========================================================================
+  function initCompareSlider() {
+    var handle = document.getElementById('compare-handle');
+    var clip = document.getElementById('preview-before-clip');
+    if (!handle || !clip) return;
+    var dragging = false;
+
+    handle.addEventListener('mousedown', function(e) { dragging = true; e.preventDefault(); });
+    document.addEventListener('mouseup', function() { dragging = false; });
+    document.addEventListener('mousemove', function(e) {
+      if (!dragging) return;
+      var container = document.getElementById('compare-container');
+      var rect = container.getBoundingClientRect();
+      var pct = ((e.clientX - rect.left) / rect.width) * 100;
+      pct = Math.max(5, Math.min(95, pct));
+      clip.style.width = pct + '%';
+      handle.style.left = pct + '%';
+    });
+    handle.addEventListener('touchstart', function(e) { dragging = true; e.preventDefault(); });
+    document.addEventListener('touchend', function() { dragging = false; });
+    document.addEventListener('touchmove', function(e) {
+      if (!dragging) return;
+      var container = document.getElementById('compare-container');
+      var rect = container.getBoundingClientRect();
+      var pct = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
+      pct = Math.max(5, Math.min(95, pct));
+      clip.style.width = pct + '%';
+      handle.style.left = pct + '%';
+    });
+  }
+
+  // ==========================================================================
+  //  CORE: Image Processing
+  // ==========================================================================
+  function hexToRgb(hex) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return { r: r, g: g, b: b };
+  }
+
+  function processImage(file, config) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement('canvas');
+          var ctx = canvas.getContext('2d');
+          var targetWidth = img.width;
+          var targetHeight = img.height;
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+          ctx.clearRect(0, 0, targetWidth, targetHeight);
+          ctx.save();
+
+          if (config.pixelLayer.enabled && config.pixelLayer.mirrorEnabled) {
+            ctx.translate(targetWidth, 0);
+            ctx.scale(-1, 1);
+          }
+
+          var sourceX = 0, sourceY = 0;
+          var sourceWidth = img.width;
+          var sourceHeight = img.height;
+          if (config.pixelLayer.enabled && config.pixelLayer.cropRate > 0) {
+            var factor = config.pixelLayer.cropRate;
+            sourceX = img.width * factor;
+            sourceY = img.height * factor;
+            sourceWidth = img.width - (sourceX * 2);
+            sourceHeight = img.height - (sourceY * 2);
+          }
+          ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
+          ctx.restore();
+
+          if (config.colorLayer.enabled || (config.pixelLayer.enabled && config.pixelLayer.noiseEnabled)) {
+            var imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+            var pixels = imgData.data;
+
+            for (var i = 0; i < pixels.length; i += 4) {
+              if (config.colorLayer.enabled) {
+                var bDelta = config.colorLayer.brightnessDelta;
+                var cDelta = config.colorLayer.contrastDelta;
+                pixels[i]     = Math.min(255, Math.max(0, (pixels[i] - 128) * cDelta + 128 + bDelta));
+                pixels[i + 1] = Math.min(255, Math.max(0, (pixels[i + 1] - 128) * cDelta + 128 + bDelta));
+                pixels[i + 2] = Math.min(255, Math.max(0, (pixels[i + 2] - 128) * cDelta + 128 + bDelta));
+
+                var gamma = config.colorLayer.gamma;
+                if (gamma !== 1.0) {
+                  pixels[i]     = Math.round(255 * Math.pow(pixels[i] / 255, gamma));
+                  pixels[i + 1] = Math.round(255 * Math.pow(pixels[i + 1] / 255, gamma));
+                  pixels[i + 2] = Math.round(255 * Math.pow(pixels[i + 2] / 255, gamma));
+                }
+
+                var satDelta = config.colorLayer.saturationDelta;
+                if (satDelta !== 0) {
+                  var avg = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+                  pixels[i]     = Math.min(255, Math.max(0, pixels[i]     + (pixels[i] - avg)     * satDelta * 10));
+                  pixels[i + 1] = Math.min(255, Math.max(0, pixels[i + 1] + (pixels[i + 1] - avg) * satDelta * 10));
+                  pixels[i + 2] = Math.min(255, Math.max(0, pixels[i + 2] + (pixels[i + 2] - avg) * satDelta * 10));
+                }
+              }
+
+              if (config.pixelLayer.enabled && config.pixelLayer.noiseEnabled && Math.random() < config.pixelLayer.noiseRate) {
+                var noise = (Math.random() - 0.5) * 3;
+                pixels[i]     = Math.min(255, Math.max(0, pixels[i] + noise));
+                pixels[i + 1] = Math.min(255, Math.max(0, pixels[i + 1] + noise));
+                pixels[i + 2] = Math.min(255, Math.max(0, pixels[i + 2] + noise));
+              }
+            }
+            ctx.putImageData(imgData, 0, 0);
+          }
+
+          if (config.colorLayer.enabled && config.colorLayer.maskEnabled) {
+            var rgb = hexToRgb(config.colorLayer.maskColor);
+            ctx.fillStyle = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + config.colorLayer.maskOpacity + ')';
+            ctx.fillRect(0, 0, targetWidth, targetHeight);
+          }
+
+          canvas.toBlob(function(baseBlob) {
+            if (!baseBlob) return reject(new Error('Canvas export failed'));
+            var encoder = new TextEncoder();
+            var randomSalt = '\n//IMG_BLENDER_SALT_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+            var saltBuffer = encoder.encode(randomSalt);
+            var finalBlob = new Blob([baseBlob, saltBuffer], { type: file.type || 'image/png' });
+            resolve(finalBlob);
+          }, file.type || 'image/png', 0.96);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ==========================================================================
+  //  BATCH PROCESSING
+  // ==========================================================================
+  window.processAll = function() {
+    if (state.isProcessing || state.files.length === 0) return;
+    state.isProcessing = true;
+
+    var config = getConfig();
+    var statusDiv = document.getElementById('processing-status');
+    var progressText = document.getElementById('progress-text');
+    var progressBar = document.getElementById('progress-bar');
+    var btnProcess = document.getElementById('btn-process');
+    var btnDownload = document.getElementById('btn-download');
+
+    statusDiv.classList.remove('hidden');
+    btnProcess.disabled = true;
+    btnDownload.disabled = true;
+
+    var total = state.files.length;
+    state.results = new Array(total).fill(null);
+
+    function processNext(idx) {
+      if (idx >= total) {
+        progressText.textContent = total + '/' + total + ' — ' + (t('status.complete') || 'Complete');
+        progressBar.style.width = '100%';
+        state.isProcessing = false;
+        btnProcess.disabled = false;
+        if (state.results.filter(Boolean).length > 0) btnDownload.disabled = false;
+        updateFileList();
+        updatePreview();
+        setTimeout(function() { statusDiv.classList.add('hidden'); }, 2000);
+        return;
+      }
+      var file = state.files[idx];
+      progressText.textContent = (idx + 1) + '/' + total + ' — ' + file.name;
+      progressBar.style.width = ((idx / total) * 100) + '%';
+      processImage(file.file || file.blob, config).then(function(blob) {
+        state.results[idx] = { name: file.name, blob: blob, url: URL.createObjectURL(blob) };
+        setTimeout(function() { processNext(idx + 1); }, 0);
+      }).catch(function(err) {
+        console.error('Failed:', file.name, err);
+        setTimeout(function() { processNext(idx + 1); }, 0);
+      });
+    }
+    processNext(0);
+  };
+
+  // ==========================================================================
+  //  ZIP DOWNLOAD
+  // ==========================================================================
+  window.downloadZip = function() {
+    var results = state.results.filter(Boolean);
+    if (results.length === 0) return;
+
+    var zip = new JSZip();
+    var folder = zip.folder('image_blender_output');
+    results.forEach(function(r) {
+      var parts = r.name.split('.');
+      var ext = parts.pop();
+      var base = parts.join('.');
+      folder.file(base + '_blended.' + ext, r.blob);
+    });
+    zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }).then(function(zipBlob) {
+      var url = URL.createObjectURL(zipBlob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'image_blender_' + new Date().toISOString().slice(0, 10) + '.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  };
+
+  // ==========================================================================
+  //  BUTTON STATE
+  // ==========================================================================
+  function updateButtons() {
+    document.getElementById('btn-process').disabled = state.files.length === 0 || state.isProcessing;
+    document.getElementById('btn-download').disabled = state.results.filter(Boolean).length === 0;
+  }
+
+  // ==========================================================================
+  //  GLOBAL EXPOSURES
+  // ==========================================================================
+  window.selectFile = function(idx) { state.selectedIdx = idx; updateFileList(); updatePreview(); };
+
+  // ==========================================================================
+  //  INIT
+  // ==========================================================================
+  syncUI();
+  initCompareSlider();
+  // Apply default preset: Quick
+  applyPreset('quick');
+
+  window.addEventListener('resize', function() {
+    if (state.files.length > 0) updatePreview();
   });
-
-  const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
-  const url = URL.createObjectURL(zipBlob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'fb_image_blender_' + new Date().toISOString().slice(0, 10) + '.zip';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// ============================================================================
-//  BUTTON STATE
-// ============================================================================
-function updateButtons() {
-  document.getElementById('btn-process').disabled = state.files.length === 0 || state.isProcessing;
-  document.getElementById('btn-download').disabled = state.results.filter(Boolean).length === 0;
-}
-
-// ============================================================================
-//  DARK MODE
-// ============================================================================
-function toggleDark() {
-  document.documentElement.classList.toggle('dark');
-  const isDark = document.documentElement.classList.contains('dark');
-  localStorage.setItem('darkMode', isDark ? '1' : '0');
-}
-
-(function initDark() {
-  if (localStorage.getItem('darkMode') === '1') {
-    document.documentElement.classList.add('dark');
-  }
 })();
-
-// ============================================================================
-//  INIT
-// ============================================================================
-syncUI();
-initCompareSlider();
-
-// Re-render preview on window resize
-window.addEventListener('resize', () => {
-  if (state.files.length > 0) updatePreview();
-});
 </script>
 </body>
 </html>
