@@ -1019,15 +1019,19 @@
   }
 
   function blobToMd5(blob) {
+    console.log('[MD5] blobToMd5 called, blob size:', blob.size, 'type:', blob.type);
     return new Promise(function(resolve, reject) {
       var reader = new FileReader();
       reader.onload = function(e) {
         try {
           var bytes = new Uint8Array(e.target.result);
-          resolve(md5Bytes(bytes));
-        } catch (err) { reject(err); }
+          console.log('[MD5] file read complete, bytes:', bytes.length);
+          var hash = md5Bytes(bytes);
+          console.log('[MD5] computed hash:', hash);
+          resolve(hash);
+        } catch (err) { console.error('[MD5] error:', err); reject(err); }
       };
-      reader.onerror = function() { reject(new Error('Failed to read file')); };
+      reader.onerror = function() { console.error('[MD5] reader error'); reject(new Error('Failed to read file')); };
       reader.readAsArrayBuffer(blob);
     });
   }
@@ -1279,11 +1283,13 @@
         var fileObj = { name: file.name, file: file, blob: null, url: URL.createObjectURL(file), width: 0, height: 0, originalMd5: '' };
         state.files.push(fileObj);
         // Compute original MD5 asynchronously
+        console.log('[addFiles] computing MD5 for:', file.name, 'size:', file.size);
         blobToMd5(file).then(function(hash) {
+          console.log('[addFiles] MD5 resolved for:', file.name, 'hash:', hash);
           fileObj.originalMd5 = hash;
           updateFileList();
         }).catch(function(err) {
-          console.error('MD5 failed for', file.name, err);
+          console.error('[addFiles] MD5 failed for:', file.name, err);
           fileObj.originalMd5 = 'error';
           updateFileList();
         });
@@ -1331,6 +1337,7 @@
     if (state.files.length === 0) { container.classList.add('hidden'); return; }
     container.classList.remove('hidden');
     count.textContent = state.files.length;
+    console.log('[updateFileList] rendering', state.files.length, 'files. First file originalMd5:', state.files[0] ? state.files[0].originalMd5 : 'N/A');
     items.innerHTML = state.files.map(function(f, i) {
       var processed = state.results[i];
       var origHash = f.originalMd5 || '···';
