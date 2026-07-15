@@ -216,37 +216,6 @@
       <!-- LEFT PANEL — Controls (45%) -->
       <div class="lg:w-[45%] space-y-4">
 
-        <!-- Module A: Preset Cards -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-            <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            <span data-i18n="presets.heading">Quick Presets</span>
-          </h3>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <button onclick="applyPreset('quick')" id="preset-quick"
-                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group" data-tooltip="Base all on + 0.5% crop + no color changes. Minimal impact.">
-              <div class="text-lg mb-0.5">&#9889;</div>
-              <div class="text-xs font-bold text-slate-700" data-i18n="presets.quick.name">Quick Dedup</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.quick.desc">Base all on + 0.5% crop</div>
-            </button>
-            <button onclick="applyPreset('deep')" id="preset-deep"
-                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group" data-tooltip="Full mutation: crop + noise + color shift + mask. Most thorough.">
-              <div class="text-lg mb-0.5">&#128293;</div>
-              <div class="text-xs font-bold text-slate-700" data-i18n="presets.deep.name">Deep Dedup</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.deep.desc">Full mutation · revive spent assets</div>
-            </button>
-            <button onclick="applyPreset('mirror')" id="preset-mirror"
-                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group" data-tooltip="Horizontal flip + Quick base. Only for images without text/logos.">
-              <div class="text-lg mb-0.5">&#128260;</div>
-              <div class="text-xs font-bold text-slate-700" data-i18n="presets.mirror.name">Mirror Dedup</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.mirror.desc">Flip + Quick base</div>
-            </button>
-          </div>
-          <div id="preset-warning" class="hidden mt-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 leading-relaxed" data-i18n="presets.mirror.warn">
-            &#9888;&#65039; Only use Mirror mode on images WITHOUT text, logos, or directional elements — mirrored text will cause ad rejection!
-          </div>
-        </div>
-
         <!-- Module B: Base Layer (collapsible, optional, default ON) -->
         <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm" id="base-layer-card">
           <div class="flex items-center justify-between layer-card-header" onclick="toggleLayerCard('base')">
@@ -970,16 +939,7 @@
   //  PRESETS
   // ==========================================================================
   function applyPreset(type) {
-    var btns = document.querySelectorAll('.preset-btn');
-    btns.forEach(function(b) {
-      b.classList.remove('border-violet-400', 'bg-violet-50');
-      b.classList.add('border-gray-200');
-    });
-    var presetWarn = document.getElementById('preset-warning');
-
     if (type === 'quick') {
-      document.getElementById('preset-quick').classList.add('border-violet-400', 'bg-violet-50');
-      document.getElementById('preset-quick').classList.remove('border-gray-200');
       document.getElementById('base-enabled').checked = true;
       document.getElementById('base-md5').checked = true;
       document.getElementById('base-exif').checked = true;
@@ -993,10 +953,7 @@
       document.getElementById('contrast-slider').value = 0;
       document.getElementById('gamma-slider').value = 1.00;
       document.getElementById('mask-enabled').checked = false;
-      presetWarn.classList.add('hidden');
     } else if (type === 'deep') {
-      document.getElementById('preset-deep').classList.add('border-violet-400', 'bg-violet-50');
-      document.getElementById('preset-deep').classList.remove('border-gray-200');
       document.getElementById('base-enabled').checked = true;
       document.getElementById('base-md5').checked = true;
       document.getElementById('base-exif').checked = true;
@@ -1011,20 +968,13 @@
       document.getElementById('gamma-slider').value = 1.00;
       document.getElementById('mask-enabled').checked = true;
       document.getElementById('mask-opacity').value = 0.5;
-      presetWarn.classList.remove('hidden');
-      presetWarn.innerHTML = t('presets.deep.warn') || presetWarn.textContent;
     } else if (type === 'mirror') {
-      document.getElementById('preset-mirror').classList.add('border-violet-400', 'bg-violet-50');
-      document.getElementById('preset-mirror').classList.remove('border-gray-200');
-      // Apply Quick base settings first
       document.getElementById('base-enabled').checked = true;
       document.getElementById('base-md5').checked = true;
       document.getElementById('base-exif').checked = true;
       document.getElementById('pixel-enabled').checked = true;
       if (parseFloat(document.getElementById('crop-slider').value) < 0.2) document.getElementById('crop-slider').value = 0.5;
       document.getElementById('mirror-enabled').checked = true;
-      presetWarn.classList.remove('hidden');
-      presetWarn.innerHTML = t('presets.mirror.warn') || presetWarn.textContent;
     }
     syncUI();
   }
