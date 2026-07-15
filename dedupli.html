@@ -1049,14 +1049,24 @@
   }
 
   function blobToMd5(blob) {
-    return new Promise(function(resolve) {
+    return new Promise(function(resolve, reject) {
       var reader = new FileReader();
       reader.onload = function(e) {
-        var binary = '';
-        var bytes = new Uint8Array(e.target.result);
-        for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-        resolve(md5(binary));
+        try {
+          var bytes = new Uint8Array(e.target.result);
+          // Chunked binary conversion — avoids stack overflow & O(n²) string concat
+          var binary = '';
+          var chunk = 8192;
+          for (var i = 0; i < bytes.length; i += chunk) {
+            var end = Math.min(i + chunk, bytes.length);
+            binary += String.fromCharCode.apply(null, bytes.subarray(i, end));
+          }
+          resolve(md5(binary));
+        } catch (err) {
+          reject(err);
+        }
       };
+      reader.onerror = function() { reject(new Error('Failed to read file')); };
       reader.readAsArrayBuffer(blob);
     });
   }
@@ -1310,6 +1320,10 @@
         // Compute original MD5 asynchronously
         blobToMd5(file).then(function(hash) {
           fileObj.originalMd5 = hash;
+          updateFileList();
+        }).catch(function(err) {
+          console.error('MD5 failed for', file.name, err);
+          fileObj.originalMd5 = 'error';
           updateFileList();
         });
         added++;
