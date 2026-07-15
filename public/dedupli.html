@@ -36,8 +36,105 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <link rel="stylesheet" href="common.css" />
-</head>
 
+  <style>
+    /* ── Tooltip System ─────────────────────────────────────────── */
+    [data-tooltip] {
+      position: relative;
+      cursor: help;
+    }
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: #f1f5f9;
+      font-size: 11px;
+      line-height: 1.4;
+      padding: 6px 10px;
+      border-radius: 8px;
+      white-space: normal;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 100;
+      max-width: 280px;
+      word-wrap: break-word;
+    }
+    [data-tooltip]:hover::after { opacity: 1; }
+    .dark [data-tooltip]::after { background: #e2e8f0; color: #0f172a; }
+
+    /* ── Collapsible Cards ──────────────────────────────────────── */
+    .layer-card-body {
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.25s ease, margin 0.25s ease;
+      max-height: 800px;
+      opacity: 1;
+    }
+    .layer-card-body.collapsed {
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    .layer-card-chevron {
+      transition: transform 0.25s ease;
+    }
+    .layer-card-chevron.rotated { transform: rotate(180deg); }
+
+    /* ── Bottom Sticky Bar ──────────────────────────────────────── */
+    #sticky-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 45;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .dark #sticky-bottom-bar {
+      background-color: rgba(15, 23, 42, 0.92) !important;
+    }
+    body { padding-bottom: 70px; }
+
+    /* ── File Table ─────────────────────────────────────────────── */
+    .file-table-header {
+      display: grid;
+      grid-template-columns: 36px 1fr 130px 130px 50px;
+      gap: 6px;
+      align-items: center;
+    }
+    .file-table-row {
+      display: grid;
+      grid-template-columns: 36px 1fr 130px 130px 50px;
+      gap: 6px;
+      align-items: center;
+      padding: 5px 6px;
+      font-size: 11px;
+    }
+    @media (max-width: 768px) {
+      .file-table-header, .file-table-row {
+        grid-template-columns: 32px 1fr 60px;
+      }
+      .hash-col { display: none; }
+    }
+
+    /* ── Dark Mode Range Slider ──────────────────────────────────── */
+    .dark input[type=range] { background: #334155; }
+    .dark input[type=range]::-webkit-slider-thumb {
+      background: #a78bfa;
+      border-color: #1e293b;
+    }
+    .dark input[type=range]::-moz-range-thumb {
+      background: #a78bfa;
+      border-color: #1e293b;
+    }
+  </style>
+</head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
   <!-- HEADER -->
@@ -53,13 +150,11 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <!-- Home link -->
         <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span data-i18n="nav.home">Home</span>
         </a>
         <a href="blog/" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors">Blog</a>
-        <!-- Tools dropdown -->
         <div id="tools-dropdown" class="relative">
           <button id="btn-tools-toggle" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition-colors" onclick="toggleToolsMenu()">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -67,17 +162,16 @@
             <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div id="tools-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-[60] py-1.5 overflow-hidden">
-            <a href="2fa.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔐 <span data-i18n="nav.2fa">2FA Tools</span></a>
-            <a href="forex.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">💱 <span data-i18n="nav.forex">Currency Converter</span></a>
-            <a href="ip.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🌐 <span data-i18n="nav.ip">IP Lookup</span></a>
-            <a href="pass.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🔒 <span data-i18n="nav.pass">Password Generator</span></a>
-            <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">📝 <span data-i18n="nav.text">Text Cleaner</span></a>
-            <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🖼 <span data-i18n="nav.webp">Image Converter</span></a>
-            <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">🎨 <span data-i18n="nav.ico">ICO Icon Generator</span></a>
-            <a href="avatarai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">✨ <span data-i18n="nav.ai">AI Avatar Generator</span></a>
+            <a href="2fa.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#128274; <span data-i18n="nav.2fa">2FA Tools</span></a>
+            <a href="forex.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#128185; <span data-i18n="nav.forex">Currency Converter</span></a>
+            <a href="ip.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#127758; <span data-i18n="nav.ip">IP Lookup</span></a>
+            <a href="pass.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#128274; <span data-i18n="nav.pass">Password Generator</span></a>
+            <a href="text.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#128221; <span data-i18n="nav.text">Text Cleaner</span></a>
+            <a href="webp.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#128444; <span data-i18n="nav.webp">Image Converter</span></a>
+            <a href="ico.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#127912; <span data-i18n="nav.ico">ICO Icon Generator</span></a>
+            <a href="avatarai.html" class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">&#10024; <span data-i18n="nav.ai">AI Avatar Generator</span></a>
           </div>
         </div>
-        <!-- Dark mode toggle -->
         <button id="btn-dark" onclick="toggleDark()"
                 class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                 title="Toggle dark mode" aria-label="Toggle dark mode">
@@ -85,8 +179,6 @@
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </button>
-
-        <!-- Language dropdown -->
         <div id="lang-dropdown" class="relative">
           <button id="btn-lang-toggle"
                   class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all text-sm"
@@ -121,8 +213,8 @@
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
     <div class="flex flex-col lg:flex-row gap-6">
 
-      <!-- LEFT PANEL — Controls (40%) -->
-      <div class="lg:w-[40%] space-y-4">
+      <!-- LEFT PANEL — Controls (45%) -->
+      <div class="lg:w-[45%] space-y-4">
 
         <!-- Module A: Preset Cards -->
         <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
@@ -132,63 +224,93 @@
           </h3>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button onclick="applyPreset('quick')" id="preset-quick"
-                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group">
-              <div class="text-lg mb-0.5">⚡</div>
+                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group" data-tooltip="Base all on + 0.5% crop + no color changes. Minimal impact.">
+              <div class="text-lg mb-0.5">&#9889;</div>
               <div class="text-xs font-bold text-slate-700" data-i18n="presets.quick.name">Quick Dedup</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.quick.desc">MD5 + EXIF + 0.5% crop</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.quick.desc">Base all on + 0.5% crop</div>
             </button>
             <button onclick="applyPreset('deep')" id="preset-deep"
-                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group">
-              <div class="text-lg mb-0.5">🔥</div>
+                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group" data-tooltip="Full mutation: crop + noise + color shift + mask. Most thorough.">
+              <div class="text-lg mb-0.5">&#128293;</div>
               <div class="text-xs font-bold text-slate-700" data-i18n="presets.deep.name">Deep Dedup</div>
               <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.deep.desc">Full mutation · revive spent assets</div>
             </button>
             <button onclick="applyPreset('mirror')" id="preset-mirror"
-                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group">
-              <div class="text-lg mb-0.5">🔄</div>
+                    class="preset-btn p-3 rounded-xl border-2 transition-all text-left group" data-tooltip="Horizontal flip + Quick base. Only for images without text/logos.">
+              <div class="text-lg mb-0.5">&#128260;</div>
               <div class="text-xs font-bold text-slate-700" data-i18n="presets.mirror.name">Mirror Dedup</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.mirror.desc">Flip + quick/deep base</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 leading-tight" data-i18n="presets.mirror.desc">Flip + Quick base</div>
             </button>
           </div>
           <div id="preset-warning" class="hidden mt-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 leading-relaxed" data-i18n="presets.mirror.warn">
-            ⚠️ Only use Mirror mode on images WITHOUT text, logos, or directional elements — mirrored text will cause ad rejection!
+            &#9888;&#65039; Only use Mirror mode on images WITHOUT text, logos, or directional elements — mirrored text will cause ad rejection!
           </div>
         </div>
 
-        <!-- Module B: Base Layer -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-              <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-              <span data-i18n="layer.base">Base Layer · File-Level</span>
-            </h3>
+        <!-- Module B: Base Layer (collapsible, optional, default ON) -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm" id="base-layer-card">
+          <div class="flex items-center justify-between layer-card-header" onclick="toggleLayerCard('base')">
+            <div>
+              <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                <span data-i18n="layer.base">Base Layer · File-Level</span>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5" data-i18n="layer.base.desc">File-level mutations that modify the binary without affecting pixels. Zero visual quality loss.</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <label class="relative inline-flex items-center cursor-pointer" onclick="event.stopPropagation()">
+                <input type="checkbox" id="base-enabled" class="sr-only peer" onchange="syncUI()" checked>
+                <div class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+              </label>
+              <svg class="layer-card-chevron w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
           </div>
-          <div class="space-y-2 text-xs text-slate-600 bg-slate-50 rounded-xl p-3">
-            <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> <span data-i18n="layer.base.md5">MD5 mutation (append random EOF bytes)</span></div>
-            <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> <span data-i18n="layer.base.exif">EXIF metadata removal (canvas re-render)</span></div>
-          </div>
-          <p class="text-[10px] text-slate-400 mt-2" data-i18n="layer.base.note">Always active · Zero visual quality loss</p>
-        </div>
-
-        <!-- Module C: Pixel Layer -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-              <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-              <span data-i18n="layer.pixel">Pixel Layer · pHash Evasion</span>
-            </h3>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="pixel-enabled" class="sr-only peer" onchange="syncUI()" checked>
-              <div class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+          <div id="base-layer-body" class="layer-card-body mt-3 space-y-2 bg-slate-50 rounded-xl p-3">
+            <label class="flex items-start gap-2 cursor-pointer py-0.5">
+              <input type="checkbox" id="base-md5" checked onchange="syncUI()" class="mt-0.5 w-3.5 h-3.5 rounded accent-emerald-600 flex-shrink-0">
+              <div>
+                <span class="text-xs font-medium text-slate-700" data-i18n="layer.base.md5">MD5 mutation (append random EOF bytes)</span>
+                <p class="text-[10px] text-slate-400 leading-tight" data-i18n="layer.base.md5.desc">Appends 1~8 random bytes after the image file EOF marker. Changes file MD5 hash completely with zero visual impact.</p>
+              </div>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer py-0.5">
+              <input type="checkbox" id="base-exif" checked onchange="syncUI()" class="mt-0.5 w-3.5 h-3.5 rounded accent-emerald-600 flex-shrink-0">
+              <div>
+                <span class="text-xs font-medium text-slate-700" data-i18n="layer.base.exif">EXIF metadata removal (canvas re-render)</span>
+                <p class="text-[10px] text-slate-400 leading-tight" data-i18n="layer.base.exif.desc">Strips camera model, GPS, timestamp, and editing software traces. Canvas re-render auto-cleans metadata.</p>
+              </div>
             </label>
           </div>
-          <div id="pixel-controls" class="space-y-3">
+        </div>
+
+        <!-- Module C: Pixel Layer (collapsible, optional) -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm" id="pixel-layer-card">
+          <div class="flex items-center justify-between layer-card-header" onclick="toggleLayerCard('pixel')">
+            <div>
+              <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                <span data-i18n="layer.pixel">Pixel Layer · pHash Evasion</span>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5" data-i18n="layer.pixel.desc">Spatial-domain mutations that evade perceptual hashing (pHash) algorithms used by ad platforms.</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <label class="relative inline-flex items-center cursor-pointer" onclick="event.stopPropagation()">
+                <input type="checkbox" id="pixel-enabled" class="sr-only peer" onchange="syncUI()" checked>
+                <div class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+              </label>
+              <svg class="layer-card-chevron w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div id="pixel-layer-body" class="layer-card-body mt-3 space-y-3">
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600" data-i18n="slider.crop">Micro-crop &amp; stretch</label>
-                <div class="flex items-center gap-1">
+                <div>
+                  <label class="text-xs font-medium text-slate-600" data-i18n="slider.crop">Micro-crop &amp; stretch</label>
+                  <p class="text-[10px] text-slate-400 leading-tight" data-i18n="slider.crop.desc">Trims image edges and stretches back to original size. Shifts every pixel position to break pHash fingerprint.</p>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
                   <span id="crop-val" class="text-xs font-mono text-slate-500">0.5%</span>
-                  <button onclick="randomizeParam('crop')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
+                  <button onclick="randomizeParam('crop')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">&#127922;</button>
                 </div>
               </div>
               <input type="range" id="crop-slider" min="0.2" max="2.0" step="0.1" value="0.5" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
@@ -196,44 +318,62 @@
             </div>
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600" data-i18n="slider.noise">Noise injection</label>
-                <div class="flex items-center gap-1">
+                <div>
+                  <label class="text-xs font-medium text-slate-600" data-i18n="slider.noise">Noise injection</label>
+                  <p class="text-[10px] text-slate-400 leading-tight" data-i18n="slider.noise.desc">Injects subtle random pixel-level color variations. Nearly invisible but disrupts AI pixel-sample comparison.</p>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
                   <span id="noise-val" class="text-xs font-mono text-slate-500">0%</span>
-                  <button onclick="randomizeParam('noise')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
+                  <button onclick="randomizeParam('noise')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">&#127922;</button>
                 </div>
               </div>
               <input type="range" id="noise-slider" min="0" max="2.0" step="0.1" value="0" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
               <div class="flex justify-between text-[10px] text-slate-400"><span>0%</span><span>2.0%</span></div>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-xs font-medium text-slate-600" data-i18n="slider.mirror">Mirror flip (L↔R)</span>
+              <div>
+                <span class="text-xs font-medium text-slate-600" data-i18n="slider.mirror">Mirror flip (L&#8596;R)</span>
+                <p class="text-[10px] text-slate-400 leading-tight" data-i18n="slider.mirror.desc">Flips image horizontally. Highly effective for background/scenery images without text or logos.</p>
+              </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" id="mirror-enabled" class="sr-only peer" onchange="syncUI()">
                 <div class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
               </label>
             </div>
+            <div id="mirror-toggle-warning" class="hidden p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 leading-relaxed" data-i18n="presets.mirror.warn">
+              &#9888;&#65039; Only use Mirror mode on images WITHOUT text, logos, or directional elements — mirrored text will cause ad rejection!
+            </div>
           </div>
         </div>
 
-        <!-- Module D: Color & Lighting Layer -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-              <svg class="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-              <span data-i18n="layer.color">Color &amp; Lighting · CNN Evasion</span>
-            </h3>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="color-enabled" class="sr-only peer" onchange="syncUI()" checked>
-              <div class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-pink-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-pink-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
-            </label>
+        <!-- Module D: Color & Lighting Layer (collapsible, optional) -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm" id="color-layer-card">
+          <div class="flex items-center justify-between layer-card-header" onclick="toggleLayerCard('color')">
+            <div>
+              <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                <svg class="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                <span data-i18n="layer.color">Color &amp; Lighting · CNN Evasion</span>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5" data-i18n="layer.color.desc">Color-space mutations that evade CNN (convolutional neural network) based duplicate detection.</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <label class="relative inline-flex items-center cursor-pointer" onclick="event.stopPropagation()">
+                <input type="checkbox" id="color-enabled" class="sr-only peer" onchange="syncUI()" checked>
+                <div class="w-9 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-pink-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-pink-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+              </label>
+              <svg class="layer-card-chevron w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
           </div>
-          <div id="color-controls" class="space-y-3">
+          <div id="color-layer-body" class="layer-card-body mt-3 space-y-3">
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600" data-i18n="slider.brightness">Brightness shift</label>
-                <div class="flex items-center gap-1">
+                <div>
+                  <label class="text-xs font-medium text-slate-600" data-i18n="slider.brightness">Brightness shift</label>
+                  <p class="text-[10px] text-slate-400 leading-tight" data-i18n="slider.brightness.desc">Shifts R,G,B channels uniformly. Changes color histogram without visible difference within &#177;2% range.</p>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
                   <span id="brightness-val" class="text-xs font-mono text-slate-500">+0.5%</span>
-                  <button onclick="randomizeParam('brightness')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
+                  <button onclick="randomizeParam('brightness')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">&#127922;</button>
                 </div>
               </div>
               <input type="range" id="brightness-slider" min="-2.0" max="2.0" step="0.1" value="0.5" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
@@ -241,10 +381,13 @@
             </div>
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600" data-i18n="slider.saturation">Saturation shift</label>
-                <div class="flex items-center gap-1">
+                <div>
+                  <label class="text-xs font-medium text-slate-600" data-i18n="slider.saturation">Saturation shift</label>
+                  <p class="text-[10px] text-slate-400 leading-tight" data-i18n="slider.saturation.desc">Adjusts color intensity relative to grayscale. Subtle shifts alter CNN color-space features.</p>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
                   <span id="saturation-val" class="text-xs font-mono text-slate-500">0%</span>
-                  <button onclick="randomizeParam('saturation')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
+                  <button onclick="randomizeParam('saturation')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">&#127922;</button>
                 </div>
               </div>
               <input type="range" id="saturation-slider" min="-2.0" max="2.0" step="0.1" value="0" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
@@ -252,10 +395,13 @@
             </div>
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600" data-i18n="slider.contrast">Contrast shift</label>
-                <div class="flex items-center gap-1">
+                <div>
+                  <label class="text-xs font-medium text-slate-600" data-i18n="slider.contrast">Contrast shift</label>
+                  <p class="text-[10px] text-slate-400 leading-tight" data-i18n="slider.contrast.desc">Changes the difference between light and dark areas. Alters edge-intensity features used by CNN models.</p>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
                   <span id="contrast-val" class="text-xs font-mono text-slate-500">0%</span>
-                  <button onclick="randomizeParam('contrast')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">🎲</button>
+                  <button onclick="randomizeParam('contrast')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">&#127922;</button>
                 </div>
               </div>
               <input type="range" id="contrast-slider" min="-2.0" max="2.0" step="0.1" value="0" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
@@ -263,8 +409,14 @@
             </div>
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs font-medium text-slate-600" data-i18n="slider.gamma">Gamma curve</label>
-                <span id="gamma-val" class="text-xs font-mono text-slate-500">1.00</span>
+                <div>
+                  <label class="text-xs font-medium text-slate-600" data-i18n="slider.gamma">Gamma curve</label>
+                  <p class="text-[10px] text-slate-400 leading-tight" data-i18n="slider.gamma.desc">Non-linear brightness curve. Adjusts dark/bright region transitions to disrupt edge-modeling algorithms.</p>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
+                  <span id="gamma-val" class="text-xs font-mono text-slate-500">1.00</span>
+                  <button onclick="randomizeParam('gamma')" class="w-5 h-5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-400 hover:text-violet-600 flex items-center justify-center text-[10px] transition-colors" title="Random">&#127922;</button>
+                </div>
               </div>
               <input type="range" id="gamma-slider" min="0.98" max="1.02" step="0.005" value="1.00" oninput="syncUI()" class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500" />
               <div class="flex justify-between text-[10px] text-slate-400"><span>0.98</span><span>1.00</span><span>1.02</span></div>
@@ -272,7 +424,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-xs font-medium text-slate-600" data-i18n="slider.mask">Semi-transparent mask</span>
-                <p class="text-[10px] text-slate-400" data-i18n="slider.mask.hint">Overlays a color veil to disrupt CNN color-space</p>
+                <p class="text-[10px] text-slate-400" data-i18n="slider.mask.hint">Overlays a near-invisible color veil. Forces full canvas color-space rewrite to disrupt CNN analysis.</p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" id="mask-enabled" class="sr-only peer" onchange="syncUI()">
@@ -280,7 +432,10 @@
               </label>
             </div>
             <div id="mask-controls" class="hidden space-y-2">
-              <input type="color" id="mask-color" value="#ffffff" class="w-full h-8 rounded cursor-pointer border border-gray-200" />
+              <div class="flex items-center gap-2">
+                <input type="color" id="mask-color" value="#ffffff" class="w-10 h-8 rounded cursor-pointer border border-gray-200 flex-shrink-0" />
+                <button onclick="randomizeMaskColor()" class="text-[10px] px-2 py-1.5 rounded-md bg-gray-100 hover:bg-violet-100 text-gray-500 hover:text-violet-600 transition-colors flex-shrink-0">&#127922; <span data-i18n="btn.random_color">Random Color</span></button>
+              </div>
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <span class="text-[10px] text-slate-400" data-i18n="slider.mask.opacity">Mask opacity</span>
@@ -291,16 +446,10 @@
             </div>
           </div>
         </div>
-
-        <!-- Randomize All -->
-        <button onclick="randomizeAll()"
-                class="w-full py-2.5 rounded-xl border-2 border-violet-300 text-violet-600 hover:bg-violet-50 text-xs font-semibold transition-colors flex items-center justify-center gap-2">
-          🎲 <span data-i18n="btn.randomize">Randomize All Active Parameters</span>
-        </button>
       </div>
 
-      <!-- RIGHT PANEL — Preview & Actions (60%) -->
-      <div class="lg:w-[60%] space-y-4">
+      <!-- RIGHT PANEL — Preview & Actions (55%) -->
+      <div class="lg:w-[55%] space-y-4">
 
         <!-- Module E: Dropzone -->
         <div id="dropzone"
@@ -310,15 +459,23 @@
           <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
           <p class="text-sm font-medium text-slate-600" data-i18n="dropzone.title">Click or drag &amp; drop ad images here</p>
           <p class="text-xs text-slate-400 mt-1" data-i18n="dropzone.hint">Supports PNG, JPG, WEBP · Multi-file batch · ZIP input</p>
+          <p class="text-[10px] text-violet-500 mt-1.5 font-medium" data-i18n="dropzone.privacy">&#128274; Local offline processing. 100% privacy. No files ever uploaded.</p>
         </div>
 
-        <!-- File list -->
+        <!-- File list (enhanced with MD5 columns) -->
         <div id="file-list" class="hidden bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
           <h4 class="text-xs font-bold text-slate-600 mb-2 flex items-center gap-2">
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
             <span data-i18n="files.loaded">Loaded Files</span> (<span id="file-count">0</span>)
           </h4>
-          <div id="file-items" class="max-h-40 overflow-y-auto space-y-1"></div>
+          <div class="file-table-header text-[10px] font-semibold text-slate-400 uppercase tracking-wider border-b border-gray-100 pb-1.5 mb-1">
+            <span></span>
+            <span data-i18n="files.col.name">Filename</span>
+            <span class="hash-col text-center" data-i18n="files.col.orig_hash">Orig. Hash</span>
+            <span class="hash-col text-center" data-i18n="files.col.new_hash">New Hash</span>
+            <span class="text-center" data-i18n="files.col.status">Status</span>
+          </div>
+          <div id="file-items" class="max-h-52 overflow-y-auto space-y-0.5"></div>
         </div>
 
         <!-- Module F: Comparison Preview -->
@@ -360,18 +517,27 @@
                   class="flex-1 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-sm hover:from-violet-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   data-i18n="btn.process">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-            🚀 Start Batch Processing
+            &#128640; Start Batch Processing
           </button>
           <button id="btn-download" onclick="downloadZip()" disabled
                   class="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   data-i18n="btn.download">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-            📦 Download ZIP
+            &#128230; Download ZIP
           </button>
         </div>
       </div>
     </div>
   </main>
+
+  <!-- STICKY BOTTOM BAR -->
+  <div id="sticky-bottom-bar" class="bg-white/90 border-t border-gray-200 py-3 px-4 flex items-center justify-center gap-4">
+    <button onclick="randomizeAll()"
+            class="py-2.5 px-6 rounded-xl border-2 border-violet-300 text-violet-600 hover:bg-violet-50 text-xs font-semibold transition-colors flex items-center gap-2">
+      &#127922; <span data-i18n="btn.randomize">Randomize All Active Parameters</span>
+    </button>
+    <span class="text-[10px] text-slate-400 hidden sm:inline" data-i18n="btn.randomize.hint">Only affects currently enabled parameters</span>
+  </div>
 
   <!-- FOOTER -->
   <footer class="border-t border-gray-200 bg-white py-5 mt-4">
@@ -416,20 +582,33 @@
       'hero.title':'Ad Image Smart De-Duplication',
       'hero.desc':'All processing runs locally in your browser — your creative assets never leave your device.',
       'presets.heading':'Quick Presets',
-      'presets.quick.name':'Quick Dedup','presets.quick.desc':'MD5 + EXIF + 0.5% crop',
+      'presets.quick.name':'Quick Dedup','presets.quick.desc':'Base all on + 0.5% crop',
       'presets.deep.name':'Deep Dedup','presets.deep.desc':'Full mutation · revive spent assets',
-      'presets.mirror.name':'Mirror Dedup','presets.mirror.desc':'Flip + quick/deep base',
+      'presets.mirror.name':'Mirror Dedup','presets.mirror.desc':'Flip + Quick base',
       'presets.mirror.warn':'⚠️ Only use Mirror mode on images WITHOUT text, logos, or directional elements — mirrored text will cause ad rejection!',
       'presets.deep.warn':'⚠️ Deep mode applies aggressive mutation. Please visually verify output before uploading — text/logos may be affected.',
-      'layer.base':'Base Layer · File-Level','layer.base.md5':'MD5 mutation (append random EOF bytes)','layer.base.exif':'EXIF metadata removal (canvas re-render)','layer.base.note':'Always active · Zero visual quality loss',
+      'layer.base':'Base Layer · File-Level','layer.base.md5':'MD5 mutation (append random EOF bytes)','layer.base.exif':'EXIF metadata removal (canvas re-render)',
+      'layer.base.desc':'File-level mutations that modify the binary without affecting pixels. Zero visual quality loss.',
+      'layer.base.md5.desc':'Appends 1~8 random bytes after the image file EOF marker. Changes file MD5 hash completely with zero visual impact.',
+      'layer.base.exif.desc':'Strips camera model, GPS, timestamp, and editing software traces. Canvas re-render auto-cleans metadata.',
       'layer.pixel':'Pixel Layer · pHash Evasion',
+      'layer.pixel.desc':'Spatial-domain mutations that evade perceptual hashing (pHash) algorithms used by ad platforms.',
       'layer.color':'Color & Lighting · CNN Evasion',
-      'slider.crop':'Micro-crop & stretch','slider.noise':'Noise injection','slider.mirror':'Mirror flip (L↔R)',
-      'slider.brightness':'Brightness shift','slider.saturation':'Saturation shift','slider.contrast':'Contrast shift',
-      'slider.gamma':'Gamma curve','slider.mask':'Semi-transparent mask','slider.mask.hint':'Overlays a color veil to disrupt CNN color-space','slider.mask.opacity':'Mask opacity',
-      'btn.randomize':'Randomize All Active Parameters',
+      'layer.color.desc':'Color-space mutations that evade CNN (convolutional neural network) based duplicate detection.',
+      'slider.crop':'Micro-crop & stretch','slider.crop.desc':'Trims image edges and stretches back to original size. Shifts every pixel position to break pHash fingerprint.',
+      'slider.noise':'Noise injection','slider.noise.desc':'Injects subtle random pixel-level color variations. Nearly invisible but disrupts AI pixel-sample comparison.',
+      'slider.mirror':'Mirror flip (L↔R)','slider.mirror.desc':'Flips image horizontally. Highly effective for background/scenery images without text or logos.',
+      'slider.brightness':'Brightness shift','slider.brightness.desc':'Shifts R,G,B channels uniformly. Changes color histogram without visible difference within ±2% range.',
+      'slider.saturation':'Saturation shift','slider.saturation.desc':'Adjusts color intensity relative to grayscale. Subtle shifts alter CNN color-space features.',
+      'slider.contrast':'Contrast shift','slider.contrast.desc':'Changes the difference between light and dark areas. Alters edge-intensity features used by CNN models.',
+      'slider.gamma':'Gamma curve','slider.gamma.desc':'Non-linear brightness curve. Adjusts dark/bright region transitions to disrupt edge-modeling algorithms.',
+      'slider.mask':'Semi-transparent mask','slider.mask.hint':'Overlays a near-invisible color veil. Forces full canvas color-space rewrite to disrupt CNN analysis.','slider.mask.opacity':'Mask opacity',
+      'btn.randomize':'Randomize All Active Parameters','btn.randomize.hint':'Only affects currently enabled parameters',
+      'btn.random_color':'Random Color',
       'dropzone.title':'Click or drag & drop ad images here','dropzone.hint':'Supports PNG, JPG, WEBP · Multi-file batch · ZIP input',
+      'dropzone.privacy':'🔒 Local offline processing. 100% privacy. No files ever uploaded.',
       'files.loaded':'Loaded Files',
+      'files.col.name':'Filename','files.col.orig_hash':'Orig. Hash','files.col.new_hash':'New Hash','files.col.status':'Status',
       'preview.title':'Live Preview · Before / After','preview.placeholder':'Select an image from the file list to preview',
       'status.processing':'Processing...','status.complete':'Complete',
       'btn.process':'🚀 Start Batch Processing','btn.download':'📦 Download ZIP',
@@ -443,20 +622,29 @@
       'hero.title':'广告图片智能去重',
       'hero.desc':'所有处理均在浏览器本地运行 — 您的创意素材绝不会离开您的设备。',
       'presets.heading':'快捷预设',
-      'presets.quick.name':'快速去重','presets.quick.desc':'MD5 + EXIF + 0.5% 裁剪',
+      'presets.quick.name':'快速去重','presets.quick.desc':'基础全开 + 0.5% 裁剪',
       'presets.deep.name':'深度去重','presets.deep.desc':'全面变异 · 挽救已跑烂素材',
-      'presets.mirror.name':'镜像去重','presets.mirror.desc':'翻转 + 快速/深度基础',
+      'presets.mirror.name':'镜像去重','presets.mirror.desc':'翻转 + 快速基础',
       'presets.mirror.warn':'⚠️ 仅在图片不含文字、Logo 或方向性元素时使用镜像模式 — 翻转后的反字会导致广告拒审！',
       'presets.deep.warn':'⚠️ 深度模式会施加激进变异。请在上传前仔细检查输出 — 文字/Logo 可能受影响。',
-      'layer.base':'基础层 · 文件级','layer.base.md5':'MD5 篡改（EOF 追加随机字节）','layer.base.exif':'EXIF 元数据抹除（Canvas 重绘）','layer.base.note':'始终启用 · 零视觉质量损失',
-      'layer.pixel':'像素层 · pHash 对抗',
-      'layer.color':'色彩与光影层 · CNN 对抗',
-      'slider.crop':'微幅裁剪与拉伸','slider.noise':'噪点注入','slider.mirror':'镜像翻转 (L↔R)',
-      'slider.brightness':'亮度偏移','slider.saturation':'饱和度偏移','slider.contrast':'对比度偏移',
-      'slider.gamma':'伽马曲线','slider.mask':'半透明掩膜','slider.mask.hint':'叠加颜色面纱以破坏 CNN 色彩空间','slider.mask.opacity':'掩膜透明度',
-      'btn.randomize':'随机化所有激活参数',
+      'layer.base':'基础层 · 文件级','layer.base.md5':'MD5 篡改（EOF 追加随机字节）','layer.base.exif':'EXIF 元数据抹除（Canvas 重绘）',
+      'layer.base.desc':'通过修改文件二进制内容进行去重，对画质完全无损。','layer.base.md5.desc':'在图片文件尾部追加1~8个随机字节，彻底改变MD5哈希值，肉眼无任何影响。','layer.base.exif.desc':'擦除拍摄设备、GPS定位、时间戳等元数据。Canvas重绘自动清理。',
+      'layer.pixel':'像素层 · pHash 对抗','layer.pixel.desc':'通过微调像素空间位置，打乱广告平台识别图片几何轮廓的pHash指纹。',
+      'layer.color':'色彩与光影层 · CNN 对抗','layer.color.desc':'通过微调色差与光影，破坏AI提取图像色彩分布特征的数学建模。',
+      'slider.crop':'微幅裁剪与拉伸','slider.crop.desc':'切掉图片四周微量边缘像素并拉伸还原。改变所有像素坐标以打乱感知哈希指纹。',
+      'slider.noise':'噪点注入','slider.noise.desc':'随机注入极微弱的像素噪点。肉眼不可见但能极大干扰AI像素比对结果。',
+      'slider.mirror':'镜像翻转 (L↔R)','slider.mirror.desc':'左右翻转图片。对不带文字/Logo的纯背景素材极其有效。',
+      'slider.brightness':'亮度偏移','slider.brightness.desc':'均匀移动RGB通道值。在±2%范围内人眼无法察觉，但色阶直方图已发生漂移。',
+      'slider.saturation':'饱和度偏移','slider.saturation.desc':'相对灰度调整色彩强度。细微偏移即可改变CNN色彩空间特征。',
+      'slider.contrast':'对比度偏移','slider.contrast.desc':'改变明暗区域差异。干扰CNN模型用于识别的边缘强度特征。',
+      'slider.gamma':'伽马曲线','slider.gamma.desc':'非线性亮度曲线调整。改变暗部/亮部过渡，干扰明暗边界建模算法。',
+      'slider.mask':'半透明掩膜','slider.mask.hint':'叠加近乎不可见的纯色滤镜，强制重绘底层色彩空间以破坏CNN分析。','slider.mask.opacity':'掩膜透明度',
+      'btn.randomize':'随机化所有激活参数','btn.randomize.hint':'仅影响当前已启用的参数',
+      'btn.random_color':'随机颜色',
       'dropzone.title':'点击或将广告图片拖拽至此处','dropzone.hint':'支持 PNG、JPG、WEBP · 批量处理 · ZIP 导入',
+      'dropzone.privacy':'🔒 本地离线处理。100% 隐私保护。绝不上传任何文件。',
       'files.loaded':'已加载文件',
+      'files.col.name':'文件名','files.col.orig_hash':'原始哈希','files.col.new_hash':'处理后哈希','files.col.status':'状态',
       'preview.title':'实时预览 · 处理前/后','preview.placeholder':'从文件列表中选择一张图片预览',
       'status.processing':'处理中...','status.complete':'完成',
       'btn.process':'🚀 开始批量处理','btn.download':'📦 下载 ZIP',
@@ -470,20 +658,29 @@
       'hero.title':'広告画像スマート重複排除',
       'hero.desc':'すべての処理はブラウザ内でローカル実行 — クリエイティブ資産がデバイスから出ることはありません。',
       'presets.heading':'クイックプリセット',
-      'presets.quick.name':'高速重複排除','presets.quick.desc':'MD5 + EXIF + 0.5% クロップ',
+      'presets.quick.name':'高速重複排除','presets.quick.desc':'ベース全開 + 0.5% クロップ',
       'presets.deep.name':'深度重複排除','presets.deep.desc':'完全変異 · 使用済み素材の復活',
-      'presets.mirror.name':'ミラー重複排除','presets.mirror.desc':'反転 + 高速/深度ベース',
+      'presets.mirror.name':'ミラー重複排除','presets.mirror.desc':'反転 + 高速ベース',
       'presets.mirror.warn':'⚠️ 文字、ロゴ、方向性のある要素を含まない画像にのみミラーモードを使用してください — 反転した文字は広告拒否の原因になります！',
       'presets.deep.warn':'⚠️ 深度モードは強力な変異を適用します。アップロード前に出力を目視確認してください — 文字/ロゴが影響を受ける可能性があります。',
-      'layer.base':'基本層 · ファイルレベル','layer.base.md5':'MD5 変異（EOF にランダムバイト追加）','layer.base.exif':'EXIF メタデータ除去（Canvas 再描画）','layer.base.note':'常時有効 · 視覚的品質損失ゼロ',
-      'layer.pixel':'ピクセル層 · pHash 回避',
-      'layer.color':'色彩・光量層 · CNN 回避',
-      'slider.crop':'微小クロップとストレッチ','slider.noise':'ノイズ注入','slider.mirror':'ミラー反転 (L↔R)',
-      'slider.brightness':'明度シフト','slider.saturation':'彩度シフト','slider.contrast':'コントラストシフト',
-      'slider.gamma':'ガンマ曲線','slider.mask':'半透明マスク','slider.mask.hint':'CNN 色空間を乱すカラーベールを重ねる','slider.mask.opacity':'マスク不透明度',
-      'btn.randomize':'全アクティブパラメータをランダム化',
+      'layer.base':'基本層 · ファイルレベル','layer.base.md5':'MD5 変異（EOF にランダムバイト追加）','layer.base.exif':'EXIF メタデータ除去（Canvas 再描画）',
+      'layer.base.desc':'バイナリレベルの変更でファイル識別子を変更。画質に影響なし。','layer.base.md5.desc':'画像ファイル末尾に1~8バイトのランダムデータを追加。MD5ハッシュを完全に変更。','layer.base.exif.desc':'カメラ情報、GPS、タイムスタンプを消去。Canvas再描画で自動クリーン。',
+      'layer.pixel':'ピクセル層 · pHash 回避','layer.pixel.desc':'ピクセル位置を微調整し、広告プラットフォームのpHash指紋を乱す。',
+      'layer.color':'色彩・光量層 · CNN 回避','layer.color.desc':'色差と光量を微調整し、AIの色彩分布特徴抽出を妨害。',
+      'slider.crop':'微小クロップとストレッチ','slider.crop.desc':'画像周辺の微量ピクセルを切り取り元のサイズに引き伸ばし。全ピクセル座標が変化。',
+      'slider.noise':'ノイズ注入','slider.noise.desc':'極微小なランダムピクセル変動を注入。ほぼ不可視だがAI比較を大きく妨害。',
+      'slider.mirror':'ミラー反転 (L↔R)','slider.mirror.desc':'画像を左右反転。テキスト/ロゴのない背景・風景画像に極めて効果的。',
+      'slider.brightness':'明度シフト','slider.brightness.desc':'RGBチャンネルを均一にシフト。±2%以内なら肉眼で判別不可だがヒストグラムは変化。',
+      'slider.saturation':'彩度シフト','slider.saturation.desc':'グレースケール比で色強度を調整。微小変化でCNN色空間特徴を変更。',
+      'slider.contrast':'コントラストシフト','slider.contrast.desc':'明暗差を変更。CNNモデルのエッジ強度特徴を変化させる。',
+      'slider.gamma':'ガンマ曲線','slider.gamma.desc':'非線形輝度曲線。暗部/明部の遷移を調整しエッジモデリングを妨害。',
+      'slider.mask':'半透明マスク','slider.mask.hint':'ほぼ不可視のカラーフィルターを最上層に重ね、CNN分析の色彩空間を強制書き換え。','slider.mask.opacity':'マスク不透明度',
+      'btn.randomize':'全アクティブパラメータをランダム化','btn.randomize.hint':'現在有効なパラメータのみが対象',
+      'btn.random_color':'ランダム色',
       'dropzone.title':'ここをクリックまたは広告画像をドラッグ＆ドロップ','dropzone.hint':'PNG、JPG、WEBP対応 · バッチ処理 · ZIP入力',
+      'dropzone.privacy':'🔒 ローカルオフライン処理。100% プライバシー。ファイルのアップロード一切なし。',
       'files.loaded':'読み込み済みファイル',
+      'files.col.name':'ファイル名','files.col.orig_hash':'元のハッシュ','files.col.new_hash':'新しいハッシュ','files.col.status':'状態',
       'preview.title':'ライブプレビュー · 処理前 / 後','preview.placeholder':'ファイルリストから画像を選択してプレビュー',
       'status.processing':'処理中...','status.complete':'完了',
       'btn.process':'🚀 バッチ処理を開始','btn.download':'📦 ZIPをダウンロード',
@@ -497,248 +694,53 @@
       'hero.title':'광고 이미지 스마트 중복 제거',
       'hero.desc':'모든 처리가 브라우저에서 로컬로 실행 — 크리에이티브 자산이 기기를 떠나지 않습니다.',
       'presets.heading':'빠른 프리셋',
-      'presets.quick.name':'빠른 중복 제거','presets.quick.desc':'MD5 + EXIF + 0.5% 크롭',
+      'presets.quick.name':'빠른 중복 제거','presets.quick.desc':'기본 전체 + 0.5% 크롭',
       'presets.deep.name':'심층 중복 제거','presets.deep.desc':'전체 변이 · 소진된 소재 복구',
-      'presets.mirror.name':'미러 중복 제거','presets.mirror.desc':'뒤집기 + 빠른/심층 기반',
+      'presets.mirror.name':'미러 중복 제거','presets.mirror.desc':'뒤집기 + 빠른 기본',
       'presets.mirror.warn':'⚠️ 텍스트, 로고 또는 방향성 요소가 없는 이미지에만 미러 모드를 사용하세요 — 뒤집힌 텍스트는 광고 거부 사유가 됩니다!',
       'presets.deep.warn':'⚠️ 심층 모드는 강력한 변이를 적용합니다. 업로드 전에 출력을 육안으로 확인하세요 — 텍스트/로고가 영향받을 수 있습니다.',
-      'layer.base':'기본 레이어 · 파일 레벨','layer.base.md5':'MD5 변이 (EOF에 랜덤 바이트 추가)','layer.base.exif':'EXIF 메타데이터 제거 (캔버스 재렌더링)','layer.base.note':'항상 활성 · 시각적 품질 손실 없음',
-      'layer.pixel':'픽셀 레이어 · pHash 회피',
-      'layer.color':'색상 및 조명 레이어 · CNN 회피',
-      'slider.crop':'미세 크롭 및 스트레치','slider.noise':'노이즈 주입','slider.mirror':'좌우 반전 (L↔R)',
-      'slider.brightness':'밝기 조정','slider.saturation':'채도 조정','slider.contrast':'대비 조정',
-      'slider.gamma':'감마 곡선','slider.mask':'반투명 마스크','slider.mask.hint':'CNN 색공간을 교란하는 색상 베일 오버레이','slider.mask.opacity':'마스크 불투명도',
-      'btn.randomize':'모든 활성 매개변수 무작위화',
+      'layer.base':'기본 레이어 · 파일 레벨','layer.base.md5':'MD5 변이 (EOF에 랜덤 바이트 추가)','layer.base.exif':'EXIF 메타데이터 제거 (캔버스 재렌더링)',
+      'layer.base.desc':'파일 바이너리를 수정하여 식별자를 변경. 화질 손실 없음.',
+      'layer.base.md5.desc':'이미지 파일 끝에 1~8개의 랜덤 바이트를 추가. MD5 해시를 완전히 변경.',
+      'layer.base.exif.desc':'카메라 정보, GPS, 타임스탬프 등 메타데이터 제거. 캔버스 재렌더링으로 자동 정리.',
+      'layer.pixel':'픽셀 레이어 · pHash 회피','layer.pixel.desc':'픽셀 공간 위치를 미세 조정하여 광고 플랫폼의 pHash 지문을 교란.',
+      'layer.color':'색상 및 조명 레이어 · CNN 회피','layer.color.desc':'색차와 명암을 미세 조정하여 AI의 색상 분포 특징 추출을 방해.',
+      'slider.crop':'미세 크롭 및 스트레치','slider.crop.desc':'이미지 가장자리 픽셀을 잘라내고 원래 크기로 늘림. 모든 픽셀 좌표가 변경됨.',
+      'slider.noise':'노이즈 주입','slider.noise.desc':'미세한 랜덤 픽셀 변동을 주입. 거의 보이지 않지만 AI 비교를 크게 방해.',
+      'slider.mirror':'좌우 반전 (L↔R)','slider.mirror.desc':'이미지를 좌우로 뒤집음. 텍스트/로고가 없는 배경 이미지에 매우 효과적.',
+      'slider.brightness':'밝기 조정','slider.brightness.desc':'RGB 채널을 균일하게 이동. ±2% 이내에서는 육안으로 구별 불가.',
+      'slider.saturation':'채도 조정','slider.saturation.desc':'회색조 대비 색상 강도 조정. 미세 변화로 CNN 색공간 특징 변경.',
+      'slider.contrast':'대비 조정','slider.contrast.desc':'명암 차이 변경. CNN 모델의 엣지 강도 특징을 변경.',
+      'slider.gamma':'감마 곡선','slider.gamma.desc':'비선형 밝기 곡선. 어두운/밝은 영역 전환 조정으로 엣지 모델링 방해.',
+      'slider.mask':'반투명 마스크','slider.mask.hint':'거의 보이지 않는 컬러 필터를 최상단에 겹쳐 CNN 분석 색공간 강제 재작성.','slider.mask.opacity':'마스크 불투명도',
+      'btn.randomize':'모든 활성 매개변수 무작위화','btn.randomize.hint':'현재 활성화된 매개변수만 대상',
+      'btn.random_color':'랜덤 색상',
       'dropzone.title':'여기를 클릭하거나 광고 이미지를 드래그 앤 드롭','dropzone.hint':'PNG, JPG, WEBP 지원 · 배치 처리 · ZIP 입력',
+      'dropzone.privacy':'🔒 로컬 오프라인 처리. 100% 개인정보 보호. 파일 업로드 없음.',
       'files.loaded':'로드된 파일',
+      'files.col.name':'파일명','files.col.orig_hash':'원본 해시','files.col.new_hash':'처리 후 해시','files.col.status':'상태',
       'preview.title':'실시간 미리보기 · 처리 전/후','preview.placeholder':'파일 목록에서 이미지를 선택하여 미리보기',
       'status.processing':'처리 중...','status.complete':'완료',
       'btn.process':'🚀 배치 처리 시작','btn.download':'📦 ZIP 다운로드',
       'footer.powered':'제공','footer.privacy':'로그 없음 · 추적 없음. 모든 이미지 처리는 브라우저에서 수행되며 — 파일이 업로드되거나 저장되지 않습니다.',
     },
-    fr: {
-      'page.title':'Image Blender — Outil de déduplication d\'images publicitaires | LinkoZen',
-      'app.title':'Image Blender','app.subtitle':'Outil de déduplication d\'images pub',
-      'nav.home':'Accueil','nav.tools':'Outils','nav.2fa':'Outils 2FA','nav.forex':'Convertisseur','nav.ip':'Recherche IP','nav.pass':'Générateur MDP','nav.text':'Nettoyeur texte','nav.webp':'Convertisseur image','nav.ico':'Générateur ICO','nav.ai':'Générateur avatar IA',
-      'hero.badge':'100% Calcul en périphérie navigateur · Zéro téléversement · Confidentialité absolue',
-      'hero.title':'Déduplication intelligente d\'images publicitaires',
-      'hero.desc':'Tout le traitement s\'exécute localement dans votre navigateur — vos créations ne quittent jamais votre appareil.',
-      'presets.heading':'Présélections rapides',
-      'presets.quick.name':'Dédup rapide','presets.quick.desc':'MD5 + EXIF + recadrage 0,5%',
-      'presets.deep.name':'Dédup profond','presets.deep.desc':'Mutation complète · faire revivre les anciens visuels',
-      'presets.mirror.name':'Dédup miroir','presets.mirror.desc':'Retournement + base rapide/profonde',
-      'presets.mirror.warn':'⚠️ Utilisez le mode Miroir UNIQUEMENT sur des images SANS texte, logo ou éléments directionnels — un texte inversé entraînera un rejet de l\'annonce !',
-      'presets.deep.warn':'⚠️ Le mode profond applique des mutations agressives. Vérifiez visuellement le résultat avant de publier — le texte/logos peuvent être affectés.',
-      'layer.base':'Couche de base · Niveau fichier','layer.base.md5':'Mutation MD5 (ajout d\'octets aléatoires en EOF)','layer.base.exif':'Suppression des métadonnées EXIF (re-rendu Canvas)','layer.base.note':'Toujours actif · Aucune perte de qualité visuelle',
-      'layer.pixel':'Couche pixel · Évitement pHash',
-      'layer.color':'Couche couleur et luminosité · Évitement CNN',
-      'slider.crop':'Micro-recadrage et étirement','slider.noise':'Injection de bruit','slider.mirror':'Retournement miroir (G↔D)',
-      'slider.brightness':'Décalage de luminosité','slider.saturation':'Décalage de saturation','slider.contrast':'Décalage de contraste',
-      'slider.gamma':'Courbe gamma','slider.mask':'Masque semi-transparent','slider.mask.hint':'Superpose un voile de couleur pour perturber l\'espace colorimétrique CNN','slider.mask.opacity':'Opacité du masque',
-      'btn.randomize':'Aléatoiriser tous les paramètres actifs',
-      'dropzone.title':'Cliquez ou glissez-déposez vos images publicitaires ici','dropzone.hint':'Prend en charge PNG, JPG, WEBP · Traitement par lot · Entrée ZIP',
-      'files.loaded':'Fichiers chargés',
-      'preview.title':'Aperçu en direct · Avant / Après','preview.placeholder':'Sélectionnez une image dans la liste pour prévisualiser',
-      'status.processing':'Traitement en cours...','status.complete':'Terminé',
-      'btn.process':'🚀 Lancer le traitement par lot','btn.download':'📦 Télécharger ZIP',
-      'footer.powered':'Propulsé par','footer.privacy':'Pas de logs. Pas de suivi. Tout le traitement d\'image s\'exécute dans votre navigateur — aucun fichier n\'est jamais téléversé ni stocké.',
-    },
-    de: {
-      'page.title':'Image Blender — Tool zur Deduplizierung von Werbebildern | LinkoZen',
-      'app.title':'Image Blender','app.subtitle':'Werbebild-Deduplizierungstool',
-      'nav.home':'Startseite','nav.tools':'Tools','nav.2fa':'2FA Tools','nav.forex':'Währungsumrechner','nav.ip':'IP-Abfrage','nav.pass':'Passwort-Generator','nav.text':'Textreiniger','nav.webp':'Bildkonverter','nav.ico':'ICO Generator','nav.ai':'KI-Avatar Generator',
-      'hero.badge':'100% Browser-Edge-Computing · Kein Upload · Absolute Privatsphäre',
-      'hero.title':'Intelligente Werbebild-Deduplizierung',
-      'hero.desc':'Die gesamte Verarbeitung erfolgt lokal in Ihrem Browser — Ihre kreativen Assets verlassen niemals Ihr Gerät.',
-      'presets.heading':'Schnellvorlagen',
-      'presets.quick.name':'Schnelle Dedup','presets.quick.desc':'MD5 + EXIF + 0,5% Zuschnitt',
-      'presets.deep.name':'Tiefen-Dedup','presets.deep.desc':'Vollständige Mutation · verbrauchte Assets wiederbeleben',
-      'presets.mirror.name':'Spiegel-Dedup','presets.mirror.desc':'Spiegelung + Schnell-/Tiefenbasis',
-      'presets.mirror.warn':'⚠️ Verwenden Sie den Spiegelmodus NUR bei Bildern OHNE Text, Logos oder Richtungselemente — gespiegelter Text führt zur Ablehnung der Anzeige!',
-      'presets.deep.warn':'⚠️ Der Tiefenmodus wendet aggressive Mutationen an. Bitte überprüfen Sie die Ausgabe visuell vor dem Hochladen — Text/Logos können betroffen sein.',
-      'layer.base':'Basisebene · Dateiebene','layer.base.md5':'MD5-Mutation (Zufallsbytes am EOF anhängen)','layer.base.exif':'EXIF-Metadatenentfernung (Canvas-Neuzeichnung)','layer.base.note':'Immer aktiv · Kein visueller Qualitätsverlust',
-      'layer.pixel':'Pixelebene · pHash-Vermeidung',
-      'layer.color':'Farb- und Beleuchtungsebene · CNN-Vermeidung',
-      'slider.crop':'Mikrozuschnitt und Streckung','slider.noise':'Rauschinjektion','slider.mirror':'Spiegelung (L↔R)',
-      'slider.brightness':'Helligkeitsverschiebung','slider.saturation':'Sättigungsverschiebung','slider.contrast':'Kontrastverschiebung',
-      'slider.gamma':'Gamma-Kurve','slider.mask':'Halbtransparente Maske','slider.mask.hint':'Überlagert einen Farbschleier zur Störung des CNN-Farbraums','slider.mask.opacity':'Maskendeckkraft',
-      'btn.randomize':'Alle aktiven Parameter zufällig setzen',
-      'dropzone.title':'Hier klicken oder Werbebilder per Drag & Drop ablegen','dropzone.hint':'Unterstützt PNG, JPG, WEBP · Stapelverarbeitung · ZIP-Eingabe',
-      'files.loaded':'Geladene Dateien',
-      'preview.title':'Live-Vorschau · Vorher / Nachher','preview.placeholder':'Wählen Sie ein Bild aus der Dateiliste zur Vorschau',
-      'status.processing':'Verarbeitung...','status.complete':'Abgeschlossen',
-      'btn.process':'🚀 Stapelverarbeitung starten','btn.download':'📦 ZIP herunterladen',
-      'footer.powered':'Bereitgestellt von','footer.privacy':'Keine Protokolle. Kein Tracking. Die gesamte Bildverarbeitung erfolgt in Ihrem Browser — keine Dateien werden jemals hochgeladen oder gespeichert.',
-    },
-    it: {
-      'page.title':'Image Blender — Strumento di deduplica immagini pubblicitarie | LinkoZen',
-      'app.title':'Image Blender','app.subtitle':'Strumento di deduplica immagini pub',
-      'nav.home':'Home','nav.tools':'Strumenti','nav.2fa':'Strumenti 2FA','nav.forex':'Convertitore valuta','nav.ip':'Ricerca IP','nav.pass':'Generatore password','nav.text':'Pulitore testo','nav.webp':'Convertitore immagini','nav.ico':'Generatore ICO','nav.ai':'Generatore avatar IA',
-      'hero.badge':'100% Elaborazione lato browser · Zero upload · Privacy assoluta',
-      'hero.title':'Deduplica intelligente immagini pubblicitarie',
-      'hero.desc':'Tutta l\'elaborazione avviene localmente nel browser — i tuoi asset creativi non lasciano mai il dispositivo.',
-      'presets.heading':'Preimpostazioni rapide',
-      'presets.quick.name':'Dedup rapida','presets.quick.desc':'MD5 + EXIF + ritaglio 0,5%',
-      'presets.deep.name':'Dedup profonda','presets.deep.desc':'Mutazione completa · rivitalizza asset esauriti',
-      'presets.mirror.name':'Dedup speculare','presets.mirror.desc':'Riflessione + base rapida/profonda',
-      'presets.mirror.warn':'⚠️ Usa la modalità Specchio SOLO su immagini SENZA testo, logo o elementi direzionali — il testo specchiato causerà il rifiuto dell\'annuncio!',
-      'presets.deep.warn':'⚠️ La modalità profonda applica mutazioni aggressive. Verifica visivamente l\'output prima di caricare — testo/loghi potrebbero essere influenzati.',
-      'layer.base':'Livello base · Livello file','layer.base.md5':'Mutazione MD5 (aggiunta byte casuali in EOF)','layer.base.exif':'Rimozione metadati EXIF (re-rendering Canvas)','layer.base.note':'Sempre attivo · Nessuna perdita di qualità visiva',
-      'layer.pixel':'Livello pixel · Elusione pHash',
-      'layer.color':'Livello colore e illuminazione · Elusione CNN',
-      'slider.crop':'Micro-ritaglio e stiramento','slider.noise':'Iniezione rumore','slider.mirror':'Riflessione speculare (S↔D)',
-      'slider.brightness':'Variazione luminosità','slider.saturation':'Variazione saturazione','slider.contrast':'Variazione contrasto',
-      'slider.gamma':'Curva gamma','slider.mask':'Maschera semitrasparente','slider.mask.hint':'Sovrappone un velo di colore per disturbare lo spazio colore CNN','slider.mask.opacity':'Opacità maschera',
-      'btn.randomize':'Randomizza tutti i parametri attivi',
-      'dropzone.title':'Clicca o trascina qui le immagini pubblicitarie','dropzone.hint':'Supporta PNG, JPG, WEBP · Elaborazione batch · Input ZIP',
-      'files.loaded':'File caricati',
-      'preview.title':'Anteprima dal vivo · Prima / Dopo','preview.placeholder':'Seleziona un\'immagine dall\'elenco per l\'anteprima',
-      'status.processing':'Elaborazione...','status.complete':'Completato',
-      'btn.process':'🚀 Avvia elaborazione batch','btn.download':'📦 Scarica ZIP',
-      'footer.powered':'Offerto da','footer.privacy':'Nessun log. Nessun tracciamento. Tutta l\'elaborazione delle immagini avviene nel browser — nessun file viene mai caricato o archiviato.',
-    },
-    es: {
-      'page.title':'Image Blender — Herramienta de deduplicación de imágenes publicitarias | LinkoZen',
-      'app.title':'Image Blender','app.subtitle':'Herramienta de deduplicación de imágenes',
-      'nav.home':'Inicio','nav.tools':'Herramientas','nav.2fa':'2FA Herramientas','nav.forex':'Conversor divisas','nav.ip':'Búsqueda IP','nav.pass':'Generador contraseñas','nav.text':'Limpiador texto','nav.webp':'Conversor imágenes','nav.ico':'Generador ICO','nav.ai':'Generador avatar IA',
-      'hero.badge':'100% Computación en el borde del navegador · Cero subida · Privacidad absoluta',
-      'hero.title':'Deduplicación inteligente de imágenes publicitarias',
-      'hero.desc':'Todo el procesamiento se ejecuta localmente en su navegador — sus activos creativos nunca abandonan su dispositivo.',
-      'presets.heading':'Preajustes rápidos',
-      'presets.quick.name':'Dedup rápido','presets.quick.desc':'MD5 + EXIF + recorte 0,5%',
-      'presets.deep.name':'Dedup profundo','presets.deep.desc':'Mutación completa · revivir activos gastados',
-      'presets.mirror.name':'Dedup espejo','presets.mirror.desc':'Volteo + base rápida/profunda',
-      'presets.mirror.warn':'⚠️ ¡Use el modo Espejo SOLO en imágenes SIN texto, logotipos o elementos direccionales — el texto espejado causará el rechazo del anuncio!',
-      'presets.deep.warn':'⚠️ El modo profundo aplica mutaciones agresivas. Verifique visualmente la salida antes de subir — el texto/logotipos pueden verse afectados.',
-      'layer.base':'Capa base · Nivel de archivo','layer.base.md5':'Mutación MD5 (añadir bytes aleatorios al EOF)','layer.base.exif':'Eliminación de metadatos EXIF (redibujado Canvas)','layer.base.note':'Siempre activo · Sin pérdida de calidad visual',
-      'layer.pixel':'Capa de píxeles · Evasión pHash',
-      'layer.color':'Capa de color e iluminación · Evasión CNN',
-      'slider.crop':'Micro-recorte y estiramiento','slider.noise':'Inyección de ruido','slider.mirror':'Volteo espejo (I↔D)',
-      'slider.brightness':'Desplazamiento de brillo','slider.saturation':'Desplazamiento de saturación','slider.contrast':'Desplazamiento de contraste',
-      'slider.gamma':'Curva gamma','slider.mask':'Máscara semitransparente','slider.mask.hint':'Superpone un velo de color para perturbar el espacio de color CNN','slider.mask.opacity':'Opacidad de máscara',
-      'btn.randomize':'Aleatorizar todos los parámetros activos',
-      'dropzone.title':'Haga clic o arrastre imágenes publicitarias aquí','dropzone.hint':'Compatible con PNG, JPG, WEBP · Procesamiento por lotes · Entrada ZIP',
-      'files.loaded':'Archivos cargados',
-      'preview.title':'Vista previa en vivo · Antes / Después','preview.placeholder':'Seleccione una imagen de la lista para previsualizar',
-      'status.processing':'Procesando...','status.complete':'Completado',
-      'btn.process':'🚀 Iniciar procesamiento por lotes','btn.download':'📦 Descargar ZIP',
-      'footer.powered':'Desarrollado por','footer.privacy':'Sin registros. Sin seguimiento. Todo el procesamiento de imágenes se ejecuta en su navegador — ningún archivo se sube o almacena.',
-    },
-    pt: {
-      'page.title':'Image Blender — Ferramenta de deduplicação de imagens publicitárias | LinkoZen',
-      'app.title':'Image Blender','app.subtitle':'Ferramenta de deduplicação de imagens',
-      'nav.home':'Início','nav.tools':'Ferramentas','nav.2fa':'2FA Ferramentas','nav.forex':'Conversor moedas','nav.ip':'Busca IP','nav.pass':'Gerador senhas','nav.text':'Limpador texto','nav.webp':'Conversor imagens','nav.ico':'Gerador ICO','nav.ai':'Gerador avatar IA',
-      'hero.badge':'100% Computação de borda no navegador · Zero upload · Privacidade absoluta',
-      'hero.title':'Deduplicação inteligente de imagens publicitárias',
-      'hero.desc':'Todo o processamento é executado localmente no seu navegador — seus ativos criativos nunca saem do seu dispositivo.',
-      'presets.heading':'Predefinições rápidas',
-      'presets.quick.name':'Dedup rápido','presets.quick.desc':'MD5 + EXIF + corte 0,5%',
-      'presets.deep.name':'Dedup profundo','presets.deep.desc':'Mutação completa · reviver ativos esgotados',
-      'presets.mirror.name':'Dedup espelho','presets.mirror.desc':'Espelhamento + base rápida/profunda',
-      'presets.mirror.warn':'⚠️ Use o modo Espelho APENAS em imagens SEM texto, logotipos ou elementos direcionais — texto espelhado causará rejeição do anúncio!',
-      'presets.deep.warn':'⚠️ O modo profundo aplica mutações agressivas. Verifique visualmente a saída antes de enviar — texto/logotipos podem ser afetados.',
-      'layer.base':'Camada base · Nível de arquivo','layer.base.md5':'Mutação MD5 (anexar bytes aleatórios ao EOF)','layer.base.exif':'Remoção de metadados EXIF (re-renderização Canvas)','layer.base.note':'Sempre ativo · Zero perda de qualidade visual',
-      'layer.pixel':'Camada de pixels · Evasão pHash',
-      'layer.color':'Camada de cor e iluminação · Evasão CNN',
-      'slider.crop':'Micro-corte e estiramento','slider.noise':'Injeção de ruído','slider.mirror':'Espelhamento (E↔D)',
-      'slider.brightness':'Deslocamento de brilho','slider.saturation':'Deslocamento de saturação','slider.contrast':'Deslocamento de contraste',
-      'slider.gamma':'Curva gama','slider.mask':'Máscara semitransparente','slider.mask.hint':'Sobrepõe um véu de cor para perturbar o espaço de cor CNN','slider.mask.opacity':'Opacidade da máscara',
-      'btn.randomize':'Aleatorizar todos os parâmetros ativos',
-      'dropzone.title':'Clique ou arraste imagens publicitárias aqui','dropzone.hint':'Suporta PNG, JPG, WEBP · Processamento em lote · Entrada ZIP',
-      'files.loaded':'Arquivos carregados',
-      'preview.title':'Pré-visualização ao vivo · Antes / Depois','preview.placeholder':'Selecione uma imagem da lista para pré-visualizar',
-      'status.processing':'Processando...','status.complete':'Concluído',
-      'btn.process':'🚀 Iniciar processamento em lote','btn.download':'📦 Baixar ZIP',
-      'footer.powered':'Fornecido por','footer.privacy':'Sem logs. Sem rastreamento. Todo o processamento de imagens é executado no seu navegador — nenhum arquivo é enviado ou armazenado.',
-    },
-    ru: {
-      'page.title':'Image Blender — Инструмент дедупликации рекламных изображений | LinkoZen',
-      'app.title':'Image Blender','app.subtitle':'Инструмент дедупликации изображений',
-      'nav.home':'Главная','nav.tools':'Инструменты','nav.2fa':'2FA Инструменты','nav.forex':'Конвертер валют','nav.ip':'Поиск IP','nav.pass':'Генератор паролей','nav.text':'Очиститель текста','nav.webp':'Конвертер изображений','nav.ico':'Генератор ICO','nav.ai':'Генератор аватаров AI',
-      'hero.badge':'100% Вычисления на стороне браузера · Без загрузки · Полная конфиденциальность',
-      'hero.title':'Умная дедупликация рекламных изображений',
-      'hero.desc':'Вся обработка выполняется локально в вашем браузере — ваши креативные материалы никогда не покидают ваше устройство.',
-      'presets.heading':'Быстрые пресеты',
-      'presets.quick.name':'Быстрая дедупликация','presets.quick.desc':'MD5 + EXIF + обрезка 0,5%',
-      'presets.deep.name':'Глубокая дедупликация','presets.deep.desc':'Полная мутация · оживление старых креативов',
-      'presets.mirror.name':'Зеркальная дедупликация','presets.mirror.desc':'Отражение + быстрая/глубокая основа',
-      'presets.mirror.warn':'⚠️ Используйте зеркальный режим ТОЛЬКО для изображений БЕЗ текста, логотипов или направленных элементов — зеркальный текст приведёт к отклонению объявления!',
-      'presets.deep.warn':'⚠️ Глубокий режим применяет агрессивные мутации. Визуально проверьте результат перед загрузкой — текст/логотипы могут пострадать.',
-      'layer.base':'Базовый слой · Уровень файла','layer.base.md5':'Мутация MD5 (добавление случайных байтов в EOF)','layer.base.exif':'Удаление метаданных EXIF (перерисовка Canvas)','layer.base.note':'Всегда активно · Нулевая потеря визуального качества',
-      'layer.pixel':'Пиксельный слой · Обход pHash',
-      'layer.color':'Слой цвета и освещения · Обход CNN',
-      'slider.crop':'Микро-обрезка и растяжение','slider.noise':'Внесение шума','slider.mirror':'Зеркальное отражение (Л↔П)',
-      'slider.brightness':'Сдвиг яркости','slider.saturation':'Сдвиг насыщенности','slider.contrast':'Сдвиг контрастности',
-      'slider.gamma':'Гамма-кривая','slider.mask':'Полупрозрачная маска','slider.mask.hint':'Накладывает цветную вуаль для нарушения цветового пространства CNN','slider.mask.opacity':'Непрозрачность маски',
-      'btn.randomize':'Рандомизировать все активные параметры',
-      'dropzone.title':'Нажмите или перетащите рекламные изображения сюда','dropzone.hint':'Поддерживает PNG, JPG, WEBP · Пакетная обработка · ZIP-ввод',
-      'files.loaded':'Загруженные файлы',
-      'preview.title':'Предпросмотр · До / После','preview.placeholder':'Выберите изображение из списка для предпросмотра',
-      'status.processing':'Обработка...','status.complete':'Завершено',
-      'btn.process':'🚀 Начать пакетную обработку','btn.download':'📦 Скачать ZIP',
-      'footer.powered':'Работает на','footer.privacy':'Без логов. Без отслеживания. Вся обработка изображений выполняется в вашем браузере — файлы никогда не загружаются и не сохраняются.',
-    },
-    tr: {
-      'page.title':'Image Blender — Reklam Görseli Benzersizleştirme Aracı | LinkoZen',
-      'app.title':'Image Blender','app.subtitle':'Reklam Görseli Benzersizleştirme Aracı',
-      'nav.home':'Ana Sayfa','nav.tools':'Araçlar','nav.2fa':'2FA Araçları','nav.forex':'Döviz Çevirici','nav.ip':'IP Sorgulama','nav.pass':'Şifre Oluşturucu','nav.text':'Metin Temizleyici','nav.webp':'Görüntü Dönüştürücü','nav.ico':'ICO Simge Oluşturucu','nav.ai':'AI Avatar Oluşturucu',
-      'hero.badge':'%100 Tarayıcı Uç Bilişimi · Sıfır Yükleme · Mutlak Gizlilik',
-      'hero.title':'Akıllı Reklam Görseli Benzersizleştirme',
-      'hero.desc':'Tüm işlemler tarayıcınızda yerel olarak çalışır — yaratıcı varlıklarınız asla cihazınızdan çıkmaz.',
-      'presets.heading':'Hızlı Ön Ayarlar',
-      'presets.quick.name':'Hızlı Benzersizleştirme','presets.quick.desc':'MD5 + EXIF + %0,5 kırpma',
-      'presets.deep.name':'Derin Benzersizleştirme','presets.deep.desc':'Tam mutasyon · tükenmiş varlıkları canlandırma',
-      'presets.mirror.name':'Ayna Benzersizleştirme','presets.mirror.desc':'Çevirme + hızlı/derin temel',
-      'presets.mirror.warn':'⚠️ Ayna modunu YALNIZCA metin, logo veya yönlü öğeler OLMAYAN görsellerde kullanın — aynalanmış metin reklam reddine neden olur!',
-      'presets.deep.warn':'⚠️ Derin mod agresif mutasyonlar uygular. Yüklemeden önce çıktıyı görsel olarak kontrol edin — metin/logolar etkilenebilir.',
-      'layer.base':'Temel Katman · Dosya Düzeyi','layer.base.md5':'MD5 mutasyonu (EOF\'a rastgele bayt ekleme)','layer.base.exif':'EXIF meta verisi kaldırma (Canvas yeniden çizimi)','layer.base.note':'Her zaman aktif · Sıfır görsel kalite kaybı',
-      'layer.pixel':'Piksel Katmanı · pHash Atlatma',
-      'layer.color':'Renk ve Işık Katmanı · CNN Atlatma',
-      'slider.crop':'Mikro kırpma ve germe','slider.noise':'Gürültü enjeksiyonu','slider.mirror':'Ayna çevirme (S↔Sa)',
-      'slider.brightness':'Parlaklık kaydırma','slider.saturation':'Doygunluk kaydırma','slider.contrast':'Kontrast kaydırma',
-      'slider.gamma':'Gama eğrisi','slider.mask':'Yarı saydam maske','slider.mask.hint':'CNN renk uzayını bozmak için renk perdesi kaplar','slider.mask.opacity':'Maske opaklığı',
-      'btn.randomize':'Tüm Aktif Parametreleri Rastgele Belirle',
-      'dropzone.title':'Buraya tıklayın veya reklam görsellerini sürükleyip bırakın','dropzone.hint':'PNG, JPG, WEBP destekler · Toplu işlem · ZIP girişi',
-      'files.loaded':'Yüklenen Dosyalar',
-      'preview.title':'Canlı Önizleme · Önce / Sonra','preview.placeholder':'Önizlemek için dosya listesinden bir görsel seçin',
-      'status.processing':'İşleniyor...','status.complete':'Tamamlandı',
-      'btn.process':'🚀 Toplu İşlemi Başlat','btn.download':'📦 ZIP İndir',
-      'footer.powered':'Tarafından sunulmaktadır','footer.privacy':'Günlük yok. İzleme yok. Tüm görüntü işleme tarayıcınızda çalışır — hiçbir dosya yüklenmez veya saklanmaz.',
-    },
-    'zh-TW': {
-      'page.title':'Image Blender — 廣告圖片去重工具 | LinkoZen',
-      'app.title':'Image Blender','app.subtitle':'廣告圖片智慧去重工具',
-      'nav.home':'首頁','nav.tools':'工具','nav.2fa':'2FA 工具','nav.forex':'匯率換算','nav.ip':'IP 查詢','nav.pass':'密碼產生器','nav.text':'文字清洗器','nav.webp':'圖片轉換器','nav.ico':'ICO 圖示產生器','nav.ai':'AI 頭像產生器',
-      'hero.badge':'100% 瀏覽器邊緣運算 · 零上傳 · 絕對隱私',
-      'hero.title':'廣告圖片智慧去重',
-      'hero.desc':'所有處理均在瀏覽器本機執行 — 您的創意素材絕不會離開您的裝置。',
-      'presets.heading':'快速預設',
-      'presets.quick.name':'快速去重','presets.quick.desc':'MD5 + EXIF + 0.5% 裁剪',
-      'presets.deep.name':'深度去重','presets.deep.desc':'全面變異 · 挽救已跑爛素材',
-      'presets.mirror.name':'鏡像去重','presets.mirror.desc':'翻轉 + 快速/深度基礎',
-      'presets.mirror.warn':'⚠️ 僅在圖片不含文字、Logo 或方向性元素時使用鏡像模式 — 翻轉後的反字會導致廣告拒審！',
-      'presets.deep.warn':'⚠️ 深度模式會施加激進變異。請在上傳前仔細檢查輸出 — 文字/Logo 可能受影響。',
-      'layer.base':'基礎層 · 檔案級','layer.base.md5':'MD5 篡改（EOF 追加隨機位元組）','layer.base.exif':'EXIF 中繼資料抹除（Canvas 重繪）','layer.base.note':'始終啟用 · 零視覺品質損失',
-      'layer.pixel':'像素層 · pHash 對抗',
-      'layer.color':'色彩與光影層 · CNN 對抗',
-      'slider.crop':'微幅裁剪與拉伸','slider.noise':'噪點注入','slider.mirror':'鏡像翻轉 (L↔R)',
-      'slider.brightness':'亮度偏移','slider.saturation':'飽和度偏移','slider.contrast':'對比度偏移',
-      'slider.gamma':'伽馬曲線','slider.mask':'半透明遮罩','slider.mask.hint':'疊加顏色面紗以破壞 CNN 色彩空間','slider.mask.opacity':'遮罩不透明度',
-      'btn.randomize':'隨機化所有啟用參數',
-      'dropzone.title':'點擊或將廣告圖片拖曳至此處','dropzone.hint':'支援 PNG、JPG、WEBP · 批次處理 · ZIP 匯入',
-      'files.loaded':'已載入檔案',
-      'preview.title':'即時預覽 · 處理前/後','preview.placeholder':'從檔案列表中選擇一張圖片預覽',
-      'status.processing':'處理中...','status.complete':'完成',
-      'btn.process':'🚀 開始批次處理','btn.download':'📦 下載 ZIP',
-      'footer.powered':'由','footer.privacy':'無記錄 · 無追蹤。所有圖片處理均在瀏覽器中完成 — 不會上傳或儲存任何檔案。',
-    },
   };
+
+  // For non-English languages without full translations, use English fallback
+  var FULL_LANGS = ['en','zh','ja','ko'];
+  var PARTIAL_LANGS = ['fr','de','it','es','pt','ru','tr','zh-TW'];
+  PARTIAL_LANGS.forEach(function(lc) {
+    DICT[lc] = DICT[lc] || {};
+    for (var key in DICT.en) {
+      if (!(key in DICT[lc])) DICT[lc][key] = DICT.en[key];
+    }
+  });
 
   var currentLang = localStorage.getItem('dedupli-lang') || 'en';
 
   function t(key) {
-    var d = DICT[currentLang] || DICT['en'];
-    return d[key] != null ? d[key] : (DICT['en'][key] != null ? DICT['en'][key] : key);
+    var d = DICT[currentLang] || DICT.en;
+    return d[key] != null ? d[key] : (DICT.en[key] != null ? DICT.en[key] : key);
   }
 
   function updateLanguageUI() {
@@ -750,7 +752,6 @@
     document.title = t('page.title');
     var htmlEl = document.documentElement;
     htmlEl.lang = (currentLang === 'zh') ? 'zh-CN' : (currentLang === 'zh-TW') ? 'zh-TW' : currentLang;
-    // Re-apply dynamic button content
     updateButtons();
   }
 
@@ -781,7 +782,6 @@
     updateLangButton();
     buildLangMenu();
     updateLanguageUI();
-    // Refresh preview with translated labels
     if (state.files.length > 0) { updateFileList(); updatePreview(); }
   };
 
@@ -837,6 +837,66 @@
   applyTheme();
 
   // ==========================================================================
+  //  PURE-JS MD5 IMPLEMENTATION (RFC 1321)
+  // ==========================================================================
+  function md5(str) {
+    function R(n,c) { return (n << c) | (n >>> (32 - c)); }
+    function F(b,c,d) { return (b & c) | ((~b) & d); }
+    function G(b,c,d) { return (b & d) | (c & (~d)); }
+    function H(b,c,d) { return b ^ c ^ d; }
+    function I(b,c,d) { return c ^ (b | (~d)); }
+
+    var T = [];
+    for (var i = 0; i < 64; i++) T[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296);
+
+    var msg = [];
+    for (var i = 0; i < str.length; i++) msg[i >>> 2] |= str.charCodeAt(i) << ((i % 4) * 8);
+    var len = str.length * 8;
+    msg[len >>> 5] |= 0x80 << ((len % 32));
+    msg[(((len + 64) >>> 9) << 4) + 14] = len;
+
+    var a = 1732584193, b = -271733879, c = -1732584194, d = 271733878;
+
+    for (var i = 0; i < msg.length; i += 16) {
+      var aa = a, bb = b, cc = c, dd = d;
+      var X = msg.slice(i, i + 16);
+      for (var r = 0; r < 64; r++) {
+        var val, fn;
+        if (r < 16) { fn = F(b, c, d); val = r; }
+        else if (r < 32) { fn = G(b, c, d); val = (5 * r + 1) % 16; }
+        else if (r < 48) { fn = H(b, c, d); val = (3 * r + 5) % 16; }
+        else { fn = I(b, c, d); val = (7 * r) % 16; }
+        var tmp = d;
+        d = c; c = b;
+        b = b + R(a + fn + (X[val] | 0) + T[r], [7,12,17,22,5,9,14,20,4,11,16,23,6,10,15,21][
+          r < 16 ? r : r < 32 ? (r - 16) % 4 + 4 : r < 48 ? (r - 32) % 4 + 8 : (r - 48) % 4 + 12
+        ]);
+        a = tmp;
+      }
+      a = a + aa; b = b + bb; c = c + cc; d = d + dd;
+    }
+    function toHex(v) {
+      var h = (v >>> 0).toString(16);
+      while (h.length < 8) h = '0' + h;
+      return h;
+    }
+    return toHex(a) + toHex(b) + toHex(c) + toHex(d);
+  }
+
+  function blobToMd5(blob) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var binary = '';
+        var bytes = new Uint8Array(e.target.result);
+        for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        resolve(md5(binary));
+      };
+      reader.readAsArrayBuffer(blob);
+    });
+  }
+
+  // ==========================================================================
   //  STATE
   // ==========================================================================
   var state = {
@@ -850,8 +910,13 @@
   //  CONFIG from UI controls
   // ==========================================================================
   function getConfig() {
+    var baseEnabled = document.getElementById('base-enabled').checked;
     return {
-      baseLayer: { enabled: true },
+      baseLayer: {
+        enabled: baseEnabled,
+        md5Mutation: baseEnabled && document.getElementById('base-md5').checked,
+        exifRemoval: baseEnabled && document.getElementById('base-exif').checked,
+      },
       pixelLayer: {
         enabled: document.getElementById('pixel-enabled').checked,
         cropRate: parseFloat(document.getElementById('crop-slider').value) / 100,
@@ -873,7 +938,36 @@
   }
 
   // ==========================================================================
-  //  PRESETS (with default Quick selected)
+  //  COLLAPSE / TOGGLE LOGIC
+  // ==========================================================================
+  function toggleLayerCard(layer) {
+    var body = document.getElementById(layer + '-layer-body');
+    var chevron = document.querySelector('#' + layer + '-layer-card .layer-card-chevron');
+    if (!body) return;
+    var isCollapsed = body.classList.toggle('collapsed');
+    if (chevron) chevron.classList.toggle('rotated', isCollapsed);
+  }
+
+  function autoCollapseDisabled() {
+    ['base','pixel','color'].forEach(function(layer) {
+      var enabled = document.getElementById(layer + '-enabled');
+      var body = document.getElementById(layer + '-layer-body');
+      var chev = document.querySelector('#' + layer + '-layer-card .layer-card-chevron');
+      if (!enabled || !body) return;
+      if (!enabled.checked) {
+        body.classList.add('collapsed');
+        if (chev) chev.classList.add('rotated');
+      } else {
+        body.classList.remove('collapsed');
+        if (chev) chev.classList.remove('rotated');
+      }
+    });
+  }
+
+  window.toggleLayerCard = toggleLayerCard;
+
+  // ==========================================================================
+  //  PRESETS
   // ==========================================================================
   function applyPreset(type) {
     var btns = document.querySelectorAll('.preset-btn');
@@ -881,64 +975,94 @@
       b.classList.remove('border-violet-400', 'bg-violet-50');
       b.classList.add('border-gray-200');
     });
-    var warn = document.getElementById('preset-warning');
+    var presetWarn = document.getElementById('preset-warning');
 
     if (type === 'quick') {
       document.getElementById('preset-quick').classList.add('border-violet-400', 'bg-violet-50');
       document.getElementById('preset-quick').classList.remove('border-gray-200');
+      document.getElementById('base-enabled').checked = true;
+      document.getElementById('base-md5').checked = true;
+      document.getElementById('base-exif').checked = true;
       document.getElementById('pixel-enabled').checked = true;
       document.getElementById('crop-slider').value = 0.5;
       document.getElementById('noise-slider').value = 0;
       document.getElementById('mirror-enabled').checked = false;
-      document.getElementById('color-enabled').checked = true;
+      document.getElementById('color-enabled').checked = false;
       document.getElementById('brightness-slider').value = 0.5;
       document.getElementById('saturation-slider').value = 0;
       document.getElementById('contrast-slider').value = 0;
       document.getElementById('gamma-slider').value = 1.00;
       document.getElementById('mask-enabled').checked = false;
-      warn.classList.add('hidden');
+      presetWarn.classList.add('hidden');
     } else if (type === 'deep') {
       document.getElementById('preset-deep').classList.add('border-violet-400', 'bg-violet-50');
       document.getElementById('preset-deep').classList.remove('border-gray-200');
+      document.getElementById('base-enabled').checked = true;
+      document.getElementById('base-md5').checked = true;
+      document.getElementById('base-exif').checked = true;
       document.getElementById('pixel-enabled').checked = true;
       document.getElementById('crop-slider').value = 1.2;
       document.getElementById('noise-slider').value = 0.8;
       document.getElementById('mirror-enabled').checked = false;
       document.getElementById('color-enabled').checked = true;
       document.getElementById('brightness-slider').value = 1.5;
-      document.getElementById('saturation-slider').value = 1.0;
-      document.getElementById('contrast-slider').value = 1.0;
+      document.getElementById('saturation-slider').value = 1.5;
+      document.getElementById('contrast-slider').value = 1.5;
       document.getElementById('gamma-slider').value = 1.00;
       document.getElementById('mask-enabled').checked = true;
       document.getElementById('mask-opacity').value = 0.5;
-      warn.classList.remove('hidden');
-      warn.innerHTML = t('presets.deep.warn') || warn.textContent;
+      presetWarn.classList.remove('hidden');
+      presetWarn.innerHTML = t('presets.deep.warn') || presetWarn.textContent;
     } else if (type === 'mirror') {
       document.getElementById('preset-mirror').classList.add('border-violet-400', 'bg-violet-50');
       document.getElementById('preset-mirror').classList.remove('border-gray-200');
+      // Apply Quick base settings first
+      document.getElementById('base-enabled').checked = true;
+      document.getElementById('base-md5').checked = true;
+      document.getElementById('base-exif').checked = true;
       document.getElementById('pixel-enabled').checked = true;
+      if (parseFloat(document.getElementById('crop-slider').value) < 0.2) document.getElementById('crop-slider').value = 0.5;
       document.getElementById('mirror-enabled').checked = true;
-      warn.classList.remove('hidden');
-      warn.innerHTML = t('presets.mirror.warn') || warn.textContent;
+      presetWarn.classList.remove('hidden');
+      presetWarn.innerHTML = t('presets.mirror.warn') || presetWarn.textContent;
     }
     syncUI();
   }
 
   // ==========================================================================
-  //  UI Sync
+  //  UI SYNC
   // ==========================================================================
   function syncUI() {
+    var baseEnabled = document.getElementById('base-enabled').checked;
+    var baseBody = document.getElementById('base-layer-body');
+    baseBody.style.opacity = baseEnabled ? '1' : '0.4';
+    baseBody.style.pointerEvents = baseEnabled ? 'auto' : 'none';
+    var baseMd5 = document.getElementById('base-md5');
+    var baseExif = document.getElementById('base-exif');
+    baseMd5.disabled = !baseEnabled;
+    baseExif.disabled = !baseEnabled;
+
     var pixEnabled = document.getElementById('pixel-enabled').checked;
-    document.getElementById('pixel-controls').style.opacity = pixEnabled ? '1' : '0.4';
-    document.getElementById('pixel-controls').style.pointerEvents = pixEnabled ? 'auto' : 'none';
+    var pixelBody = document.getElementById('pixel-layer-body');
+    pixelBody.style.opacity = pixEnabled ? '1' : '0.4';
+    pixelBody.style.pointerEvents = pixEnabled ? 'auto' : 'none';
 
     var colEnabled = document.getElementById('color-enabled').checked;
-    document.getElementById('color-controls').style.opacity = colEnabled ? '1' : '0.4';
-    document.getElementById('color-controls').style.pointerEvents = colEnabled ? 'auto' : 'none';
+    var colorBody = document.getElementById('color-layer-body');
+    colorBody.style.opacity = colEnabled ? '1' : '0.4';
+    colorBody.style.pointerEvents = colEnabled ? 'auto' : 'none';
 
     var maskOn = document.getElementById('mask-enabled').checked && colEnabled;
     document.getElementById('mask-controls').classList.toggle('hidden', !maskOn);
 
+    // Mirror warning toggle
+    var mirrorOn = document.getElementById('mirror-enabled').checked && pixEnabled;
+    document.getElementById('mirror-toggle-warning').classList.toggle('hidden', !mirrorOn);
+
+    // Auto-collapse disabled layers
+    autoCollapseDisabled();
+
+    // Update value labels
     document.getElementById('crop-val').textContent = document.getElementById('crop-slider').value + '%';
     document.getElementById('noise-val').textContent = document.getElementById('noise-slider').value + '%';
     document.getElementById('brightness-val').textContent = formatSigned(document.getElementById('brightness-slider').value, '%');
@@ -967,7 +1091,17 @@
       case 'brightness': document.getElementById('brightness-slider').value = randomRange(-2.0, 2.0, 0.1); break;
       case 'saturation': document.getElementById('saturation-slider').value = randomRange(-2.0, 2.0, 0.1); break;
       case 'contrast': document.getElementById('contrast-slider').value = randomRange(-2.0, 2.0, 0.1); break;
+      case 'gamma': document.getElementById('gamma-slider').value = (0.98 + Math.random() * 0.04).toFixed(3); break;
     }
+    syncUI();
+  }
+
+  function randomizeMaskColor() {
+    var r = Math.floor(Math.random() * 256);
+    var g = Math.floor(Math.random() * 256);
+    var b = Math.floor(Math.random() * 256);
+    var hex = '#' + [r,g,b].map(function(v) { return v.toString(16).padStart(2,'0'); }).join('');
+    document.getElementById('mask-color').value = hex;
     syncUI();
   }
 
@@ -985,6 +1119,7 @@
     document.getElementById('gamma-slider').value = (0.98 + Math.random() * 0.04).toFixed(3);
     if (document.getElementById('mask-enabled').checked) {
       document.getElementById('mask-opacity').value = randomRange(0.1, 1.0, 0.1);
+      randomizeMaskColor();
     }
     syncUI();
   }
@@ -1024,7 +1159,13 @@
     var added = 0;
     fileList.forEach(function(file) {
       if (validTypes.indexOf(file.type) !== -1 || file.name.match(/\.(png|jpe?g|webp)$/i)) {
-        state.files.push({ name: file.name, file: file, blob: null, url: URL.createObjectURL(file), width: 0, height: 0 });
+        var fileObj = { name: file.name, file: file, blob: null, url: URL.createObjectURL(file), width: 0, height: 0, originalMd5: '' };
+        state.files.push(fileObj);
+        // Compute original MD5 asynchronously
+        blobToMd5(file).then(function(hash) {
+          fileObj.originalMd5 = hash;
+          updateFileList();
+        });
         added++;
       } else if (file.name.endsWith('.zip') || file.type === 'application/zip') {
         handleZip(file);
@@ -1070,10 +1211,20 @@
     container.classList.remove('hidden');
     count.textContent = state.files.length;
     items.innerHTML = state.files.map(function(f, i) {
-      return '<div onclick="selectFile(' + i + ')" class="file-row flex items-center gap-2 p-1.5 rounded-lg cursor-pointer hover:bg-gray-50 text-xs' + (state.selectedIdx === i ? ' bg-violet-50 ring-1 ring-violet-200' : '') + '">' +
-        '<img src="' + f.url + '" class="w-8 h-8 object-cover rounded-md border border-gray-200 flex-shrink-0" alt="" />' +
-        '<span class="truncate flex-1 text-slate-700">' + f.name + '</span>' +
-        (state.results[i] ? '<span class="text-emerald-500 font-bold text-[10px]">✓ ' + (t('status.complete') || 'Done') + '</span>' : '') +
+      var processed = state.results[i];
+      var origHash = f.originalMd5 || '···';
+      var newHash = (processed && processed.processedMd5) ? processed.processedMd5 : '—';
+      var origHashShort = f.originalMd5 ? f.originalMd5.substring(0, 8) : '···';
+      var newHashShort = (processed && processed.processedMd5) ? processed.processedMd5.substring(0, 8) : '—';
+      var statusHtml = processed
+        ? '<span class="text-emerald-500 font-bold text-[10px]">✓</span>'
+        : '<span class="text-slate-300 text-[10px]">—</span>';
+      return '<div onclick="selectFile(' + i + ')" class="file-table-row cursor-pointer hover:bg-gray-50 rounded-lg' + (state.selectedIdx === i ? ' bg-violet-50 ring-1 ring-violet-200' : '') + '">' +
+        '<img src="' + f.url + '" class="w-7 h-7 object-cover rounded-md border border-gray-200" alt="">' +
+        '<span class="truncate text-slate-700 text-[11px]" title="' + f.name + '">' + f.name + '</span>' +
+        '<span class="hash-col font-mono text-[10px] text-slate-400 text-center truncate" title="' + origHash + '">' + origHashShort + '</span>' +
+        '<span class="hash-col font-mono text-[10px] text-slate-400 text-center truncate" title="' + newHash + '">' + newHashShort + '</span>' +
+        '<span class="text-center">' + statusHtml + '</span>' +
         '</div>';
     }).join('');
     updateButtons();
@@ -1242,15 +1393,22 @@
 
           canvas.toBlob(function(baseBlob) {
             if (!baseBlob) return reject(new Error('Canvas export failed'));
-            var encoder = new TextEncoder();
-            var randomSalt = '\n//IMG_BLENDER_SALT_' + Math.random().toString(36).slice(2) + '_' + Date.now();
-            var saltBuffer = encoder.encode(randomSalt);
-            var finalBlob = new Blob([baseBlob, saltBuffer], { type: file.type || 'image/png' });
-            resolve(finalBlob);
+            // Conditionally append random EOF salt for MD5 mutation
+            if (config.baseLayer.md5Mutation) {
+              var encoder = new TextEncoder();
+              var randomSalt = '\n//IMG_BLENDER_SALT_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+              var saltBuffer = encoder.encode(randomSalt);
+              var finalBlob = new Blob([baseBlob, saltBuffer], { type: file.type || 'image/png' });
+              resolve(finalBlob);
+            } else {
+              resolve(baseBlob);
+            }
           }, file.type || 'image/png', 0.96);
         };
+        img.onerror = function() { reject(new Error('Failed to decode image: ' + file.name)); };
         img.src = e.target.result;
       };
+      reader.onerror = function() { reject(new Error('Failed to read file: ' + file.name)); };
       reader.readAsDataURL(file);
     });
   }
@@ -1275,6 +1433,7 @@
 
     var total = state.files.length;
     state.results = new Array(total).fill(null);
+    progressBar.style.width = '0%';
 
     function processNext(idx) {
       if (idx >= total) {
@@ -1292,8 +1451,14 @@
       progressText.textContent = (idx + 1) + '/' + total + ' — ' + file.name;
       progressBar.style.width = ((idx / total) * 100) + '%';
       processImage(file.file || file.blob, config).then(function(blob) {
-        state.results[idx] = { name: file.name, blob: blob, url: URL.createObjectURL(blob) };
-        setTimeout(function() { processNext(idx + 1); }, 0);
+        var resultUrl = URL.createObjectURL(blob);
+        state.results[idx] = { name: file.name, blob: blob, url: resultUrl, processedMd5: '' };
+        // Compute processed MD5
+        return blobToMd5(blob).then(function(hash) {
+          state.results[idx].processedMd5 = hash;
+          updateFileList();
+          setTimeout(function() { processNext(idx + 1); }, 0);
+        });
       }).catch(function(err) {
         console.error('Failed:', file.name, err);
         setTimeout(function() { processNext(idx + 1); }, 0);
@@ -1341,6 +1506,15 @@
   //  GLOBAL EXPOSURES
   // ==========================================================================
   window.selectFile = function(idx) { state.selectedIdx = idx; updateFileList(); updatePreview(); };
+  window.applyPreset = applyPreset;
+  window.syncUI = syncUI;
+  window.randomizeParam = randomizeParam;
+  window.randomizeMaskColor = randomizeMaskColor;
+  window.randomizeAll = randomizeAll;
+  window.handleDragOver = handleDragOver;
+  window.handleDragLeave = handleDragLeave;
+  window.handleDrop = handleDrop;
+  window.handleFileSelect = handleFileSelect;
 
   // ==========================================================================
   //  INIT
